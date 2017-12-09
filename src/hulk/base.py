@@ -30,20 +30,20 @@ class Language(Enum):
 
     def __init__(self, name: str, file_endings: List[str]) -> None:
         self.__name = name
-        self.__file_endings = file_endings[:]
+        self.__file_endings = frozenset(file_endings)
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         The name of the language.
         """
         return self.__name
 
     @property
-    def file_endings(self):
+    def file_endings(self) -> Iter[str]:
         """
         A list of known file endings used by this language. These are used to
         automatically detect the language used by a given file when language
         information is not explicitly provided.
         """
-        return self.__file_endings[:]
+        return self.__file_endings.__iter__()
