@@ -1,6 +1,6 @@
-from exceptions import *
 from typing import List, Tuple, Dict, Optional
-from base import Operator, Transformation, Language
+from hulk.exceptions import *
+from hulk.base import Operator, Transformation, Language
 
 # A registry of operators, stored by their names
 __OPERATORS : Dict[str, Operator] = {}
