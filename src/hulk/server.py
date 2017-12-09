@@ -1,4 +1,5 @@
 import flask
+import os
 from flask import Flask
 
 app = Flask(__name__)
@@ -18,8 +19,11 @@ def mutations():
     try:
         args = flask.request.get_json()
 
+        # determine the file whose mutations the user wishes to obtain
         if 'filepath' not in args:
             return json_error("No 'filepath' argument provided.")
+        if not os.path.isfile(args['filepath']):
+            return json_error('No file located at given filepath.')
         filepath = args['filepath']
 
         mutations = []
