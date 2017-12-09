@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Typing
+from typing import List, Iter
 
 class Transformation(object):
     """
