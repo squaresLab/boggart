@@ -1,4 +1,6 @@
-from base import Operator, Transformation, Language
-import operators
-import exceptions
-import server
+import hulk.base
+import hulk.operators
+import hulk.exceptions
+import hulk.server
+
+from hulk.base import Operator, Transformation, Language
