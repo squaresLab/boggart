@@ -141,6 +141,15 @@ class Operator(object):
         """
         return self.__transformations.__iter__()
 
+    def supports_language(self, language: Language) -> bool:
+        """
+        Determines whether this operator supports a given language.
+
+        Returns:
+            True if this operator supports the given language, else False.
+        """
+        return language in self.__languages
+
     def to_dict(self) -> dict:
         """
         Provides a dictionary--based description of this transformation, ready

@@ -14,7 +14,6 @@ def json_error(msg):
 
 # TODO: add GET /operator/:name
 
-
 @app.route('/operators', methods=['GET'])
 def list_operators():
     """
@@ -37,7 +36,7 @@ def list_operators():
         except LanguageNotFound:
             return json_error("Specified language is not currently recognised by Hulk.")
 
-        op_list = [op for op in op_list if op.language == language]
+        op_list = [op for op in op_list if op.supports_language(language)]
 
     # serialize to JSON
     op_list = [op.to_dict() for op in op_list]
