@@ -1,5 +1,7 @@
 import flask
 import os
+import hulk.operators as ops
+from hulk.base import Language
 from flask import Flask
 
 app = Flask(__name__)
@@ -24,6 +26,12 @@ def mutations():
     if not os.path.isfile(args['filepath']):
         return json_error('No file located at given filepath.')
     filepath = args['filepath']
+
+    # did the user specify the language of the file?
+    if 'language' in args:
+        language = args['language']
+        if not Language.is_supported(language):
+            return json_error('The specified language is not supported.')
 
     mutations = []
 
