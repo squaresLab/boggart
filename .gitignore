@@ -1,3 +1,7 @@
+*.swo
+*.swp
+*.tmp
+
 # venv
 bin
 lib
