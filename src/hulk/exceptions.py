@@ -10,6 +10,9 @@ class OperatorNameAlreadyExists(Exception):
 
     @property
     def name(self) -> str:
+        """
+        The name of the requested operator.
+        """
         return self.__name
 
 
