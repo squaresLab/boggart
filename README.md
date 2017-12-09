@@ -22,3 +22,19 @@ that target programs written in the following languages:
 * C
 * C++
 
+## Extending Hulk
+
+### Adding support for other programming languages
+
+```
+...
+
+languages:
+  ...
+  - name: php
+    file_endings: .php
+
+...
+```
+
+### Adding new mutation operators
