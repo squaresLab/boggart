@@ -12,7 +12,20 @@ def json_error(msg):
     jsn = {'error': {'msg': msg}}
     return flask.jsonify(jsn)
 
-# TODO: add GET /operator/:name
+
+@app.route('/operator/<name>', methods=['GET'])
+def describe_operator(name: str):
+    """
+    Describes a named operator.
+
+    Params:
+        language: The name of the operator.
+    """
+    operator = ops.lookup(name)
+    if not operator:
+        return json_error('No operator registered with the given name.')
+    return flask.jsonify(operator.to_dict())
+
 
 @app.route('/operators', methods=['GET'])
 def list_operators():
