@@ -32,6 +32,17 @@ class Language(Enum):
         self.__name = name
         self.__file_endings = frozenset(file_endings)
 
+    @staticmethod
+    def is_supported(language: str) -> bool:
+        """
+        Determines whether a language with a given name is supported by Hulk.
+
+        Returns:
+            True if a language with the given name is supported by Hulk, else
+            False.
+        """
+        return any(l.name == language for l in Language)
+
     @property
     def name(self) -> str:
         """
