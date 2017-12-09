@@ -8,6 +8,12 @@ a language-independent platform for source code transformation.
   <img src="https://i.pinimg.com/736x/8f/ce/75/8fce757e4f00e516fe47fbf510f62db7--marvel-art-marvel-comics.jpg" alt="Picture of an angry Hulk, ready to reak havoc on arbitrary source code!" \>
 </p>
 
+## Installation
+
+```
+$ pip install hulk --user
+```
+
 ## Supported Languages
 
 Currently, Hulk comes prepackaged with a collection of mutation operators
