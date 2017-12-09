@@ -57,12 +57,18 @@ class Operator(object):
     """
     def __init__(self,
                  name: str,
-                 languages: List[Language]) -> None:
-        assert name != '', "operator must have a non-empty name"
-        assert languages != [], "operator must support at least one language"
+                 languages: List[Language],
+                 transformations: List[Transformation]) -> None:
+        assert name != '', \
+            "operator must have a non-empty name"
+        assert languages != [], \
+            "operator must support at least one language"
+        assert transformations != [], \
+            "operators must implement at least one transformation."
 
         self.__name = name
         self.__languages = frozenset(languages)
+        self.__transformations = frozenset(transformations)
 
     @property
     def name(self) -> str:
@@ -77,3 +83,10 @@ class Operator(object):
         The languages supported by this mutation operator.
         """
         return self.__languages.__iter__()
+
+    @property
+    def transformations(self) -> Iterable[Transformation]:
+        """
+        The transformations performed by this mutation operator.
+        """
+        return self.__transformations__.__iter__()
