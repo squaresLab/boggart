@@ -1,7 +1,8 @@
 import flask
 import os
 import hulk.operators as ops
-from hulk.base import Language
+from hulk.exceptions import *
+from hulk.base import Language, Operator
 from flask import Flask
 
 app = Flask(__name__)
@@ -10,6 +11,38 @@ app = Flask(__name__)
 def json_error(msg):
     jsn = {'error': {'msg': msg}}
     return flask.jsonify(jsn)
+
+# TODO: add GET /operator/:name
+
+
+@app.route('/operators', methods=['GET'])
+def list_operators():
+    """
+    Produces a list of all operators that are registered Hulk that satisfy a
+    set of optionally provided parameters.
+
+    Params:
+        language: If supplied, restricts the set of operators to those that
+            are compatible with a certain language, given by its name.
+    """
+    args = flask.request.get_json()
+
+    # get a list of all registered operators
+    op_list: List[Operator] = list(ops.registered())
+
+    # perform optional language filtering
+    if 'language' in args:
+        try:
+            language = Language.with_name(args['language'])
+        except LanguageNotFound:
+            return json_error("Specified language is not currently recognised by Hulk.")
+
+        op_list = [op for op in op_list if op.language == language]
+
+    # serialize to JSON
+    op_list = [op.to_dict() for op in op_list]
+
+    return flask.jsonify(op_list)
 
 
 @app.route('/mutations', methods=['GET'])
