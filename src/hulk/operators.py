@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Optional, Iterable
 from hulk.exceptions import *
 from hulk.base import Operator, Transformation, Language
 
@@ -33,6 +33,14 @@ def register(name: str,
     __OPERATORS[name] = op
 
     return op
+
+
+def registered() -> Iterable[Operator]:
+    """
+    Returns an iterator over all of the operators registered with Hulk.
+    """
+    for op in __OPERATORS.values():
+        yield op
 
 
 def lookup(name: str) -> Optional[Operator]:
