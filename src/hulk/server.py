@@ -6,18 +6,25 @@ from flask import Flask
 
 app = Flask(__name__)
 
+# TODO: return different status code
 def json_error(msg):
     jsn = {'error': {'msg': msg}}
     return flask.jsonify(jsn)
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello, world.'
-
-
 @app.route('/mutations', methods=['GET'])
 def mutations():
+    """
+    Determines the set of possible single-order mutations that can be applied
+    to a given file.
+
+    Params:
+        filepath: The file that should be analyzed.
+        language: An optional parameter that can be used to explicitly state
+            the language used by the given file. If this parameter is not
+            supplied, Hulk will attempt to automatically detect the language
+            used by a given file based on its file ending.
+    """
     args = flask.request.get_json()
 
     # determine the file whose mutations the user wishes to obtain
@@ -41,6 +48,7 @@ def mutations():
             return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(filepath))
 
 
+    # determine the set of operators that should be used
     mutations = []
 
     return flask.jsonify(mutations)
