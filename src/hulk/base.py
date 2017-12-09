@@ -30,7 +30,7 @@ class Language(Enum):
 
     def __init__(self, name: str, file_endings: List[str]) -> None:
         self.__name = name
-        self.__file_endings = file_endings
+        self.__file_endings = file_endings[:]
 
     @property
     def name(self):
