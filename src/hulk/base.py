@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Iter
+from typing import List, Iterable
 
 class Transformation(object):
     """
@@ -40,7 +40,7 @@ class Language(Enum):
         return self.__name
 
     @property
-    def file_endings(self) -> Iter[str]:
+    def file_endings(self) -> Iterable[str]:
         """
         A list of known file endings used by this language. These are used to
         automatically detect the language used by a given file when language
@@ -72,7 +72,7 @@ class Operator(object):
         return self.__name
 
     @property
-    def languages(self) -> Iter[Language]:
+    def languages(self) -> Iterable[Language]:
         """
         The languages supported by this mutation operator.
         """
