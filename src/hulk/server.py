@@ -27,11 +27,19 @@ def mutations():
         return json_error('No file located at given filepath.')
     filepath = args['filepath']
 
-    # did the user specify the language of the file?
+    # if a language is specified, use it
     if 'language' in args:
         language = args['language']
         if not Language.is_supported(language):
             return json_error('The specified language is not supported.')
+
+    # if not, attempt to automatically determine which language should be used
+    # based on the file ending of the specified file.
+    else:
+        language = Language.autodetect(filepath)
+        if not language:
+            return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(filepath))
+
 
     mutations = []
 
