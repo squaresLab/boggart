@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from typing import List, Iterable
 
@@ -42,6 +43,23 @@ class Language(Enum):
             False.
         """
         return any(l.name == language for l in Language)
+
+    @staticmethod
+    def autodetect(filename: str) -> 'Optional[Language]':
+        """
+        Attempts to automatically detect the language used by a file based
+        on the file ending used by that file.
+
+        Returns:
+            The language associated with the file ending used by the given file,
+            if one exists; if no language is associated with the file ending,
+            or if the file has no suffix, `None` is returned instead.
+        """
+        (_, suffix) = os.path.splitext(filename)
+        for lang in Language:
+            if suffix in lang.file_endings:
+                return lang
+        return None # technically this is implicit
 
     @property
     def name(self) -> str:
