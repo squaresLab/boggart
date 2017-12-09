@@ -1,5 +1,5 @@
 from exceptions import *
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from base import Operator, Transformation, Language
 
 # A registry of operators, stored by their names
@@ -33,6 +33,15 @@ def register(name: str,
     __OPERATORS[name] = op
 
     return op
+
+
+def lookup(name: str) -> Optional[Operator]:
+    """
+    Attempts to retrieve the mutation operator associated with a given name.
+    If there is no mutation operator registered with that name, `None` will be
+    returned instead.
+    """
+    return __OPERATORS.get(name, None)
 
 
 register("NEGATE_IF_CONDITION-CSTYLE",
