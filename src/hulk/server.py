@@ -9,9 +9,14 @@ def hello_world():
     return 'Hello, world.'
 
 
+@app.route('/mutations', methods=['GET'])
+def mutations():
+    return "Here's a list of mutations..."
+
+
 def launch(port: int = 6000) -> None:
     assert 0 <= port <= 49151
-    app.run(host='0.0.0.0', port=port)
+    app.run(port=port)
 
 
 def main() -> None:
