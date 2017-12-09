@@ -19,6 +19,14 @@ class Transformation(object):
     def rewrite(self) -> str:
         return self.__rewrite
 
+    def to_dict(self) -> dict:
+        """
+        Provides a dictionary--based description of this transformation, ready
+        to be serialized.
+        """
+        return { 'match': self.__match,
+                 'rewrite': self.__rewrite }
+
 
 class Language(Enum):
     """
@@ -32,6 +40,19 @@ class Language(Enum):
     def __init__(self, name: str, file_endings: List[str]) -> None:
         self.__name = name
         self.__file_endings = frozenset(file_endings)
+
+    @staticmethod
+    def with_name(name: str) -> 'Language':
+        """
+        Attempts to fetch the language registered with a given name.
+
+        Raises:
+            LanguageNotFound: if no language is registered with the given name.
+        """
+        try:
+            return next(lang for lang in Language if lang.name == name)
+        except StopIteration:
+            raise LanguageNotFound(lang)
 
     @staticmethod
     def is_supported(language: str) -> bool:
@@ -118,4 +139,15 @@ class Operator(object):
         """
         The transformations performed by this mutation operator.
         """
-        return self.__transformations__.__iter__()
+        return self.__transformations.__iter__()
+
+    def to_dict(self) -> dict:
+        """
+        Provides a dictionary--based description of this transformation, ready
+        to be serialized.
+        """
+        return {
+            'name': self.name,
+            'languages': [language.name for language in self.languages],
+            'transformations': [t.to_dict() for t in self.transformations]
+        }
