@@ -1,0 +1,38 @@
+#
+# This system-level configuration file is responsible for providing Hulk with
+# its default set of supported languages and mutation operators. Please do not
+# modify it! To add support for new languages and mutation operators to your
+# local installation, you should provide a user-level configuration file.
+#
+# By default, Hulk looks for user-level configuration files at the path given
+# by the environmental variable `HULK_USER_CONFIG_PATH`. If
+# `HULK_USER_CONFIG_PATH` is undefined, `${HOME}/.hulk.yml` will be used
+# instead.
+#
+version: '1.0'
+
+languages:
+  - name: C++
+    file-endings:
+      - .cpp
+      - .cxx
+      - .cc
+  - name: C
+    file-endings:
+      - .c
+  - name: Java
+    file-endings:
+      - .java
+  - name: Python
+    file-endings:
+      - .py
+
+operators:
+  NEGATE_IF_CONDITION_CSTYLE:
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: "if (:[1])"
+        rewrite: "if (!(:[1]))"
