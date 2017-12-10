@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Any, List, FrozenSet, Set, Optional
 from hulk.base import Operator, Language, Transformation
 from hulk.exceptions import BadConfigFile, IllegalConfig
 import copy
@@ -9,10 +9,18 @@ class ConfigLanguages(object):
     Maintains information about the languages that are supported by Hulk.
     """
     @staticmethod
-    def from_dict(d: dict,
+    def from_dict(defs: List[Any],
                   parent: 'Optional[ConfigLanguages]' = None
                   ) -> 'ConfigLanguages':
+        """
+        Loads a language configuration from a list of definitions taken from
+        a configuration file, and an optionally provided parent language
+        configuration.
+        """
         config = parent if parent else ConfigLanguages()
+        for d in defs:
+            language = Language.from_dict(d)
+            config = config.add(language)
         return config
 
     def __init__(self, languages: Optional[Dict[Languages]] = None):
@@ -23,13 +31,15 @@ class ConfigLanguages(object):
         Returns a variant of this configuration that adds support for a given
         language.
         """
+        endings = set(self.supported_file_endings)
+
         # if there already exists a language with the given name, produce a
         # warning and remove its file endings from consideration.
         if language.name in self.__languages:
             old_version = self.__languages[language.name]
             msg = "config overwrites existing language definition: {}.".format(language.name)
             warnings.warn(msg, LanguageOverwriteWarning)
-            supported_file_endings -= set(old_version.file_endings)
+            endings -= set(old_version.file_endings)
 
         # are the file endings used by this language already in use?
         if language.file_endings & supported_file_endings:
@@ -43,8 +53,8 @@ class ConfigLanguages(object):
         """
         An iterator over the languages supported by this configuration.
         """
-        for language in self.__languages:
-            yield language
+        for name in self.__languages:
+            yield self.__languages[name]
 
     def supports(self, name: str) -> bool:
         """
@@ -52,6 +62,17 @@ class ConfigLanguages(object):
         name.
         """
         return name in self.__languages
+
+    @property
+    def supported_file_endings(self) -> FrozenSet[str]:
+        """
+        The set of file endings that are supported by language autodetection
+        using this configuration.
+        """
+        endings = set()
+        for language in self:
+            endings += language.file_endings
+        return frozenset(endings)
 
 
 class Config(object):
@@ -74,11 +95,7 @@ class Config(object):
         if yml['version'] != '1.0':
             raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")
 
-        # load the languages
-        for lang_dict in yml['languages']:
-            lang = Language.from_dict(lang_dict)
-            config = config.with_language(lang)
-
+        
         # load the supported operators
         # TODO: ensure that operators are immutable
         for op_dict in yml['operators']:
@@ -123,31 +140,18 @@ class Config(object):
                       operators=operators)
 
     @property
-    def languages(self) -> Iterable[Language]:
+    def languages(self) -> ConfigLanguages:
         """
         The languages defined by this configuration.
         """
-        for language in self.__languages:
-            yield language
+        return self.__languages
 
     @property
-    def operators(self) -> Iterable[Operator]:
+    def operators(self) -> ConfigOperators:
         """
         The mutation operators defined by this configuration.
         """
-        for operator in self.__operators:
-            yield operators
-
-    @property
-    def file_endings(self) -> FrozenSet[str]:
-        """
-        The set of file endings that are supported by language autodetection
-        using this configuration.
-        """
-        endings = set()
-        for language in self.languages:
-            endings += language.file_endings
-        return frozenset(endings)
+        return self.__operators
 
 
 class SystemConfig(Config):
