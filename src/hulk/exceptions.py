@@ -40,3 +40,12 @@ class BadConfigFile(Exception):
     """
     def __init__(self, reason: str) -> None:
         super().__init__(reason)
+
+
+class IllegalConfig(Exception):
+    """
+    Used to indicate that a given configuration is syntatically correct but
+    that it describes an illegal configuration.
+    """
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
