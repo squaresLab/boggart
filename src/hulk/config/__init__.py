@@ -1,36 +1,38 @@
-from typing import Iterable, Any, List, FrozenSet, Set, Optional
-from hulk.base import Operator, Language, Transformation
-from hulk.exceptions import BadConfigFile, IllegalConfig
+from typing import Optional
+from hulk.exceptions import BadConfigFile
 from hulk.config.languages import Languages
+from hulk.config.operators import Operators
 import yaml
 
 
-class Config(object):
+class Configuration(object):
     @classmethod
     def from_file(cls,
                   filename: str,
                   parent: 'Optional[Config]' = None
-                  ) -> 'Config':
+                  ) -> 'Configuration':
         """
         Loads a configuration file from a given file.
         """
-        config = parent if parent else Config()
+        config = parent if parent else Configuration()
+        languages = parent.languages
+        operators = parent.operators
 
         with open(filename, 'r') as f:
             yml = yaml.load(f)
 
         if 'version' not in yml:
             raise BadConfigFile("expected 'version' property")
-
         if yml['version'] != '1.0':
             raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")
 
+        # update the languages provided by this configuration
+        languages = Languages.from_defs(yml.get('languages', []), config)
+        config = Configuration(languages, operators)
 
-        # load the supported operators
-        # TODO: ensure that operators are immutable
-        for op_dict in yml['operators']:
-            op = Language.from_dict(op_dict)
-            config = config.with_operator(op)
+        # update the operators provided by this configuration
+        operators = Operators.from_defs(yml.get('operators', []), config)
+        config = Configuration(languages, operators)
 
         return config
 
@@ -44,28 +46,6 @@ class Config(object):
         """
         self.__languages = languages if languages else Languages()
         self.__operators = operators if operators else Operators()
-
-    def with_operator(self, operator: Operator) -> Config:
-        """
-        Returns a variant of this configuration that adds support for a given
-        mutation operator.
-
-        Raises:
-            - LanguageNotFound: if at least one language supported by this
-                operator has no matching definition within this configuration.
-        """
-        if operator.name in self.__operators:
-            msg = "config overwrites existing operator definition: {}.".format(operator.name)
-            warnings.warn(msg, OperatorOverwriteWarning)
-
-        for language in operator.languages:
-            if language not in self.__languages:
-                raise LanguageNotFound(language)
-
-        operators = dict(self.__operators)
-        operators[operator.name] = operator
-        return Config(languages=self.__languages,
-                      operators=operators)
 
     @property
     def languages(self) -> Languages:
