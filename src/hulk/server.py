@@ -31,6 +31,12 @@ def describe_operator(name: str):
         return json_error('No operator registered with the given name.')
 
 
+@app.route('/languages', methods=['GET'])
+def list_languages():
+    jsn = [lang.to_dict() for lang in installation.languages]
+    return flask.jsonify(jsn)
+
+
 @app.route('/operators', methods=['GET'])
 def list_operators():
     """
