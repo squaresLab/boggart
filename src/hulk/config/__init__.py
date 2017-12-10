@@ -4,20 +4,21 @@ from hulk.exceptions import BadConfigFile, IllegalConfig
 import copy
 import yaml
 
-class ConfigLanguages(object):
+
+class Languages(object):
     """
     Maintains information about the languages that are supported by Hulk.
     """
     @staticmethod
     def from_dict(defs: List[Any],
-                  parent: 'Optional[ConfigLanguages]' = None
-                  ) -> 'ConfigLanguages':
+                  parent: 'Optional[Languages]' = None
+                  ) -> 'Languages':
         """
         Loads a language configuration from a list of definitions taken from
         a configuration file, and an optionally provided parent language
         configuration.
         """
-        config = parent if parent else ConfigLanguages()
+        config = parent if parent else Languages()
         for d in defs:
             language = Language.from_dict(d)
             config = config.add(language)
@@ -26,7 +27,7 @@ class ConfigLanguages(object):
     def __init__(self, languages: Optional[Dict[Languages]] = None):
         self.__languages = dict(languages) if languages else {}
 
-    def add(self, language: Language) -> 'ConfigLanguages':
+    def add(self, language: Language) -> 'Languages':
         """
         Returns a variant of this configuration that adds support for a given
         language.
@@ -47,7 +48,7 @@ class ConfigLanguages(object):
 
         languages = dict(self.__languages)
         languages[language.name] = language
-        return ConfigLanguages(languages)
+        return Languages(languages)
 
     def __iter__(self) -> Iterable[Language]:
         """
@@ -156,7 +157,7 @@ class Config(object):
                       operators=operators)
 
     @property
-    def languages(self) -> ConfigLanguages:
+    def languages(self) -> Languages:
         """
         The languages defined by this configuration.
         """
