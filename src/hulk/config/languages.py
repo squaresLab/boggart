@@ -25,12 +25,16 @@ class Languages(object):
     def __init__(self,
                  languages: Optional[Dict[str, Languages]] = None
                  ):
+        """
+        Constructs a collection of lamnguages for a set of languages provided
+        in the form a dictionary, indexed by name.
+        """
         self.__languages = dict(languages) if languages else {}
 
     def add(self, language: Language) -> 'Languages':
         """
-        Returns a variant of this configuration that adds support for a given
-        language.
+        Returns a variant of this collection of languages that also includes a
+        given language.
         """
         endings = set(self.supported_file_endings)
 
