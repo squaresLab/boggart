@@ -32,3 +32,11 @@ class LanguageNotFound(Exception):
         The name of the requested language.
         """
         return self.__name
+
+
+class BadConfigFile(Exception):
+    """
+    Used to indicate that a given configuration file is ill-formed.
+    """
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
