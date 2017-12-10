@@ -56,6 +56,22 @@ class ConfigLanguages(object):
         for name in self.__languages:
             yield self.__languages[name]
 
+    def __item__(self, name) -> Language:
+        """
+        Attempts to fetch the definition of the language associated with a
+        supplied name.
+
+        Raises:
+            KeyError: if no language is found with the given name.
+        """
+        return self.__languages[name]
+
+    def __contains__(self, name: str) -> bool:
+        """
+        Provides an alias for `supports`.
+        """
+        return self.supports(name)
+
     def supports(self, name: str) -> bool:
         """
         Determines whether this configuration supports a language with a given
@@ -95,7 +111,7 @@ class Config(object):
         if yml['version'] != '1.0':
             raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")
 
-        
+
         # load the supported operators
         # TODO: ensure that operators are immutable
         for op_dict in yml['operators']:
