@@ -1,4 +1,4 @@
-from typing import Iterable, Any, List, FrozenSet, Set, Optional
+from typing import Iterable, Any, List, FrozenSet, Optional, Dict
 from hulk.base import Language
 from hulk.exceptions import IllegalConfig
 
