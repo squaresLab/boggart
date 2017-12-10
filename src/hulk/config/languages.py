@@ -9,14 +9,14 @@ class Languages(object):
     """
     @staticmethod
     def from_defs(defs: List[Any],
-                  parent: 'Optional[Languages]' = None
+                  base: 'Optional[Configuration]' = None
                   ) -> 'Languages':
         """
-        Loads a language configuration from a list of definitions taken from
-        a configuration file, and an optionally provided parent language
-        configuration.
+        Loads an operator configuration from a list of definitions taken
+        from a configuration file, together with an optionally provided
+        parent (overall) configuration.
         """
-        config = parent if parent else Languages()
+        config = base.languages if base else Languages()
         for d in defs:
             language = Language.from_dict(d)
             config = config.add(language)
@@ -88,5 +88,3 @@ class Languages(object):
         for language in self:
             endings += language.file_endings
         return frozenset(endings)
-
-
