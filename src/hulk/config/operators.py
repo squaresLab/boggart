@@ -1,0 +1,84 @@
+from typing import Iterable, Any, List, Optional, Dict
+from hulk.config.languages import Languages
+
+
+class Operators(object):
+    """
+    Maintains information about the mutation operators that are supported
+    by Hulk.
+    """
+    @staticmethod
+    def from_defs(defs: List[Any],
+                  base: 'Optional[Configuration]' = None
+                  ) -> 'Operators':
+        """
+        Loads an operator configuration from a list of definitions taken
+        from a configuration file, together with an optionally provided
+        parent (overall) configuration.
+
+        Raises:
+            - LanguageNotFound: if one of the operators given by the provided
+                definitions supports a language that is not contained within
+                the given configuration.
+        """
+        config = base.operators if base else Operators()
+        for d in defs:
+            op = Operator.from_dict(d)
+            config = config.add(op, base.languages)
+        return config
+
+    def __init__(self,
+                 operators: Optional[Dict[str, Operators]] = None
+                 ) -> None:
+        """
+        Constructs a collection of operators for a set of operators provided
+        in the form a dictionary, indexed by name.
+        """
+        self.__operators = dict(operators) if operators else {}
+
+    def add(self, op: Operator, languages: Languages) -> 'Operators':
+        """
+        Returns a variant of this collection of mutation operators that also
+        includes a given mutation operator.
+
+        Params:
+            - op: the mutation operator that should be added.
+            - languages: the collection of languages that are supported by a
+                particular configuration of Hulk.
+
+        Raises:
+            - LanguageNotFound: if the given mutation operator supports a
+                language that is not contained within the provided collection
+                of languages.
+        """
+        for supported_language in op.languages:
+            if supported_language not in languages:
+                raise LanguageNotFound(supported_language)
+
+        ops = dict(self.__operators)
+        ops[op.name] = op
+        return Operators(ops)
+
+    def __iter__(self) -> Iterable[Operator]:
+        """
+        An iterator over the operators contained within this collection.
+        """
+        for name in self.__operators:
+            yield self.__operators[name]
+
+    def __item__(self, name: str) -> Operator:
+        """
+        Attempts to fetch the definition of the mutation operator associated
+        with a given name.
+
+        Raises:
+            KeyError: if no mutation operator is found with the given name.
+        """
+        return self.__operators[name]
+
+    def __contains__(self, name: str) -> bool:
+        """
+        Determines whether this collection of mutation operators contains one
+        with a given name.
+        """
+        return name in self.__operators
