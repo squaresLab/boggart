@@ -28,7 +28,7 @@ languages:
       - .py
 
 operators:
-  NEGATE_IF_CONDITION_CSTYLE:
+  - name: NEGATE_IF_CONDITION_CSTYLE
     languages:
       - C
       - C++
