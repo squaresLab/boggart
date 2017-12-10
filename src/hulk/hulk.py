@@ -1,3 +1,5 @@
+import os
+from hulk.config import Configuration, Languages, Operators
 from typing import Optional
 
 
@@ -5,41 +7,61 @@ class Hulk(object):
     """
     Used to manage a local installation of Hulk.
     """
-
-    @property
-    @staticmethod
-    def default_user_config_path() -> str:
+    @classmethod
+    def default_user_config_path(cls) -> str:
         """
         The default path to the user-level configuration file.
         """
-        raise NotImplementedError
+        if 'HULK_USER_CONFIG_PATH' in os.environ:
+            return os.environ['HULK_USER_CONFIG_PATH']
 
-    @property
-    @staticmethod
-    def sys_config_path() -> str:
+        home = os.environ['HOME']
+        default_path = os.path.join(home, '.hulk.yml')
+        return default_path
+
+    @classmethod
+    def sys_config_path(cls) -> str:
         """
         The path to the system-level configuration file.
         """
-        raise NotImplementedError
+        src_dir = os.path.dirname(__file__)
+        cfg_fn = os.path.join(src_dir, 'config/sys.hulk.yml')
+        return cfg_fn
 
-    def __init__(self,
-                 user_config_path: Optional[str] = None):
+    @classmethod
+    def load(cls, user_config_path: Optional[str] = None) -> 'Hulk':
         """
-        Constructs a Hulk installation.
+        Loads a Hulk installation.
 
         Params:
-            config_filepath: The path to the user configuration file for Hulk.
+            - config_filepath: The path to the user configuration file for Hulk.
                 If left unspecified, `Hulk.default_user_config_path` will be
                 used instead.
         """
-        if user_config_path:
-            self.__user_config_file = user_config_path
-        else:
-            self.__user_config_file = Hulk.default_user_config_path
+        if not user_config_path:
+            user_config_path = Hulk.default_user_config_path()
+
+        system_cfg = Configuration.from_file(Hulk.sys_config_path())
+
+        if not os.path.isfile(user_config_path):
+            return system_cfg
+
+        user_cfg = Configuration.from_file(user_config_path, system_cfg)
+        return user_cfg
+
+    def __init__(self, config: Configuration) -> None:
+        self.__config: Configuration = config
 
     @property
-    def user_config_path(self) -> str:
+    def languages(self) -> Languages:
         """
-        The path to the user-level configuration used by this installation.
+        The languages registered with this local Hulk installation.
         """
-        return self.__user_config_file
+        return self.__config.languages
+
+    @property
+    def operators(self) -> Operators:
+        """
+        The mutation operators registered with this local Hulk installation.
+        """
+        return self.__config.operators
