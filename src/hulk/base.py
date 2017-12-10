@@ -63,36 +63,6 @@ class Language(object):
         self.__name = name
         self.__file_endings = frozenset(file_endings)
 
-    @staticmethod
-    def with_name(name: str) -> 'Language':
-        """
-        Attempts to fetch the language registered with a given name.
-
-        Raises:
-            LanguageNotFound: if no language is registered with the given name.
-        """
-        try:
-            return next(lang for lang in Language if lang.name == name)
-        except StopIteration:
-            raise LanguageNotFound(lang)
-
-    @staticmethod
-    def autodetect(filename: str) -> 'Optional[Language]':
-        """
-        Attempts to automatically detect the language used by a file based
-        on the file ending used by that file.
-
-        Returns:
-            The language associated with the file ending used by the given file,
-            if one exists; if no language is associated with the file ending,
-            or if the file has no suffix, `None` is returned instead.
-        """
-        (_, suffix) = os.path.splitext(filename)
-        for lang in Language:
-            if suffix in lang.file_endings:
-                return lang
-        return None # technically this is implicit
-
     @property
     def name(self) -> str:
         """

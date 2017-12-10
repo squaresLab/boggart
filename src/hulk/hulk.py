@@ -1,4 +1,5 @@
 import os
+from hulk.base import Language
 from hulk.config import Configuration, Languages, Operators
 from typing import Optional
 
@@ -44,10 +45,10 @@ class Hulk(object):
         system_cfg = Configuration.from_file(Hulk.sys_config_path())
 
         if not os.path.isfile(user_config_path):
-            return system_cfg
+            return Hulk(system_cfg)
 
         user_cfg = Configuration.from_file(user_config_path, system_cfg)
-        return user_cfg
+        return Hulk(user_cfg)
 
     def __init__(self, config: Configuration) -> None:
         self.__config: Configuration = config
@@ -65,3 +66,19 @@ class Hulk(object):
         The mutation operators registered with this local Hulk installation.
         """
         return self.__config.operators
+
+    def detect_language(self, filename: str) -> Optional[Language]:
+        """
+        Attempts to automatically detect the language used by a file based
+        on its file ending.
+
+        Returns:
+            The language associated with the file ending used by the given file,
+            if one exists; if no language is associated with the file ending,
+            or if the file has no suffix, `None` is returned instead.
+        """
+        (_, suffix) = os.path.splitext(filename)
+        for language in self.languages:
+            if suffix in language.file_endings:
+                return language
+        return None # technically this is implicit

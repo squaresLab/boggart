@@ -1,11 +1,14 @@
 import flask
 import os
-import hulk.operators as ops
 from hulk.exceptions import *
 from hulk.base import Language, Operator
+from hulk.hulk import Hulk
 from flask import Flask
 
 app = Flask(__name__)
+
+# TODO: tidy this up
+installation: Hulk = None
 
 # TODO: return different status code
 def json_error(msg):
@@ -21,10 +24,11 @@ def describe_operator(name: str):
     Params:
         language: The name of the operator.
     """
-    operator = ops.lookup(name)
-    if not operator:
+    try:
+        op = installation.operators[name]
+        return flask.jsonify(op.to_dict())
+    except KeyError:
         return json_error('No operator registered with the given name.')
-    return flask.jsonify(operator.to_dict())
 
 
 @app.route('/operators', methods=['GET'])
@@ -40,13 +44,13 @@ def list_operators():
     args = flask.request.get_json()
 
     # get a list of all registered operators
-    op_list: List[Operator] = list(ops.registered())
+    op_list: List[Operator] = list(installation.operators)
 
     # perform optional language filtering
     if 'language' in args:
         try:
-            language = Language.with_name(args['language'])
-        except LanguageNotFound:
+            language = installation.languages[args['language']]
+        except KeyError:
             return json_error("Specified language is not currently recognised by Hulk.")
 
         op_list = [op for op in op_list if op.supports_language(language)]
@@ -82,13 +86,13 @@ def mutations():
     # if a language is specified, use it
     if 'language' in args:
         language = args['language']
-        if not Language.is_supported(language):
+        if language not in installation.languages:
             return json_error('The specified language is not supported.')
 
     # if not, attempt to automatically determine which language should be used
     # based on the file ending of the specified file.
     else:
-        language = Language.autodetect(filepath)
+        language = installation.detect_language(filepath)
         if not language:
             return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(filepath))
 
@@ -100,7 +104,9 @@ def mutations():
 
 
 def launch(port: int = 6000) -> None:
+    global installation
     assert 0 <= port <= 49151
+    installation = Hulk.load()
     app.run(port=port)
 
 
