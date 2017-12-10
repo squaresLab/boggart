@@ -1,12 +1,24 @@
 import os
 from enum import Enum
-from typing import List, FrozenSet
+from typing import List, FrozenSet, Iterable
 
 class Transformation(object):
     """
     Describes a source code transformation as a corresponding pair of Rooibos
     match and rewrite templates.
     """
+    @staticmethod
+    def from_dict(d: dict) -> 'Transformation':
+        assert 'match' in d
+        assert 'rewrite' in d
+        assert isinstance(d['match'], str)
+        assert isinstance(d['rewrite'], str)
+
+        match = d['match']
+        rewrite = d['rewrite']
+
+        return Transformation(match, rewrite)
+
     def __init__(self, match: str, rewrite: str) -> None:
         self.__match = match
         self.__rewrite = rewrite
@@ -28,16 +40,26 @@ class Transformation(object):
                  'rewrite': self.__rewrite }
 
 
-class Language(Enum):
+class Language(object):
     """
-    Represents programming languages that are supported by Hulk.
+    Represents a programming languages that is supported by Hulk.
     """
-    C       = ("C",         ['.c'])
-    CXX     = ("C++",       ['.cc', '.cxx', '.cpp'])
-    PYTHON  = ("Python",    ['.py'])
-    JAVA    = ("Java",      ['.java'])
+    @staticmethod
+    def from_dict(d: dict) -> 'Language':
+        assert 'name' in d
+        assert 'file-endings' in d
+        assert isinstance(d['name'], str)
+        assert isinstance(d['file-endings'], list)
+        assert all(isinstance(e, str) for e in d['file-endings'])
 
-    def __init__(self, name: str, file_endings: List[str]) -> None:
+        name = d['name']
+        file_endings = d['file-endings']
+        return Language(name, file_endings)
+
+    def __init__(self,
+                 name: str,
+                 file_endings: List[str]
+                 ) -> None:
         self.__name = name
         self.__file_endings = frozenset(file_endings)
 
@@ -53,17 +75,6 @@ class Language(Enum):
             return next(lang for lang in Language if lang.name == name)
         except StopIteration:
             raise LanguageNotFound(lang)
-
-    @staticmethod
-    def is_supported(language: str) -> bool:
-        """
-        Determines whether a language with a given name is supported by Hulk.
-
-        Returns:
-            True if a language with the given name is supported by Hulk, else
-            False.
-        """
-        return any(l.name == language for l in Language)
 
     @staticmethod
     def autodetect(filename: str) -> 'Optional[Language]':
@@ -105,6 +116,24 @@ class Operator(object):
     own unique name that is used by external interfaces (i.e., the server) to
     lookup particular operators.
     """
+    @staticmethod
+    def from_dict(d: dict) -> 'Operator':
+        assert 'name' in d
+        assert 'languages' in d
+        assert 'transformations' in d
+        assert isinstance(d['name'], str)
+        assert isinstance(d['languages'], list)
+        assert isinstance(d['transformations'], list)
+        assert all(isinstance(e, str) for e in d['languages'])
+        assert all(isinstance(e, dict) for e in d['transformations'])
+
+        name = d['name']
+        languages = d['languages']
+        transformations = \
+            [Transformation.from_dict(t) for t in d['transformations']]
+
+        return Operator(name, languages, transformations)
+
     def __init__(self,
                  name: str,
                  languages: List[str],
