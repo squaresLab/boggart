@@ -1,4 +1,5 @@
 from typing import Iterable, Any, List, Optional, Dict
+from hulk.base import Operator
 from hulk.config.languages import Languages
 
 
@@ -28,7 +29,7 @@ class Operators(object):
         return config
 
     def __init__(self,
-                 operators: Optional[Dict[str, Operators]] = None
+                 operators: 'Optional[Dict[str, Operators]]' = None
                  ) -> None:
         """
         Constructs a collection of operators for a set of operators provided

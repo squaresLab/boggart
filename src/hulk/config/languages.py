@@ -23,7 +23,7 @@ class Languages(object):
         return config
 
     def __init__(self,
-                 languages: Optional[Dict[str, Languages]] = None
+                 languages: 'Optional[Dict[str, Languages]]' = None
                  ):
         """
         Constructs a collection of lamnguages for a set of languages provided
@@ -47,7 +47,7 @@ class Languages(object):
             endings -= set(old_version.file_endings)
 
         # are the file endings used by this language already in use?
-        if language.file_endings & supported_file_endings:
+        if set(language.file_endings) & endings:
             raise IllegalConfigError("file ending ambiguity: two or more languages share a common file ending.")
 
         languages = dict(self.__languages)
@@ -61,7 +61,7 @@ class Languages(object):
         for name in self.__languages:
             yield self.__languages[name]
 
-    def __item__(self, name) -> Language:
+    def __item__(self, name: str) -> Language:
         """
         Attempts to fetch the definition of the language associated with a
         supplied name.
@@ -92,5 +92,5 @@ class Languages(object):
         """
         endings = set()
         for language in self:
-            endings += language.file_endings
+            endings.union(language.file_endings)
         return frozenset(endings)

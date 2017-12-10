@@ -14,8 +14,8 @@ class Configuration(object):
         Loads a configuration file from a given file.
         """
         config = parent if parent else Configuration()
-        languages = parent.languages
-        operators = parent.operators
+        languages = config.languages
+        operators = config.operators
 
         with open(filename, 'r') as f:
             yml = yaml.load(f)
@@ -54,15 +54,8 @@ class Configuration(object):
         return self.__languages
 
     @property
-    def operators(self) -> ConfigOperators:
+    def operators(self) -> Operators:
         """
         The mutation operators defined by this configuration.
         """
         return self.__operators
-
-
-class SystemConfig(Config):
-    pass
-
-class UserConfig(Config):
-    pass
