@@ -16,25 +16,37 @@ def json_error(msg):
     return flask.jsonify(jsn)
 
 
+@app.route('/language/<name>', methods=['GET'])
+def describe_language(name: str):
+    """
+    Provides a description of a given language, specified by its name.
+    """
+    try:
+        language = installation.languages[name]
+        return flask.jsonify(language.to_dict())
+    except KeyError:
+        return json_error('No language registered with the given name.')
+
+
+@app.route('/languages', methods=['GET'])
+def list_languages():
+    """
+    Produces a list of all languages that are supported by this installation.
+    """
+    jsn = [lang.to_dict() for lang in installation.languages]
+    return flask.jsonify(jsn)
+
+
 @app.route('/operator/<name>', methods=['GET'])
 def describe_operator(name: str):
     """
     Describes a named operator.
-
-    Params:
-        language: The name of the operator.
     """
     try:
         op = installation.operators[name]
         return flask.jsonify(op.to_dict())
     except KeyError:
         return json_error('No operator registered with the given name.')
-
-
-@app.route('/languages', methods=['GET'])
-def list_languages():
-    jsn = [lang.to_dict() for lang in installation.languages]
-    return flask.jsonify(jsn)
 
 
 @app.route('/operators', methods=['GET'])
