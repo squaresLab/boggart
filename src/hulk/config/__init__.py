@@ -121,18 +121,16 @@ class Config(object):
 
         return config
 
-    def __init__(self, languages=None, operators=None):
+    def __init__(self,
+                 languages: Optional[Languages] = None,
+                 operators: Optional[Operators] = None
+                 ):
         """
         Constructs a configuration that supports a given set of operators and
-        languages, each provided as dictionaries, respectively.
+        languages.
         """
-        if not languages:
-            languages = {}
-        if not operators:
-            operators = {}
-
-        self.__languages: Dict[str, Language] = dict(languages)
-        self.__operators: Dict[str, Operator] = dict(operators)
+        self.__languages = languages if languages else Languages()
+        self.__operators = operators if operators else Operators()
 
     def with_operator(self, operator: Operator) -> Config:
         """
