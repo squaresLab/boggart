@@ -7,7 +7,7 @@ class Languages(object):
     Maintains information about the languages that are supported by Hulk.
     """
     @staticmethod
-    def from_dict(defs: List[Any],
+    def from_defs(defs: List[Any],
                   parent: 'Optional[Languages]' = None
                   ) -> 'Languages':
         """
