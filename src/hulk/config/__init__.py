@@ -6,9 +6,8 @@ import yaml
 
 
 class Configuration(object):
-    @classmethod
-    def from_file(cls,
-                  filename: str,
+    @staticmethod
+    def from_file(filename: str,
                   parent: 'Optional[Config]' = None
                   ) -> 'Configuration':
         """
