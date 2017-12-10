@@ -79,6 +79,16 @@ class Language(object):
         """
         return self.__file_endings.__iter__()
 
+    def to_dict(self) -> dict:
+        """
+        Provides a dictionary-based description of this language, ready to be
+        serialized.
+        """
+        return {
+            'name': self.name,
+            'file_endings': [e for e in self.file_endings]
+        }
+
 
 class Operator(object):
     """
