@@ -56,7 +56,7 @@ class Languages(object):
 
     def __iter__(self) -> Iterable[Language]:
         """
-        An iterator over the languages supported by this configuration.
+        An iterator over the languages within this collection.
         """
         for name in self.__languages:
             yield self.__languages[name]
@@ -79,7 +79,7 @@ class Languages(object):
 
     def supports(self, name: str) -> bool:
         """
-        Determines whether this configuration supports a language with a given
+        Determines whether this colelctions contains a language with a given
         name.
         """
         return name in self.__languages
@@ -87,8 +87,8 @@ class Languages(object):
     @property
     def supported_file_endings(self) -> FrozenSet[str]:
         """
-        The set of file endings that are supported by language autodetection
-        using this configuration.
+        The set of file endings that are used by languages within this
+        collection.
         """
         endings = set()
         for language in self:
