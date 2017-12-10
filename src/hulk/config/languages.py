@@ -22,7 +22,9 @@ class Languages(object):
             config = config.add(language)
         return config
 
-    def __init__(self, languages: Optional[Dict[Languages]] = None):
+    def __init__(self,
+                 languages: Optional[Dict[str, Languages]] = None
+                 ):
         self.__languages = dict(languages) if languages else {}
 
     def add(self, language: Language) -> 'Languages':
