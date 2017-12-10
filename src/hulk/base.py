@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import List, Iterable
+from typing import List, FrozenSet
 
 class Transformation(object):
     """
@@ -107,7 +107,7 @@ class Operator(object):
     """
     def __init__(self,
                  name: str,
-                 languages: List[Language],
+                 languages: List[str],
                  transformations: List[Transformation]) -> None:
         assert name != '', \
             "operator must have a non-empty name"
@@ -128,9 +128,9 @@ class Operator(object):
         return self.__name
 
     @property
-    def languages(self) -> Iterable[Language]:
+    def languages(self) -> FrozenSet[str]:
         """
-        The languages supported by this mutation operator.
+        The names of the languages supported by this mutation operator.
         """
         return self.__languages.__iter__()
 
@@ -148,15 +148,15 @@ class Operator(object):
         Returns:
             True if this operator supports the given language, else False.
         """
-        return language in self.__languages
+        return language.name in self.__languages
 
     def to_dict(self) -> dict:
         """
-        Provides a dictionary--based description of this transformation, ready
+        Provides a dictionary-based description of this transformation, ready
         to be serialized.
         """
         return {
             'name': self.name,
-            'languages': [language.name for language in self.languages],
+            'languages': [language for language in self.languages],
             'transformations': [t.to_dict() for t in self.transformations]
         }
