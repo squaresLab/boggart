@@ -61,7 +61,7 @@ class Languages(object):
         for name in self.__languages:
             yield self.__languages[name]
 
-    def __item__(self, name: str) -> Language:
+    def __getitem__(self, name: str) -> Language:
         """
         Attempts to fetch the definition of the language associated with a
         supplied name.

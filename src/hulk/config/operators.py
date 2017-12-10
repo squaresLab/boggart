@@ -67,7 +67,7 @@ class Operators(object):
         for name in self.__operators:
             yield self.__operators[name]
 
-    def __item__(self, name: str) -> Operator:
+    def __getitem__(self, name: str) -> Operator:
         """
         Attempts to fetch the definition of the mutation operator associated
         with a given name.
