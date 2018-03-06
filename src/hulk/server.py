@@ -60,6 +60,8 @@ def list_operators():
             are compatible with a certain language, given by its name.
     """
     args = flask.request.get_json()
+    if args is None:
+        args = {}
 
     # get a list of all registered operators
     op_list: List[Operator] = list(installation.operators)

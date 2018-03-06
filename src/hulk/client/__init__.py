@@ -1,5 +1,7 @@
 import requests
+from typing import Optional
 from urllib.parse import urljoin, urlparse
+from ..base import Language
 from .languages import LanguageCollection
 from .operators import OperatorCollection
 
@@ -56,3 +58,8 @@ class Client(object):
         """
         url = self._url(path)
         return requests.get(url, params, **kwargs)
+
+    def mutations(self,
+                  filepath: str,
+                  language: Optional[Language]):
+        return None

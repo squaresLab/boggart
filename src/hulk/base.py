@@ -1,6 +1,70 @@
 import os
 from enum import Enum
-from typing import List, FrozenSet, Iterable, Any
+from typing import List, FrozenSet, Iterable, Any, Optional
+
+
+class Location(object):
+    def __init__(self, line: int, col: int):
+        self.__line = line
+        self.__col = col
+
+    def __eq__(self, other: Any) -> bool:
+        return  isinstance(other, Location) and \
+                self.line == other.line and \
+                self.col == other.col
+
+    @property
+    def line(self) -> int:
+        return self.__line
+
+    @property
+    def column(self) -> int:
+        return self.__col
+
+    col = column
+
+
+class LocationRange(object):
+    """
+    Captures a continuous range of source code locations.
+    """
+    def __init__(self, start: Location, stop: Location):
+        self.__start = start
+        self.__stop = stop
+
+    def __eq__(self, other: Any) -> bool:
+        return  isinstance(other, LocationRange) and \
+                self.start == other.start and \
+                self.stop == other.stop
+
+    @property
+    def start(self) -> Location:
+        return self.__start
+
+    @property
+    def stop(self) -> Location:
+        return self.__stop
+
+
+class Mutation(object):
+    def __init__(self,
+                 operator: str,
+                 at: LocationRange):
+        self.__operator = operator
+        self.__at = at
+
+    @property
+    def operator(self) -> str:
+        """
+        The name of the operator.
+        """
+        return self.__operator
+
+    @property
+    def location(self) -> LocationRange:
+        return self.__at
+
+    at = location
 
 
 class Transformation(object):
@@ -20,7 +84,7 @@ class Transformation(object):
 
         return Transformation(match, rewrite)
 
-    def __init__(self, match: str, rewrite: str) -> None:
+    def __init__(self, match: str, rewrite: str):
         self.__match = match
         self.__rewrite = rewrite
 
@@ -131,7 +195,7 @@ class Operator(object):
     def __init__(self,
                  name: str,
                  languages: List[str],
-                 transformations: List[Transformation]) -> None:
+                 transformations: List[Transformation]):
         assert name != '', \
             "operator must have a non-empty name"
         assert languages != [], \
