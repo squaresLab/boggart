@@ -4,6 +4,11 @@ from typing import List, FrozenSet, Iterable, Any, Optional
 
 
 class Location(object):
+    @staticmethod
+    def from_string(s: str) -> str:
+        line, _, col = s.partition(':')
+        return Location(int(line), int(col))
+
     def __init__(self, line: int, col: int):
         self.__line = line
         self.__col = col
