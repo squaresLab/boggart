@@ -1,5 +1,5 @@
-import urllib.parse
 import requests
+from urllib.parse import urljoin
 from .languages import LanguageCollection
 
 
@@ -33,8 +33,7 @@ class Client(object):
         """
         Computes the URL to a resource located at a given path on the server.
         """
-        url = urllib.parse.urljoin(self.__base_url, path)
-        return str(url)
+        return urljoin(self.__base_url, path)
 
     def _get(self, path: str, params = None, **kwargs) -> requests.Response:
         """
