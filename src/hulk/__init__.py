@@ -5,3 +5,4 @@ import hulk.server
 
 from hulk.base import Operator, Transformation, Language
 from hulk.hulk import Hulk
+from hulk.client import Client
