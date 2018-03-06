@@ -1,5 +1,5 @@
 import requests
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from .languages import LanguageCollection
 
 
@@ -17,6 +17,9 @@ class Client(object):
             base_url:   the URL of the Hulk server.
             timeout:    the default timeout for API calls (in seconds).
         """
+        if not urlparse(base_url).scheme:
+          raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")
+
         self.__base_url = base_url
         self.__timeout = timeout
 
