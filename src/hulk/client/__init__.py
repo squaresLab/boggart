@@ -14,3 +14,12 @@ class Client(object):
         """
         self.__base_url = base_url
         self.__timeout = timeout
+
+
+    @property
+    def languages() -> LanguageCollection:
+        """
+        The set of languages that are supported (i.e., can be mutated)
+        by the server.
+        """
+        return LanguageCollection(client=self)
