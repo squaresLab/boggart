@@ -87,7 +87,7 @@ class Language(object):
         """
         return {
             'name': self.name,
-            'file_endings': [e for e in self.file_endings]
+            'file-endings': [e for e in self.file_endings]
         }
 
 
