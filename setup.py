@@ -16,7 +16,12 @@ setup(
         'requests',
         'flask'
     ],
-    tests_require=['pytest'],
+    setup_requires=[
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest'
+    ],
     include_package_data=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
