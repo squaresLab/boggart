@@ -16,7 +16,7 @@ class LanguageCollection(object):
                 the server.
         """
         language_dict_list = client._get("/languages").json()
-        languages = [Language.from_dict(language_dict)]
+        languages = [Language.from_dict(d) for d in language_dict_list]
         self.__contents: Dict[str, Language] = \
             {lang.name: lang for lang in languages}
 
