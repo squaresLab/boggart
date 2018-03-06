@@ -44,4 +44,4 @@ class Client(object):
             path:   the path of the resource.
         """
         url = self._url(path)
-        return requests.get(url, params, kwargs)
+        return requests.get(url, params, **kwargs)
