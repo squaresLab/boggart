@@ -5,7 +5,7 @@ from typing import List, FrozenSet, Iterable, Any, Optional
 
 class Location(object):
     @staticmethod
-    def from_string(s: str) -> str:
+    def from_string(s: str) -> Location:
         line, _, col = s.partition(':')
         return Location(int(line), int(col))
 
