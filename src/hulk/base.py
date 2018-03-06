@@ -24,6 +24,11 @@ class Transformation(object):
         self.__match = match
         self.__rewrite = rewrite
 
+    def __eq__(self, other: Any) -> bool:
+        return  isinstance(other, Transformation) and \
+                self.match == other.match and \
+                self.rewrite == other.rewrite
+
     @property
     def match(self) -> str:
         return self.__match
