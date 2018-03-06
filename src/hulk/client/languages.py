@@ -24,7 +24,7 @@ class LanguageCollection(object):
         """
         Returns an iterator over the languages within this collection.
         """
-        for language in self.__contents.values:
+        for language in self.__contents.values():
             yield language
 
     def __len__(self) -> int:

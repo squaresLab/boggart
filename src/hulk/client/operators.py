@@ -24,7 +24,7 @@ class OperatorCollection(object):
         """
         Returns an iterator over the operators within this collection.
         """
-        for language in self.__contents.values:
+        for language in self.__contents.values():
             yield language
 
     def __len__(self) -> int:
