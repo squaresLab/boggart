@@ -3,6 +3,7 @@
 *.tmp
 
 # venv
+share
 bin
 lib
 lib64
