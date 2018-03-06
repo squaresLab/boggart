@@ -24,6 +24,14 @@ def test_location_from_string():
     assert actual == expected
 
 
+def test_location_range_from_string():
+    expected = LocationRange(Location(1, 5),
+                             Location(1, 20))
+    actual = LocationRange.from_string("1:5::1:20")
+
+    assert actual == expected
+
+
 def test_transformation_serialisation():
     expected = Transformation(':x = :y', ':y = :x')
     actual = Transformation.from_dict(expected.to_dict())

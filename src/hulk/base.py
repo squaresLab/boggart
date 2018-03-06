@@ -5,7 +5,7 @@ from typing import List, FrozenSet, Iterable, Any, Optional
 
 class Location(object):
     @staticmethod
-    def from_string(s: str) -> Location:
+    def from_string(s: str) -> 'Location':
         line, _, col = s.partition(':')
         return Location(int(line), int(col))
 
@@ -33,6 +33,13 @@ class LocationRange(object):
     """
     Captures a continuous range of source code locations.
     """
+    @staticmethod
+    def from_string(s: str) -> 'LocationRange':
+        start_s, _, stop_s = s.partition("::")
+        start = Location.from_string(start_s)
+        stop = Location.from_string(stop_s)
+        return LocationRange(start, stop)
+
     def __init__(self, start: Location, stop: Location):
         self.__start = start
         self.__stop = stop
