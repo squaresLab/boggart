@@ -24,6 +24,9 @@ class Transformation(object):
         self.__match = match
         self.__rewrite = rewrite
 
+    def __hash__(self) -> int:
+        return hash((self.match, self.rewrite))
+
     def __eq__(self, other: Any) -> bool:
         return  isinstance(other, Transformation) and \
                 self.match == other.match and \
