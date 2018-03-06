@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import List, FrozenSet, Iterable
+from typing import List, FrozenSet, Iterable, Any
 
 
 class Transformation(object):
@@ -63,6 +63,11 @@ class Language(object):
                  ) -> None:
         self.__name = name
         self.__file_endings = frozenset(file_endings)
+
+    def __eq__(self, other: Any) -> bool:
+        return  isinstance(other, Language) and \
+                self.name == other.name and \
+                list(self.file_endings) == list(other.file_endings)
 
     @property
     def name(self) -> str:
