@@ -2,6 +2,7 @@ import os
 from enum import Enum
 from typing import List, FrozenSet, Iterable
 
+
 class Transformation(object):
     """
     Describes a source code transformation as a corresponding pair of Rooibos
