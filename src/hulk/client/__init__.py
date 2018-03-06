@@ -1,6 +1,7 @@
 import requests
 from urllib.parse import urljoin, urlparse
 from .languages import LanguageCollection
+from .operators import OperatorCollection
 
 
 class Client(object):
@@ -31,6 +32,14 @@ class Client(object):
         """
         # TODO: cache?
         return LanguageCollection(client=self)
+
+    @property
+    def operators(self) -> OperatorCollection:
+        """
+        The set of mutation operators that are supported by the server.
+        """
+        # TODO: cache?
+        return OperatorCollection(client=self)
 
     def _url(self, path: str) -> str:
         """
