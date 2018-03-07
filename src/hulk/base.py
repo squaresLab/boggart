@@ -105,6 +105,12 @@ class Mutation(object):
         self.__at = at
         self.__args = dict(args)
 
+    def __eq__(self, other: Any) -> bool:
+        return  isinstance(other, Mutation) and \
+                self.operator == other.operator and \
+                self.location == other.location and \
+                self.arguments == other.arguments
+
     @property
     def operator(self) -> str:
         """
