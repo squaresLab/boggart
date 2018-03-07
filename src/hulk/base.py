@@ -7,6 +7,8 @@ class Location(object):
     @staticmethod
     def from_string(s: str) -> 'Location':
         line, _, col = s.partition(':')
+        print(line)
+        print(col)
         return Location(int(line), int(col))
 
     def __init__(self, line: int, col: int):
@@ -27,6 +29,11 @@ class Location(object):
         return self.__col
 
     col = column
+
+    def __str__(self) -> str:
+        return "{}:{}".format(self.line, self.column)
+
+    to_string = __str__
 
 
 class LocationRange(object):
@@ -62,6 +69,12 @@ class LocationRange(object):
         The location that marks the end of this range (inclusive).
         """
         return self.__stop
+
+    def __str__(self) -> str:
+        return "{}::{}".format(self.start, self.stop)
+
+    to_string = __str__
+
 
 
 class Mutation(object):
@@ -126,6 +139,7 @@ class Mutation(object):
             'location': self.location.to_string(),
             'arguments': self.arguments
         }
+
 
 class Transformation(object):
     """

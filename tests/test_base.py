@@ -24,12 +24,24 @@ def test_location_from_string():
     assert actual == expected
 
 
+def test_location_to_string():
+    loc = Location(18, 10)
+    assert str(loc) == loc.to_string()
+    assert str(loc) == '18:10'
+
+
 def test_location_range_from_string():
     expected = LocationRange(Location(1, 5),
                              Location(1, 20))
     actual = LocationRange.from_string("1:5::1:20")
 
     assert actual == expected
+
+
+def test_location_range_to_string():
+    loc = LocationRange(Location(0, 20), Location(14, 0))
+    assert str(loc) == loc.to_string()
+    assert str(loc) == '0:20::14:0'
 
 
 def test_transformation_serialisation():
