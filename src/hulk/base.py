@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import List, FrozenSet, Iterable, Any, Optional
+from typing import List, FrozenSet, Iterable, Any, Optional, Dict
 
 
 class Location(object):
@@ -51,19 +51,31 @@ class LocationRange(object):
 
     @property
     def start(self) -> Location:
+        """
+        The location that marks the start of this range.
+        """
         return self.__start
 
     @property
     def stop(self) -> Location:
+        """
+        The location that marks the end of this range (inclusive).
+        """
         return self.__stop
 
 
 class Mutation(object):
+    """
+    Describes a concrete application of a given mutation operator at a specific
+    location (range) in a source code file.
+    """
     def __init__(self,
                  operator: str,
-                 at: LocationRange):
+                 at: LocationRange,
+                 args: Dict[str, str]):
         self.__operator = operator
         self.__at = at
+        self.__args = dict(args)
 
     @property
     def operator(self) -> str:
@@ -74,9 +86,19 @@ class Mutation(object):
 
     @property
     def location(self) -> LocationRange:
+        """
+        The location (range) at which to apply the operator.
+        """
         return self.__at
 
     at = location
+
+    @property
+    def arguments(self) -> Dict[str, str]:
+        """
+        A dictionary of named arguments that are supplied to the operator.
+        """
+        return dict(self.__args)
 
 
 class Transformation(object):
