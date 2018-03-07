@@ -69,6 +69,21 @@ class Mutation(object):
     Describes a concrete application of a given mutation operator at a specific
     location (range) in a source code file.
     """
+    @staticmethod
+    def from_dict(d: dict) -> 'Mutation':
+        """
+        Constructs a mutation from a dictionary-based description.
+        """
+        assert 'operator' in d
+        assert 'location' in d
+        assert 'arguments' in d
+
+        operator = d['operator']
+        arguments = d['arguments']
+        location = LocationRange.from_string(d['location'])
+
+        return Mutation(operator, location, arguments)
+
     def __init__(self,
                  operator: str,
                  at: LocationRange,
@@ -96,10 +111,21 @@ class Mutation(object):
     @property
     def arguments(self) -> Dict[str, str]:
         """
-        A dictionary of named arguments that are supplied to the operator.
+        A dictionary of named arguments that are supplied to the operator for
+        this mutation.
         """
         return dict(self.__args)
 
+    def to_dict(self) -> dict:
+        """
+        Provides a dictionary-based description of this mutation, ready to be
+        serialized.
+        """
+        return {
+            'operator': self.operator,
+            'location': self.location.to_string(),
+            'arguments': self.arguments
+        }
 
 class Transformation(object):
     """
