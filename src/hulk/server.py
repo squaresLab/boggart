@@ -1,14 +1,18 @@
 import flask
+import argparse
 import os
-from hulk.exceptions import *
-from hulk.base import Language, Operator
-from hulk.hulk import Hulk
+
 from flask import Flask
+
+from .exceptions import *
+from .base import Language, Operator
+from .hulk import Hulk
 
 app = Flask(__name__)
 
 # TODO: tidy this up
 installation: Hulk = None
+
 
 # TODO: return different status code
 def json_error(msg):
@@ -131,4 +135,11 @@ def launch(port: int = 6000) -> None:
 
 
 def main() -> None:
-    launch()
+    desc = 'Hulk'
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('--port',
+                        type=int,
+                        default=6000,
+                        help='the port that should be used by this server.')
+    args = parser.parse_args()
+    launch(port=args.port)
