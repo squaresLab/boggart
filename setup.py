@@ -11,7 +11,9 @@ setup(
     author_email='christimperley@gmail.com',
     url='https://github.com/squaresLab/Hulk',
     license='mit',
+    python_requires='>=3.5',
     install_requires=[
+        'bugzoo>=2.0.13',
         'pyyaml',
         'requests',
         'flask'
