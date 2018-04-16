@@ -1,6 +1,6 @@
-import os
 from enum import Enum
 from typing import List, FrozenSet, Iterable, Any, Optional, Dict
+import os
 
 
 class Location(object):
@@ -100,7 +100,8 @@ class Mutation(object):
     def __init__(self,
                  operator: str,
                  at: LocationRange,
-                 args: Dict[str, str]):
+                 args: Dict[str, str]
+                 ) -> None:
         self.__operator = operator
         self.__at = at
         self.__args = dict(args)
@@ -133,7 +134,7 @@ class Mutation(object):
         A dictionary of named arguments that are supplied to the operator for
         this mutation.
         """
-        return dict(self.__args)
+        return self.__args.copy()
 
     def to_dict(self) -> dict:
         """
@@ -195,7 +196,7 @@ class Transformation(object):
 
 class Language(object):
     """
-    Represents a programming languages that is supported by Hulk.
+    Represents a programming language that is supported by Hulk.
     """
     @staticmethod
     def from_dict(d: dict) -> 'Language':
