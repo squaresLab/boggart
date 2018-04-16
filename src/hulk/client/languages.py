@@ -1,4 +1,5 @@
 from typing import Iterable, Dict
+
 from ..base import Language
 
 
@@ -7,7 +8,7 @@ class LanguageCollection(object):
     Provides read-only access to the set of languages supported by a given
     server.
     """
-    def __init__(self, client: 'Client'):
+    def __init__(self, client: 'Client') -> None:
         """
         Constructs a new language collection for a given server.
 
@@ -17,15 +18,14 @@ class LanguageCollection(object):
         """
         language_dict_list = client._get("/languages").json()
         languages = [Language.from_dict(d) for d in language_dict_list]
-        self.__contents: Dict[str, Language] = \
-            {lang.name: lang for lang in languages}
+        self.__contents = \
+            {lang.name: lang for lang in languages} # type: Dict[str, Language]
 
     def __iter__(self) -> Iterable[Language]:
         """
         Returns an iterator over the languages within this collection.
         """
-        for language in self.__contents.values():
-            yield language
+        return self.__contents.values().__iter__()
 
     def __len__(self) -> int:
         """

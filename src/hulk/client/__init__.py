@@ -1,6 +1,8 @@
-import requests
 from typing import Optional
 from urllib.parse import urljoin, urlparse
+
+import requests
+
 from ..base import Language
 from .languages import LanguageCollection
 from .operators import OperatorCollection
