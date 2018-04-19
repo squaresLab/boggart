@@ -1,5 +1,5 @@
 # TODO mutants are killed when the server is killed
-from typing import Optional, Union, Dict, List
+from typing import Optional, Union, Dict, List, Iterator
 from urllib.parse import urljoin, urlparse
 import difflib
 import tempfile
@@ -7,6 +7,7 @@ import os
 
 import requests
 from bugzoo.core.bug import Bug
+from bugzoo.core.fileline import FileLine
 
 from ..base import Operator, Language, Mutation
 from .languages import LanguageCollection
@@ -99,7 +100,7 @@ class Client(object):
     def mutations_to_snapshot(self,
                               snapshot: Bug,
                               filepath: str,
-                              *
+                              *,
                               language: Optional[Language] = None,
                               operators: Optional[List[Operator]] = None,
                               restrict_to_lines: Optional[List[FileLine]] = None
