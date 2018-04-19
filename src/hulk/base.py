@@ -316,11 +316,11 @@ class Operator(object):
         return self.__languages.__iter__()
 
     @property
-    def transformations(self) -> Iterable[Transformation]:
+    def transformations(self) -> List[Transformation]:
         """
         The transformations performed by this mutation operator.
         """
-        return self.__transformations.__iter__()
+        return self.__transformations.copy()
 
     def supports_language(self, language: Language) -> bool:
         """
