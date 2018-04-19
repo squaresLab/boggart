@@ -49,7 +49,7 @@ class ClientServerError(HulkException):
             'IllegalConfig': IllegalConfig
         })[d]
 
-        return cls.from_dict(d)
+        return cls.from_data(d.get('data', {}))
 
     def __init__(self, status_code: int, message: str) -> None:
         self.__status_code = status_code
@@ -84,10 +84,9 @@ class OperatorNameAlreadyExists(ClientServerError):
     operator.
     """
     @staticmethod
-    def from_dict(d: dict) -> 'OperatorNameAlreadyExists':
-        assert 'data' in d
-        assert 'name' in d['data']
-        return OperatorNameAlreadyExists(d['data']['name'])
+    def from_data(data: dict) -> 'OperatorNameAlreadyExists':
+        assert 'name' in data
+        return OperatorNameAlreadyExists(data['name'])
 
     def __init__(self,
                  name: str,
@@ -115,10 +114,9 @@ class LanguageNotFound(ClientServerError):
     name.
     """
     @staticmethod
-    def from_dict(d: dict) -> 'LanguageNotFound':
-        assert 'data' in d
-        assert 'name' in d['data']
-        return LanguageNotFound(d['data']['name'])
+    def from_data(data: dict) -> 'LanguageNotFound':
+        assert 'name' in data
+        return LanguageNotFound(data['name'])
 
     def __init__(self,
                  name: str,
@@ -127,6 +125,35 @@ class LanguageNotFound(ClientServerError):
                  ) -> None:
         self.__name = name
         msg = "no language registered with name: {}".format(name)
+        super().__init__(status_code, msg)
+
+    @property
+    def name(self) -> str:
+        """
+        The name of the requested language.
+        """
+        return self.__name
+
+    def to_response(self) -> Tuple[Any, int]:
+        return super().to_response(data={'name': self.name})
+
+
+class OperatorNotFound(ClientServerError):
+    """
+    Used to indicate that no operator has been registered under a given name.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'OperatorNotFound':
+        assert 'name' in data
+        return OperatorNotFound(data['name'])
+
+    def __init__(self,
+                 name: str,
+                 *,
+                 status_code: int = 404
+                 ) -> None:
+        self.__name = name
+        msg = "no operator registered with name: {}".format(name)
         super().__init__(status_code, msg)
 
     @property
