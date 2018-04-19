@@ -25,12 +25,12 @@ def throws_errors(f):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except ServerError as err:
+        except ClientServerError as err:
             return err.to_response()
     return wrapper
 
 
-@app.route('/language/<name>', methods=['GET'])
+@app.route('/languages/<name>', methods=['GET'])
 @throws_errors
 def describe_language(name: str):
     """
@@ -55,7 +55,7 @@ def list_languages():
     return [lang.to_dict() for lang in installation.languages]
 
 
-@app.route('/operator/<name>', methods=['GET'])
+@app.route('/operators/<name>', methods=['GET'])
 def describe_operator(name: str):
     """
     Describes a named operator.
