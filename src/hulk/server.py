@@ -2,13 +2,13 @@ import flask
 import argparse
 import os
 
-from flask import Flask
+from flask_api import FlaskAPI
 
 from .exceptions import *
 from .base import Language, Operator
 from .hulk import Hulk
 
-app = Flask(__name__)
+app = FlaskAPI(__name__)
 
 # TODO: tidy this up
 installation: Hulk = None
@@ -37,8 +37,7 @@ def list_languages():
     """
     Produces a list of all languages that are supported by this installation.
     """
-    jsn = [lang.to_dict() for lang in installation.languages]
-    return flask.jsonify(jsn)
+    return [lang.to_dict() for lang in installation.languages]
 
 
 @app.route('/operator/<name>', methods=['GET'])
@@ -47,8 +46,7 @@ def describe_operator(name: str):
     Describes a named operator.
     """
     try:
-        op = installation.operators[name]
-        return flask.jsonify(op.to_dict())
+        return installation.operators[name].to_dict()
     except KeyError:
         return json_error('No operator registered with the given name.')
 
@@ -81,31 +79,27 @@ def list_operators():
 
     # serialize to JSON
     op_list = [op.to_dict() for op in op_list]
+    return op_list
 
-    return flask.jsonify(op_list)
 
-
-@app.route('/mutations', methods=['GET'])
-def mutations():
+@app.route('/mutations/:filepath', methods=['GET'])
+def mutations(fn: str):
     """
     Determines the set of possible single-order mutations that can be applied
     to a given file.
 
     Params:
-        filepath: The file that should be analyzed.
+        fn: The file that should be analyzed.
         language: An optional parameter that can be used to explicitly state
             the language used by the given file. If this parameter is not
             supplied, Hulk will attempt to automatically detect the language
             used by a given file based on its file ending.
     """
-    args = flask.request.get_json()
+    args = flask.request.args
 
     # determine the file whose mutations the user wishes to obtain
-    if 'filepath' not in args:
-        return json_error("No 'filepath' argument provided.")
-    if not os.path.isfile(args['filepath']):
+    if not os.path.isfile(fn):
         return json_error('No file located at given filepath.')
-    filepath = args['filepath']
 
     # if a language is specified, use it
     if 'language' in args:
@@ -116,9 +110,9 @@ def mutations():
     # if not, attempt to automatically determine which language should be used
     # based on the file ending of the specified file.
     else:
-        language = installation.detect_language(filepath)
+        language = installation.detect_language(fn)
         if not language:
-            return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(filepath))
+            return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(fn))
 
 
     # determine the set of operators that should be used
@@ -127,11 +121,11 @@ def mutations():
     return flask.jsonify(mutations)
 
 
-def launch(port: int = 6000) -> None:
+def launch(port: int = 6060) -> None:
     global installation
     assert 0 <= port <= 49151
     installation = Hulk.load()
-    app.run(port=port)
+    app.run(port=port, debug=True)
 
 
 def main() -> None:
@@ -139,7 +133,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--port',
                         type=int,
-                        default=6000,
+                        default=6060,
                         help='the port that should be used by this server.')
     args = parser.parse_args()
     launch(port=args.port)
