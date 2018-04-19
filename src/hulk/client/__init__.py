@@ -9,6 +9,7 @@ import requests
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
+from ..exceptions import *
 from ..base import Operator, Language, Mutation
 from .languages import LanguageCollection
 from .operators import OperatorCollection
@@ -103,8 +104,19 @@ class Client(object):
             return self.__cache_file_contents[cache_key]
 
         path = "file/{}/{}".format(snapshot.name, filepath)
-        response = requests.get(path)
-        raise NotImplementedError
+        response = self._get(path)
+
+        if response.status_code == 200:
+            text = response.text
+            self.__cache_file_contents[cache_key] = text
+            return text
+
+        elif response.status_code == 400:
+            raise HulkException.from_dict(response.json())
+
+        # FIXME implement
+        else:
+            raise UnexpectedResponse()
 
     def mutations_to_snapshot(self,
                               snapshot: Bug,
