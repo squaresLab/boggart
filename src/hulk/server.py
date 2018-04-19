@@ -16,7 +16,7 @@ app = FlaskAPI(__name__)
 installation = None # type: Optional[Hulk]
 
 
-def throws_errors(f):
+def throws_errors(func):
     """
     Wraps a function responsible for implementing an API endpoint such that
     any server errors that are thrown are automatically transformed into
