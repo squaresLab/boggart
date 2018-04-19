@@ -1,5 +1,5 @@
 # TODO mutants are killed when the server is killed
-from typing import Optional, Union, Dict, List, Iterator
+from typing import Optional, Union, Dict, List, Iterator, Tuple
 from urllib.parse import urljoin, urlparse
 import difflib
 import tempfile
@@ -37,7 +37,10 @@ class Client(object):
 
         self.__base_url = base_url
         self.__timeout = timeout
-        self.__cache_file_contents = {} # type: Dict[str, str]
+
+        # maintain a local cache of the contents of files for BugZoo snapshots
+        # map from (snapshot-name, filename) to contents of the file
+        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
 
     @property
     def languages(self) -> LanguageCollection:
@@ -95,9 +98,12 @@ class Client(object):
             FileNotFound: if no file is found with the given name in the
                 snapshot.
         """
-        # TODO use caching
-        url = self._url(path)
-        return requests.get(url, params, **kwargs)
+        cache_key = (snapshot.name, filepath)
+        if cache_key in self.__cache_file_contents:
+            return self.__cache_file_contents[cache_key]
+
+        path = "file/{}/{}".format(snapshot.name, filepath)
+        response = requests.get(path)
         raise NotImplementedError
 
     def mutations_to_snapshot(self,
