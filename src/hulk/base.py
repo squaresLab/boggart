@@ -76,7 +76,6 @@ class LocationRange(object):
     to_string = __str__
 
 
-
 class Mutation(object):
     """
     Describes a concrete application of a given mutation operator at a specific
@@ -88,27 +87,32 @@ class Mutation(object):
         Constructs a mutation from a dictionary-based description.
         """
         assert 'operator' in d
+        assert 'transformation-index' in d
         assert 'location' in d
         assert 'arguments' in d
 
         operator = d['operator']
+        transformation_index = d['transformation-index']
         arguments = d['arguments']
         location = LocationRange.from_string(d['location'])
 
-        return Mutation(operator, location, arguments)
+        return Mutation(operator, transformation_index, location, arguments)
 
     def __init__(self,
                  operator: str,
+                 transformation_index: int,
                  at: LocationRange,
                  args: Dict[str, str]
                  ) -> None:
         self.__operator = operator
+        self.__transformation_index = transformation_index
         self.__at = at
         self.__args = dict(args)
 
     def __eq__(self, other: Any) -> bool:
         return  isinstance(other, Mutation) and \
                 self.operator == other.operator and \
+                self.transformation_index == other.transformation_index and \
                 self.location == other.location and \
                 self.arguments == other.arguments
 
@@ -118,6 +122,13 @@ class Mutation(object):
         The name of the operator.
         """
         return self.__operator
+
+    @property
+    def transformation_index(self) -> int:
+        """
+        The index of the transformation that should be applied.
+        """
+        return self.__transformation_index
 
     @property
     def location(self) -> LocationRange:
@@ -143,6 +154,7 @@ class Mutation(object):
         """
         return {
             'operator': self.operator,
+            'transformation-index': self.transformation_index,
             'location': self.location.to_string(),
             'arguments': self.arguments
         }
@@ -276,7 +288,8 @@ class Operator(object):
     def __init__(self,
                  name: str,
                  languages: List[str],
-                 transformations: List[Transformation]):
+                 transformations: List[Transformation]
+                 ) -> None:
         assert name != '', \
             "operator must have a non-empty name"
         assert languages != [], \
@@ -286,7 +299,7 @@ class Operator(object):
 
         self.__name = name
         self.__languages = frozenset(languages)
-        self.__transformations = frozenset(transformations)
+        self.__transformations = transformations.copy()
 
     @property
     def name(self) -> str:
