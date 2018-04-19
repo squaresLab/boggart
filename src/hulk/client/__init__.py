@@ -37,6 +37,7 @@ class Client(object):
 
         self.__base_url = base_url
         self.__timeout = timeout
+        self.__cache_file_contents = {} # type: Dict[str, str]
 
     @property
     def languages(self) -> LanguageCollection:
@@ -95,6 +96,8 @@ class Client(object):
                 snapshot.
         """
         # TODO use caching
+        url = self._url(path)
+        return requests.get(url, params, **kwargs)
         raise NotImplementedError
 
     def mutations_to_snapshot(self,
@@ -185,6 +188,17 @@ class Client(object):
                     ) -> str:
         """
         Applies a given mutation to a body of text.
+
+        Parameters:
+            text: the body of text that should be mutated.
+            mutation: the mutation to apply to the text.
+
+        Returns:
+            a variant of the text that contains the given mutation.
+
+        Raises:
+            LocationNotFound: if the location described in the mutation does
+                not exist in the given text.
         """
         raise NotImplementedError
 
