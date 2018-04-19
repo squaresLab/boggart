@@ -35,6 +35,18 @@ class ServerError(HulkException):
 
         return cls.from_dict(d)
 
+    def __init__(self, status_code: int, message: str) -> None:
+        self.__status_code = status_code
+        super().__init__(message)
+
+    @property
+    def status_code(self) -> int:
+        """
+        The status code that was produced by the server when this error was
+        reported to the client.
+        """
+        return self.__status_code
+
     def to_response(self) -> flask.Response:
         """
         Transforms this exception into a HTTP response containing a
