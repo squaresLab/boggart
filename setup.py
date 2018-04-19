@@ -16,7 +16,8 @@ setup(
         'bugzoo>=2.0.13',
         'pyyaml',
         'requests',
-        'flask'
+        'flask>=0.10',
+        'Flask-API'
     ],
     setup_requires=[
         'pytest-runner'
