@@ -36,6 +36,9 @@ class ClientServerError(HulkException):
     """
     @staticmethod
     def from_dict(d: dict) -> 'HulkException':
+        assert 'error' in d
+        d = d['error']
+
         assert 'kind' in d
 
         # TODO use metaprogramming to avoid having to maintain this list
@@ -71,6 +74,7 @@ class ClientServerError(HulkException):
         }
         if data:
             jsn['data'] = data
+        jsn = {'error': jsn}
         return jsn, self.__status_code
 
 
