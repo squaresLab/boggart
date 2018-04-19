@@ -1,7 +1,8 @@
-import flask
+from typing import Optional
 import argparse
 import os
 
+import flask
 from flask_api import FlaskAPI
 
 from .exceptions import *
@@ -11,7 +12,7 @@ from .hulk import Hulk
 app = FlaskAPI(__name__)
 
 # TODO: tidy this up
-installation: Hulk = None
+installation = None # type: Optional[Hulk]
 
 
 # TODO: return different status code
@@ -27,7 +28,7 @@ def describe_language(name: str):
     """
     try:
         language = installation.languages[name]
-        return flask.jsonify(language.to_dict())
+        return language.to_dict()
     except KeyError:
         return json_error('No language registered with the given name.')
 
@@ -35,7 +36,7 @@ def describe_language(name: str):
 @app.route('/languages', methods=['GET'])
 def list_languages():
     """
-    Produces a list of all languages that are supported by this installation.
+    Produces a list of all languages that are supported by this server.
     """
     return [lang.to_dict() for lang in installation.languages]
 
@@ -118,7 +119,7 @@ def mutations(fn: str):
     # determine the set of operators that should be used
     mutations = []
 
-    return flask.jsonify(mutations)
+    return mutations
 
 
 def launch(port: int = 6060) -> None:
