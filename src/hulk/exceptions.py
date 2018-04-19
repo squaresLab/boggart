@@ -1,3 +1,12 @@
+__ALL__ = [
+    'HulkException',
+    'OperatorNameAlreadyExists',
+    'LanguageNotFound',
+    'BadConfigFile',
+    'IllegalConfig'
+]
+
+
 class HulkException(Exception):
     """
     Base class for all exceptions produced by Hulk.
