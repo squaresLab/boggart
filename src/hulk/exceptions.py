@@ -1,3 +1,5 @@
+from typing import Any, Dict, Tuple
+
 import flask
 
 __ALL__ = [
@@ -14,8 +16,19 @@ class HulkException(Exception):
     """
     Base class for all exceptions produced by Hulk.
     """
+    def __init__(self, message: str) -> None:
+        self.__message = message
+        super().__init__(message)
 
-class ServerError(HulkException):
+    @property
+    def message(self):
+        """
+        A short description of the error.
+        """
+        return self.__message
+
+
+class ClientServerError(HulkException):
     """
     Base class for all exceptions that may be thrown from the server to the
     client. Provides the necessary machinery to write/read errors to/from
@@ -47,28 +60,39 @@ class ServerError(HulkException):
         """
         return self.__status_code
 
-    def to_response(self) -> flask.Response:
+    def to_response(self, data: Dict[str, Any] = None) -> Tuple[Any, int]:
         """
         Transforms this exception into a HTTP response containing a
         machine-readable description of the exception.
         """
-        raise NotImplementedError
+        jsn = {
+            'kind': self.__class__.__name__,
+            'message': self.message
+        }
+        if data:
+            jsn['data'] = data
+        return jsn, self.__status_code
 
 
-class OperatorNameAlreadyExists(ServerError):
+class OperatorNameAlreadyExists(ClientServerError):
     """
     Used to indicate that a given operator name is already in use by another
     operator.
     """
     @staticmethod
     def from_dict(d: dict) -> 'OperatorNameAlreadyExists':
-        assert 'name' in d
-        return OperatorNameAlreadyExists(d['name'])
+        assert 'data' in d
+        assert 'name' in d['data']
+        return OperatorNameAlreadyExists(d['data']['name'])
 
-    def __init__(self, name: str) -> None:
+    def __init__(self,
+                 name: str,
+                 *,
+                 status_code: int = 409
+                 ) -> None:
         self.__name = name
         msg = "operator name is already in use: {}".format(name)
-        super().__init__(msg)
+        super().__init__(msg, status_code)
 
     @property
     def name(self) -> str:
@@ -77,21 +101,29 @@ class OperatorNameAlreadyExists(ServerError):
         """
         return self.__name
 
+    def to_response(self) -> Tuple[Any, int]:
+        return super().to_response(data={'name': self.name})
 
-class LanguageNotFound(ServerError):
+
+class LanguageNotFound(ClientServerError):
     """
     Used to indicate that there exists no language registered under a given
     name.
     """
     @staticmethod
     def from_dict(d: dict) -> 'LanguageNotFound':
-        assert 'name' in d
-        return LanguageNotFound(d['name'])
+        assert 'data' in d
+        assert 'name' in d['data']
+        return LanguageNotFound(d['data']['name'])
 
-    def __init__(self, name: str) -> None:
+    def __init__(self,
+                 name: str,
+                 *,
+                 status_code: int = 404
+                 ) -> None:
         self.__name = name
         msg = "no language registered with name: {}".format(name)
-        super().__init__(msg)
+        super().__init__(status_code, msg)
 
     @property
     def name(self) -> str:
@@ -100,8 +132,11 @@ class LanguageNotFound(ServerError):
         """
         return self.__name
 
+    def to_response(self) -> Tuple[Any, int]:
+        return super().to_response(data={'name': self.name})
 
-class BadConfigFile(ServerError):
+
+class BadConfigFile(HulkException):
     """
     Used to indicate that a given configuration file is ill-formed.
     """
@@ -109,7 +144,7 @@ class BadConfigFile(ServerError):
         super().__init__(reason)
 
 
-class IllegalConfig(ServerError):
+class IllegalConfig(HulkException):
     """
     Used to indicate that a given configuration is syntatically correct but
     that it describes an illegal configuration.
