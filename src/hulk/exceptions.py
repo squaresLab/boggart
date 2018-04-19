@@ -1,4 +1,11 @@
-class OperatorNameAlreadyExists(Exception):
+class HulkException(Exception):
+    """
+    Base class for all exceptions produced by Hulk.
+    """
+    pass
+
+
+class OperatorNameAlreadyExists(HulkException):
     """
     Used to indicate that a given operator name is already in use by another
     operator.
@@ -16,7 +23,7 @@ class OperatorNameAlreadyExists(Exception):
         return self.__name
 
 
-class LanguageNotFound(Exception):
+class LanguageNotFound(HulkException):
     """
     Used to indicate that there exists no language registered under a given
     name.
@@ -34,7 +41,7 @@ class LanguageNotFound(Exception):
         return self.__name
 
 
-class BadConfigFile(Exception):
+class BadConfigFile(HulkException):
     """
     Used to indicate that a given configuration file is ill-formed.
     """
@@ -42,7 +49,7 @@ class BadConfigFile(Exception):
         super().__init__(reason)
 
 
-class IllegalConfig(Exception):
+class IllegalConfig(HulkException):
     """
     Used to indicate that a given configuration is syntatically correct but
     that it describes an illegal configuration.
