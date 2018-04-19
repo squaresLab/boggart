@@ -1,3 +1,4 @@
+# TODO add decorator to automatically transform server errors into JSON
 from typing import Optional
 import argparse
 import os
@@ -15,22 +16,35 @@ app = FlaskAPI(__name__)
 installation = None # type: Optional[Hulk]
 
 
-# TODO: return different status code
-def json_error(msg):
-    jsn = {'error': {'msg': msg}}
-    return flask.jsonify(jsn)
+def throws_errors(f):
+    """
+    Wraps a function responsible for implementing an API endpoint such that
+    any server errors that are thrown are automatically transformed into
+    appropriate HTTP responses.
+    """
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ServerError as err:
+            return err.to_response()
+    return wrapper
 
 
 @app.route('/language/<name>', methods=['GET'])
+@throws_errors
 def describe_language(name: str):
     """
     Provides a description of a given language, specified by its name.
+
+    Raises:
+        LanguageNotFound: if no language is registered with this server
+            under the given name.
     """
     try:
         language = installation.languages[name]
         return language.to_dict()
     except KeyError:
-        return json_error('No language registered with the given name.')
+        raise LanguageNotFound(name)
 
 
 @app.route('/languages', methods=['GET'])
