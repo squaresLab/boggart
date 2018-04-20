@@ -3,6 +3,7 @@ from functools import wraps
 import argparse
 import os
 
+import bugzoo
 import flask
 from flask_api import FlaskAPI
 
@@ -109,7 +110,8 @@ def read_file(name_snapshot: str, fn: str):
     """
     # fetch the snapshot
     try:
-        snapshot = hulk.
+        pass
+        # snapshot = hulk.
     except:
         pass
 
@@ -155,19 +157,27 @@ def mutations(fn: str):
     return mutations
 
 
-def launch(port: int = 6060) -> None:
+def launch(port: int = 8000,
+           url_bugzoo: str = 'http://127.0.0.1:6060'
+           ) -> None:
     global installation
     assert 0 <= port <= 49151
-    installation = Hulk.load()
+    client_bugzoo = bugzoo.client.Client(url_bugzoo)
+    installation = Hulk.load(client_bugzoo)
     app.run(port=port, debug=True)
 
 
 def main() -> None:
     desc = 'Hulk'
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('--port',
+    parser.add_argument('-p', '--port',
                         type=int,
-                        default=6060,
+                        default=8000,
                         help='the port that should be used by this server.')
+    parser.add_argument('--bugzoo',
+                        type=str,
+                        default='http://127.0.0.1:6060',
+                        help='the URL of the BugZoo server.')
     args = parser.parse_args()
-    launch(port=args.port)
+    launch(port=args.port,
+           url_bugzoo=args.bugzoo)

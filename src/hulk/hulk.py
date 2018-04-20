@@ -1,7 +1,11 @@
+from typing import Optional
 import os
+
+import bugzoo
+import bugzoo.client
+
 from hulk.base import Language
 from hulk.config import Configuration, Languages, Operators
-from typing import Optional
 
 
 class Hulk(object):
@@ -30,12 +34,18 @@ class Hulk(object):
         return cfg_fn
 
     @classmethod
-    def load(cls, user_config_path: Optional[str] = None) -> 'Hulk':
+    def load(cls,
+             client_bugzoo: bugzoo.client.Client,
+             *,
+             user_config_path: Optional[str] = None,
+             ) -> 'Hulk':
         """
         Loads a Hulk installation.
 
-        Params:
-            - config_filepath: The path to the user configuration file for Hulk.
+        Parameters:
+            client_bugzoo: A connection to the BugZoo server that should be
+                used by this Hulk server.
+            config_filepath: The path to the user configuration file for Hulk.
                 If left unspecified, `Hulk.default_user_config_path` will be
                 used instead.
         """
@@ -45,13 +55,25 @@ class Hulk(object):
         system_cfg = Configuration.from_file(Hulk.sys_config_path())
 
         if not os.path.isfile(user_config_path):
-            return Hulk(system_cfg)
+            return Hulk(system_cfg, client_bugzoo)
 
         user_cfg = Configuration.from_file(user_config_path, system_cfg)
-        return Hulk(user_cfg)
+        return Hulk(user_cfg, client_bugzoo)
 
-    def __init__(self, config: Configuration) -> None:
-        self.__config: Configuration = config
+    def __init__(self,
+                 config: Configuration,
+                 client_bugzoo: bugzoo.client.Client
+                 ) -> None:
+        self.__config = config
+        self.__bugzoo = client_bugzoo
+
+    @property
+    def bugzoo(self) -> bugzoo.client.Client:
+        """
+        A connection to the BugZoo server to which this Hulk server is
+        attached.
+        """
+        return self.__bugzoo
 
     @property
     def languages(self) -> Languages:
