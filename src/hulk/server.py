@@ -1,5 +1,5 @@
-# TODO add decorator to automatically transform server errors into JSON
 from typing import Optional
+from functools import wraps
 import argparse
 import os
 
@@ -22,6 +22,7 @@ def throws_errors(func):
     any server errors that are thrown are automatically transformed into
     appropriate HTTP responses.
     """
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -56,6 +57,7 @@ def list_languages():
 
 
 @app.route('/operators/<name>', methods=['GET'])
+@throws_errors
 def describe_operator(name: str):
     """
     Describes a named operator.
@@ -63,10 +65,11 @@ def describe_operator(name: str):
     try:
         return installation.operators[name].to_dict()
     except KeyError:
-        return json_error('No operator registered with the given name.')
+        raise OperatorNotFound(name)
 
 
 @app.route('/operators', methods=['GET'])
+@throws_errors
 def list_operators():
     """
     Produces a list of all operators that are registered Hulk that satisfy a
@@ -76,6 +79,7 @@ def list_operators():
         language: If supplied, restricts the set of operators to those that
             are compatible with a certain language, given by its name.
     """
+    # TODO use URL params
     args = flask.request.get_json()
     if args is None:
         args = {}
@@ -88,7 +92,7 @@ def list_operators():
         try:
             language = installation.languages[args['language']]
         except KeyError:
-            return json_error("Specified language is not currently recognised by Hulk.")
+            raise LanguageNotFound(args['language'])
 
         op_list = [op for op in op_list if op.supports_language(language)]
 
@@ -97,7 +101,21 @@ def list_operators():
     return op_list
 
 
+@app.route('/files/:snapshot/:filepath', methods=['GET'])
+@throws_errors
+def read_file(name_snapshot: str, fn: str):
+    """
+    Reads the contents of a specified file in a given snapshot.
+    """
+    # fetch the snapshot
+    try:
+        snapshot = hulk.
+    except:
+        pass
+
+
 @app.route('/mutations/:filepath', methods=['GET'])
+@throws_errors
 def mutations(fn: str):
     """
     Determines the set of possible single-order mutations that can be applied
@@ -125,6 +143,7 @@ def mutations(fn: str):
     # if not, attempt to automatically determine which language should be used
     # based on the file ending of the specified file.
     else:
+        # TODO add error
         language = installation.detect_language(fn)
         if not language:
             return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(fn))
