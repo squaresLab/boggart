@@ -1,3 +1,6 @@
+#
+# TODO use metaprogramming to reduce the amount of boilerplate
+#
 from typing import Any, Dict, Tuple
 
 import flask
@@ -190,6 +193,35 @@ class SnapshotNotFound(ClientServerError):
     def name(self) -> str:
         """
         The name of the requested snapshot.
+        """
+        return self.__name
+
+    def to_response(self) -> Tuple[Any, int]:
+        return super().to_response(data={'name': self.name})
+
+
+class FileNotFound(ClientServerError):
+    """
+    Used to indicate that the requested file was not found.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'FileNotFound':
+        assert 'name' in data
+        return FileNotFound(data['name'])
+
+    def __init__(self,
+                 name: str,
+                 *,
+                 status_code: int = 404
+                 ) -> None:
+        self.__name = name
+        msg = "file not found: {}".format(name)
+        super().__init__(status_code, msg)
+
+    @property
+    def name(self) -> str:
+        """
+        The name of the missing file.
         """
         return self.__name
 
