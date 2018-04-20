@@ -11,7 +11,9 @@ __ALL__ = [
     'OperatorNameAlreadyExists',
     'LanguageNotFound',
     'BadConfigFile',
-    'IllegalConfig'
+    'IllegalConfig',
+    'FileNotFound',
+    'SnapshotNotFound'
 ]
 
 
