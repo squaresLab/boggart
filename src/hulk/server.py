@@ -108,12 +108,27 @@ def read_file(name_snapshot: str, fn: str):
     """
     Reads the contents of a specified file in a given snapshot.
     """
-    # fetch the snapshot
+    cache_key = (name_snapshot, fn)
+    if cache_key in hulk._cache_file_contents:
+        contents = hulk._cache_file_contents[cache_key]
+        # TODO ensure correct response encoding
+        return contents, 400
+
     try:
-        pass
-        # snapshot = hulk.
-    except:
-        pass
+        snapshot = hulk.bugzoo.bugs[name_snapshot]
+    except KeyError:
+        raise SnapshotNotFound(name_snapshot)
+
+    container = hulk.bugzoo.containers.provision(snapshot)
+    try:
+        contents = hulk.bugzoo.files.read(container, fn)
+        hulk._cache_file_contents[cache_key] = contents
+        # TODO ensure correct response encoding
+        return contents, 400
+    except KeyError:
+        raise FileNotFound(fn)
+    finally:
+        del hulk.bugzoo.containers[container.uid]
 
 
 @app.route('/mutations/:filepath', methods=['GET'])

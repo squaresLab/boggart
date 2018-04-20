@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple, Dict
 import os
 
 import bugzoo
@@ -66,6 +66,8 @@ class Hulk(object):
                  ) -> None:
         self.__config = config
         self.__bugzoo = client_bugzoo
+
+        self._cache_file_contents = {} # type: Dict[Tuple[str, str], str]
 
     @property
     def bugzoo(self) -> bugzoo.client.Client:
