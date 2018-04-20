@@ -167,6 +167,36 @@ class OperatorNotFound(ClientServerError):
         return super().to_response(data={'name': self.name})
 
 
+class SnapshotNotFound(ClientServerError):
+    """
+    Used to indicate that no snapshot was found with the given name on the
+    attached BugZoo server.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'SnapshotNotFound':
+        assert 'name' in data
+        return SnapshotNotFound(data['name'])
+
+    def __init__(self,
+                 name: str,
+                 *,
+                 status_code: int = 404
+                 ) -> None:
+        self.__name = name
+        msg = "no BugZoo snapshot registered with name: {}".format(name)
+        super().__init__(status_code, msg)
+
+    @property
+    def name(self) -> str:
+        """
+        The name of the requested snapshot.
+        """
+        return self.__name
+
+    def to_response(self) -> Tuple[Any, int]:
+        return super().to_response(data={'name': self.name})
+
+
 class BadConfigFile(HulkException):
     """
     Used to indicate that a given configuration file is ill-formed.
