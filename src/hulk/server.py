@@ -111,8 +111,9 @@ def read_file(name_snapshot: str, fn: str):
     cache_key = (name_snapshot, fn)
     if cache_key in hulk._cache_file_contents:
         contents = hulk._cache_file_contents[cache_key]
-        # TODO ensure correct response encoding
-        return contents, 400
+        response = flask.make_response(contents, 200)
+        response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+        return response
 
     try:
         snapshot = hulk.bugzoo.bugs[name_snapshot]
@@ -123,8 +124,9 @@ def read_file(name_snapshot: str, fn: str):
     try:
         contents = hulk.bugzoo.files.read(container, fn)
         hulk._cache_file_contents[cache_key] = contents
-        # TODO ensure correct response encoding
-        return contents, 400
+        response = flask.make_response(contents, 200)
+        response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+        return response
     except KeyError:
         raise FileNotFound(fn)
     finally:
