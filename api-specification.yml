@@ -161,10 +161,32 @@ paths:
           required: true
       responses:
         200:
-          description: OK
+          description: OK.
         404:
           description: File not found.
 
+  /mutants:
+    get:
+      summary: List of all registered mutants.
+      description: >-
+        Produces a list of all mutants that have been registered with the
+        server. When the server is shutdown, all registered mutants will
+        be discarded (i.e., mutants are ephemeral).
+      tags:
+        - mutants
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK.
+          schema:
+            type: array
+            description: >-
+              A list of the GUIDs of the mutants registered with this server.
+            items:
+              type: string
+              description: The GUID of the mutant.
+              example: 30dd879c-ee2f-11db-8314-0800200c9a66
 
   /mutate/${snapshot}/${filepath}:
     post:
