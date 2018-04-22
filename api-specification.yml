@@ -109,3 +109,72 @@ paths:
             $ref: '#/definitions/Operator'
         404:
           description: Operator not found.
+
+  /languages:
+    get:
+      summary: List of registered languages.
+      description: >-
+        Produces a list of all of the languages that are known to the server
+        and may be subject to mutation.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              type: string
+              description: The name of the language.
+              example: Python
+
+  /mutations/${filename}:
+    get:
+      summary: All known mutations at a given file.
+      description: >-
+        Produces a list of all known mutations, satisfying an optional set of
+        criteria, at a given file.
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: filename
+          type: string
+          description: The name of the file.
+          required: true
+      responses:
+        200:
+          description: OK
+        404:
+          description: File not found.
+
+
+  /mutate/${snapshot}/${filepath}:
+    post:
+      summary: Mutates a given snapshot.
+      description: >-
+        Applies a given mutation to a particular file belonging to a BugZoo
+        snapshot, producing a variant of that snapshot, i.e., the mutant,
+        containing the given mutation.
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: snapshot
+          type: string
+          description: The name of the BugZoo snapshot that is to be mutated.
+          required: true
+        - in: path
+          name: filepath
+          type: string
+          description: >-
+            The path to the file to which the mutation should be applied.
+            Relative paths will be interpreted relative to the source directory
+            for the snapshot.
+          required: true
+      responses:
+        200:
+          description: >-
+            Details of the BugZoo snapshot for the newly created mutant.
+        404:
+          description: Either the snapshot or file was not found.
