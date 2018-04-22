@@ -250,6 +250,35 @@ paths:
         404:
           description: Mutant not found.
 
+    post:
+      summary: Constructs a new mutant.
+      description: >-
+        Constructs a new mutant by applying a given mutation to a specified
+        BugZoo snapshot.
+      tags:
+        - mutants
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          name: Parameters
+          schema:
+            type: object
+            properties:
+              snapshot:
+                type: string
+                example: manybugs:python:69223-69224
+                description: >-
+                  The name of the BugZoo snapshot that should be mutated.
+      responses:
+        200:
+          description: Mutant was created.
+          schema:
+            $ref: '#/definitions/Mutant'
+        404:
+          description: BugZoo snapshot was not found.
+
     delete:
       summary: Destroys a registered mutant.
       description: >-
@@ -271,35 +300,3 @@ paths:
           description: Mutant was destroyed.
         404:
           description: Mutant not found.
-
-  /mutate/${snapshot}/${filepath}:
-    post:
-      summary: Mutates a given snapshot.
-      description: >-
-        Applies a given mutation to a particular file belonging to a BugZoo
-        snapshot, producing a variant of that snapshot, i.e., the mutant,
-        containing the given mutation.
-      tags:
-        - mutants
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: snapshot
-          type: string
-          description: The name of the BugZoo snapshot that is to be mutated.
-          required: true
-        - in: path
-          name: filepath
-          type: string
-          description: >-
-            The path to the file to which the mutation should be applied.
-            Relative paths will be interpreted relative to the source directory
-            for the snapshot.
-          required: true
-      responses:
-        200:
-          description: >-
-            Details of the BugZoo snapshot for the newly created mutant.
-        404:
-          description: Either the snapshot or file was not found.
