@@ -113,6 +113,7 @@ paths:
               description: The unique identifier of the mutation operator.
               example: NEGATE_IF_CONDITION_CSTYLE
 
+
   /operators/${id}:
     get:
       summary: Description of a mutation operator.
@@ -137,6 +138,7 @@ paths:
         404:
           description: Operator not found.
 
+
   /languages:
     get:
       summary: List of registered languages.
@@ -157,6 +159,7 @@ paths:
               description: The name of the language.
               example: Python
 
+
   /mutations:
     get:
       summary: All known mutations to a given body of text.
@@ -172,6 +175,7 @@ paths:
           description: OK.
         404:
           description: File not found.
+
 
   /mutations/${snapshot}/${filepath}:
     get:
@@ -203,6 +207,7 @@ paths:
         404:
           description: File not found.
 
+
   /mutants:
     get:
       summary: List of all registered mutants.
@@ -225,30 +230,6 @@ paths:
               type: string
               description: The GUID of the mutant.
               example: 30dd879c-ee2f-11db-8314-0800200c9a66
-
-  /mutants/${id}:
-    get:
-      summary: Description of a mutant.
-      description: >-
-        Produces a description of a given mutant that is registered with this
-        server.
-      tags:
-        - mutants
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          type: string
-          description: The GUID of the mutant.
-          required: true
-      responses:
-        200:
-          description: OK.
-          schema:
-            $ref: '#/definitions/Mutant'
-        404:
-          description: Mutant not found.
 
     post:
       summary: Constructs a new mutant.
@@ -278,6 +259,31 @@ paths:
             $ref: '#/definitions/Mutant'
         404:
           description: BugZoo snapshot was not found.
+
+
+  /mutants/${id}:
+    get:
+      summary: Description of a mutant.
+      description: >-
+        Produces a description of a given mutant that is registered with this
+        server.
+      tags:
+        - mutants
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          description: The GUID of the mutant.
+          required: true
+      responses:
+        200:
+          description: OK.
+          schema:
+            $ref: '#/definitions/Mutant'
+        404:
+          description: Mutant not found.
 
     delete:
       summary: Destroys a registered mutant.
