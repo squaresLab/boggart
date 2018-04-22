@@ -10,6 +10,15 @@ info:
 host: localhost
 basePath: /v1
 
+tags:
+  - name: configuration
+    description: All operations related to the server configuration
+  - name: mutations
+    description: All operations related to the discovery of mutations
+  - name: mutants
+    description: All operations related to mutants
+
+
 ###############################################################################
 
 definitions:
@@ -76,6 +85,8 @@ paths:
       description: >-
         Produces a list of all the mutation operators that are registered with
         this server given by their unique identifiers.
+      tags:
+        - configuration
       produces:
         - application/json
       responses:
@@ -94,6 +105,8 @@ paths:
       description: >-
         Produces a description of a mutation operator that is associated with
         a given unique identifier.
+      tags:
+        - configuration
       produces:
         - application/json
       parameters:
@@ -116,6 +129,8 @@ paths:
       description: >-
         Produces a list of all of the languages that are known to the server
         and may be subject to mutation.
+      tags:
+        - configuration
       produces:
         - application/json
       responses:
@@ -134,6 +149,8 @@ paths:
       description: >-
         Produces a list of all known mutations, satisfying an optional set of
         criteria, at a given file.
+      tags:
+        - mutations
       produces:
         - application/json
       parameters:
@@ -156,6 +173,8 @@ paths:
         Applies a given mutation to a particular file belonging to a BugZoo
         snapshot, producing a variant of that snapshot, i.e., the mutant,
         containing the given mutation.
+      tags:
+        - mutants
       produces:
         - application/json
       parameters:
