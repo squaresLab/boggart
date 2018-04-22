@@ -39,6 +39,20 @@ definitions:
           mutate identified mutation targets.
         example: "if (!(:[1]))"
 
+  Mutant:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+        description: The GUID of the mutant.
+        example: 30dd879c-ee2f-11db-8314-0800200c9a66
+      parent:
+        type: string
+        description: The name of the BugZoo snapshot that was mutated.
+        example: manybugs:python:69223-69224
+
   Language:
     type: object
     required:
@@ -211,6 +225,28 @@ paths:
               type: string
               description: The GUID of the mutant.
               example: 30dd879c-ee2f-11db-8314-0800200c9a66
+
+  /mutants/${id}:
+    get:
+      summary: Description of a mutant.
+      description: >-
+        Produces a description of a given mutant that is registered with this
+        server.
+      tags:
+        - mutants
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          description: The GUID of the mutant.
+          required: true
+      responses:
+        200:
+          description: OK.
+          schema:
+            $ref: '#/definitions/Mutant'
 
   /mutate/${snapshot}/${filepath}:
     post:
