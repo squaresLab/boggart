@@ -143,21 +143,45 @@ paths:
               description: The name of the language.
               example: Python
 
-  /mutations/${filename}:
+  /mutations:
+    get:
+      summary: All known mutations to a given body of text.
+      description: >-
+        Produces a list of all known mutations, satisying an optional set of
+        criteria, that can be applied to a given body of text.
+      tags:
+        - mutations
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK.
+        404:
+          description: File not found.
+
+  /mutations/${snapshot}/${filepath}:
     get:
       summary: All known mutations at a given file.
       description: >-
         Produces a list of all known mutations, satisfying an optional set of
-        criteria, at a given file.
+        criteria, at a given file belonging to a BugZoo snapshot.
       tags:
         - mutations
       produces:
         - application/json
       parameters:
         - in: path
-          name: filename
+          name: snapshot
           type: string
-          description: The name of the file.
+          description: >-
+            The name of the BugZoo snapshot.
+          required: true
+        - in: path
+          name: filepath
+          type: string
+          description: >-
+            The path to the file. Relative paths will be interpreted relative
+            to the source directory for the snapshot.
           required: true
       responses:
         200:
