@@ -247,6 +247,30 @@ paths:
           description: OK.
           schema:
             $ref: '#/definitions/Mutant'
+        404:
+          description: Mutant not found.
+
+    delete:
+      summary: Destroys a registered mutant.
+      description: >-
+        Destroys a registered mutant by destroying all of its associated
+        resources (i.e., BugZoo files and Docker image) and removing it
+        from the server.
+      tags:
+        - mutants
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          type: string
+          description: The GUID of the mutant.
+          required: true
+      responses:
+        204:
+          description: Mutant was destroyed.
+        404:
+          description: Mutant not found.
 
   /mutate/${snapshot}/${filepath}:
     post:
