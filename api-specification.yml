@@ -93,6 +93,19 @@ definitions:
 ################################################################################
 
 paths:
+  /status:
+    get:
+      summary: Status of the Hulk server.
+      description: >-
+        Produces a diagnostic summary of the health of the server.
+      tags:
+        - configuration
+      produces:
+        - application/json
+      responses:
+        204:
+          description: Server is running.
+
   /operators:
     get:
       summary: List of registered mutation operators.
