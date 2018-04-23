@@ -102,35 +102,26 @@ def list_operators():
     return op_list
 
 
-@app.route('/files/:snapshot/:filepath', methods=['GET'])
+@app.route('/files/<name_snapshot>/<filepath>', methods=['GET'])
 @throws_errors
-def read_file(name_snapshot: str, fn: str):
+def read_file(name_snapshot: str, filepath: str):
     """
     Reads the contents of a specified file in a given snapshot.
-    """
-    cache_key = (name_snapshot, fn)
-    if cache_key in hulk._cache_file_contents:
-        contents = hulk._cache_file_contents[cache_key]
-        response = flask.make_response(contents, 200)
-        response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-        return response
 
+    Raises:
+        SnapshotNotFound: if no snapshot is found with the given name.
+        FileNotFound: if the specified file is not found inside the snapshot.
+    """
+    # FIXME this is inefficient if the file is in the cache
     try:
-        snapshot = hulk.bugzoo.bugs[name_snapshot]
+        snapshot = installation.bugzoo.bugs[name_snapshot]
     except KeyError:
         raise SnapshotNotFound(name_snapshot)
 
-    container = hulk.bugzoo.containers.provision(snapshot)
-    try:
-        contents = hulk.bugzoo.files.read(container, fn)
-        hulk._cache_file_contents[cache_key] = contents
-        response = flask.make_response(contents, 200)
-        response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-        return response
-    except KeyError:
-        raise FileNotFound(fn)
-    finally:
-        del hulk.bugzoo.containers[container.uid]
+    contents = installation.read_file(snapshot, filepath)
+    response = flask.make_response(contents, 200)
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    return response
 
 
 @app.route('/mutations/<name_snapshot>/<filepath>', methods=['GET'])
@@ -170,6 +161,9 @@ def mutations(name_snapshot: str, filepath: str):
         if not language:
             return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(fn))
 
+    # transform mutation to diff
+    filepath = TODO
+    text_original = hulk.read_file(name_snapshot, filepath)
 
     # determine the set of operators that should be used
     mutations = []
