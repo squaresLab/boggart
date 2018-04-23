@@ -56,6 +56,7 @@ class ClientServerError(HulkException):
         assert 'error' in d
         d = d['error']
 
+        assert isinstance(d, dict)
         assert 'kind' in d
 
         # TODO use metaprogramming to avoid having to maintain this list
@@ -64,9 +65,9 @@ class ClientServerError(HulkException):
             'LanguageNotFound': LanguageNotFound,
             'BadConfigFile': BadConfigFile,
             'IllegalConfig': IllegalConfig
-        })[d]
+        })[d['kind']]
 
-        return cls.from_data(d.get('data', {}))
+        return cls.from_data(d.get('data', {})) # type: ignore
 
     def __init__(self, status_code: int, message: str) -> None:
         self.__status_code = status_code
@@ -80,7 +81,11 @@ class ClientServerError(HulkException):
         """
         return self.__status_code
 
-    def to_response(self, data: Dict[str, Any] = None) -> Tuple[Any, int]:
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {}
+
+    def to_response(self) -> Tuple[Any, int]:
         """
         Transforms this exception into a HTTP response containing a
         machine-readable description of the exception.
@@ -89,6 +94,7 @@ class ClientServerError(HulkException):
             'kind': self.__class__.__name__,
             'message': self.message
         }
+        data = self.data
         if data:
             jsn['data'] = data
         jsn = {'error': jsn}
@@ -112,7 +118,7 @@ class OperatorNameAlreadyExists(ClientServerError):
                  ) -> None:
         self.__name = name
         msg = "operator name is already in use: {}".format(name)
-        super().__init__(msg, status_code)
+        super().__init__(status_code, msg)
 
     @property
     def name(self) -> str:
@@ -121,8 +127,9 @@ class OperatorNameAlreadyExists(ClientServerError):
         """
         return self.__name
 
-    def to_response(self) -> Tuple[Any, int]:
-        return super().to_response(data={'name': self.name})
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'name': self.name}
 
 
 class LanguageNotFound(ClientServerError):
@@ -151,8 +158,9 @@ class LanguageNotFound(ClientServerError):
         """
         return self.__name
 
-    def to_response(self) -> Tuple[Any, int]:
-        return super().to_response(data={'name': self.name})
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'name': self.name}
 
 
 class OperatorNotFound(ClientServerError):
@@ -180,8 +188,9 @@ class OperatorNotFound(ClientServerError):
         """
         return self.__name
 
-    def to_response(self) -> Tuple[Any, int]:
-        return super().to_response(data={'name': self.name})
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'name': self.name}
 
 
 class SnapshotNotFound(ClientServerError):
@@ -210,8 +219,9 @@ class SnapshotNotFound(ClientServerError):
         """
         return self.__name
 
-    def to_response(self) -> Tuple[Any, int]:
-        return super().to_response(data={'name': self.name})
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'name': self.name}
 
 
 class FileNotFound(ClientServerError):
@@ -239,8 +249,9 @@ class FileNotFound(ClientServerError):
         """
         return self.__name
 
-    def to_response(self) -> Tuple[Any, int]:
-        return super().to_response(data={'name': self.name})
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'name': self.name}
 
 
 class BadConfigFile(HulkException):
