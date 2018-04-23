@@ -1,5 +1,6 @@
-from typing import Iterable, Dict
+from typing import Iterator, Dict
 
+from .api import API
 from ..base import Operator
 
 
@@ -8,20 +9,20 @@ class OperatorCollection(object):
     Provides read-only access to the set of operator supported by a given
     server.
     """
-    def __init__(self, client: 'Client') -> None:
+    def __init__(self, api: API) -> None:
         """
         Constructs a new language collection for a given server.
 
         Parameters:
-            client: the client object that should be used to communicate with
-                the server.
+            api: the low-level client API that should be used to interact
+                with the server.
         """
-        dict_list = client._get("/operators").json()
+        dict_list = api.get("/operators").json()
         operators = [Operator.from_dict(d) for d in dict_list]
         self.__contents = \
             {op.name: op for op in operators} # type: Dict[str, Operator]
 
-    def __iter__(self) -> Iterable[Operator]:
+    def __iter__(self) -> Iterator[Operator]:
         """
         Returns an iterator over the operators within this collection.
         """

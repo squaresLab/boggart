@@ -1,18 +1,17 @@
 # TODO mutants are killed when the server is killed
 from typing import Optional, Union, Dict, List, Iterator, Tuple
-from urllib.parse import urljoin, urlparse
 import difflib
 import tempfile
 import os
 
-import requests
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
-from ..exceptions import *
-from ..base import Operator, Language, Mutation
+from .api import API
 from .languages import LanguageCollection
 from .operators import OperatorCollection
+from ..exceptions import *
+from ..core import Operator, Language, Mutation
 
 
 __all__ = ['Client']
@@ -36,15 +35,7 @@ class Client(object):
         Raises:
             ValueError: if the provided URL lacks a scheme (e.g., 'http').
         """
-        if not urlparse(base_url).scheme:
-          raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")
-
-        self.__base_url = base_url
-        self.__timeout = timeout
-
-        # maintain a local cache of the contents of files for BugZoo snapshots
-        # map from (snapshot-name, filename) to contents of the file
-        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
+        self.__api = API(base_url, timeout=timeout)
 
     @property
     def languages(self) -> LanguageCollection:
@@ -53,7 +44,7 @@ class Client(object):
         by the server.
         """
         # TODO: cache?
-        return LanguageCollection(client=self)
+        return LanguageCollection(api=self.__api)
 
     @property
     def operators(self) -> OperatorCollection:
@@ -61,27 +52,8 @@ class Client(object):
         The set of mutation operators that are supported by the server.
         """
         # TODO: cache?
-        return OperatorCollection(client=self)
+        return OperatorCollection(api=self.__api)
 
-    def _url(self, path: str) -> str:
-        """
-        Computes the URL to a resource located at a given path on the server.
-        """
-        return urljoin(self.__base_url, path)
-
-    def _get(self,
-             path: str,
-             params: Dict[str, Union[str, List[str]]] = None,
-             **kwargs
-             ) -> requests.Response:
-        """
-        Sends a GET request to the server.
-
-        Parameters:
-            path:   the path of the resource.
-        """
-        url = self._url(path)
-        return requests.get(url, params, **kwargs)
 
     def mutations(self,
                   snapshot: Bug,

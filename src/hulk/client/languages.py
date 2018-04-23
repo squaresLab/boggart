@@ -1,6 +1,9 @@
-from typing import Iterable, Dict
+from typing import Iterator, Dict
 
+from .api import API
 from ..base import Language
+
+__all__ = ['LanguageCollection']
 
 
 class LanguageCollection(object):
@@ -8,20 +11,20 @@ class LanguageCollection(object):
     Provides read-only access to the set of languages supported by a given
     server.
     """
-    def __init__(self, client: 'Client') -> None:
+    def __init__(self, api: API) -> None:
         """
         Constructs a new language collection for a given server.
 
         Parameters:
-            client: the client object that should be used to communicate with
-                the server.
+            api: the low-level client API that should be used to interact
+                with the server.
         """
-        language_dict_list = client._get("/languages").json()
+        language_dict_list = api.get("/languages").json()
         languages = [Language.from_dict(d) for d in language_dict_list]
         self.__contents = \
             {lang.name: lang for lang in languages} # type: Dict[str, Language]
 
-    def __iter__(self) -> Iterable[Language]:
+    def __iter__(self) -> Iterator[Language]:
         """
         Returns an iterator over the languages within this collection.
         """
@@ -36,8 +39,6 @@ class LanguageCollection(object):
     def __getitem__(self, name: str) -> Language:
         """
         Returns the language associated with a given name.
-
-        TODO: should we raise a KeyError or LanguageNotFound exception?
 
         Raises:
             KeyError: if no language is found with the given name.
