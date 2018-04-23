@@ -32,6 +32,9 @@ class Client(object):
         Parameters:
             base_url:   the URL of the Hulk server.
             timeout:    the default timeout for API calls (in seconds).
+
+        Raises:
+            ValueError: if the provided URL lacks a scheme (e.g., 'http').
         """
         if not urlparse(base_url).scheme:
           raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")
