@@ -6,8 +6,9 @@ import bugzoo.client
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
-from hulk.base import Language, Mutation, Operator
-from hulk.config import Configuration, Languages, Operators
+from .exceptions import *
+from .core import Language, Mutation, Operator
+from .config import Configuration, Languages, Operators
 
 __all__ = ['Installation']
 
@@ -101,15 +102,17 @@ class Installation(object):
         on its file ending.
 
         Returns:
-            The language associated with the file ending used by the given file,
-            if one exists; if no language is associated with the file ending,
-            or if the file has no suffix, `None` is returned instead.
+            The language associated with the file ending used by the given file.
+
+        Raises:
+            LanguageNotDetected: if the language used by the filename could not
+                be automatically detected.
         """
-        (_, suffix) = os.path.splitext(filename)
+        _, suffix = os.path.splitext(filename)
         for language in self.languages:
             if suffix in language.file_endings:
                 return language
-        return None # technically this is implicit
+        raise LanguageNotDetected(filename)
 
     def read_file_contents(self, snapshot: Bug, filepath: str) -> str:
         """

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Dict
 from functools import wraps
 import argparse
 import os
@@ -8,7 +8,7 @@ import flask
 from flask_api import FlaskAPI
 
 from .exceptions import *
-from .core import Language, Operator
+from .core import Language, Operator, Mutation
 from .hulk import Installation
 
 app = FlaskAPI(__name__)
@@ -127,35 +127,33 @@ def mutations(name_snapshot: str, filepath: str):
             the language used by the given file. If this parameter is not
             supplied, Hulk will attempt to automatically detect the language
             used by a given file based on its file ending.
+
+    Raises:
+        LanguageNotFound: if the given language is not recognized by the
+            server.
+        LanguageNotDetected: if the language used by the given file cannot be
+            automatically detected.
     """
     args = flask.request.args
 
-    # determine the file whose mutations the user wishes to obtain
-    if not os.path.isfile(fn):
-        return json_error('No file located at given filepath.')
+    # TODO determine the file whose mutations the user wishes to obtain
 
-    # if a language is specified, use it
+    # determine the language used by the file
     if 'language' in args:
-        language = args['language']
-        if language not in installation.languages:
-            return json_error('The specified language is not supported.')
-
-    # if not, attempt to automatically determine which language should be used
-    # based on the file ending of the specified file.
+        try:
+            language = installation.languages[args['language']]
+        except KeyError:
+            raise LanguageNotFound(args['language'])
     else:
-        # TODO add error
-        language = installation.detect_language(fn)
-        if not language:
-            return json_error("Failed to auto-detect language for specified file: '{}'. Try manually specifying the language of the file using 'language'.".format(fn))
+        language = installation.detect_language(filepath)
 
-    # transform mutation to diff
-    filepath = TODO
-    text_original = hulk.read_file(name_snapshot, filepath)
+    # TODO determine the set of operators that should be used
 
-    # determine the set of operators that should be used
-    mutations = []
+    mutations = [] # type: List[Mutation]
 
-    return mutations
+    # TODO transform mutations to JSON
+    jsn = [] # type: List[Dict[str, Any]]
+    return jsn
 
 
 def launch(port: int = 8000,
