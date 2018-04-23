@@ -7,9 +7,9 @@ import bugzoo
 import flask
 from flask_api import FlaskAPI
 
-from .exceptions import *
-from .core import Language, Operator, Mutation
-from .installation import Installation
+from ..exceptions import *
+from ..core import Language, Operator, Mutation
+from ..installation import Installation
 
 app = FlaskAPI(__name__)
 
