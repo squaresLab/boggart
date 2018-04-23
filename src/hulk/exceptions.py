@@ -12,6 +12,7 @@ __all__ = [
     'OperatorNameAlreadyExists',
     'OperatorNotFound',
     'LanguageNotFound',
+    'LanguageNotDetected',
     'BadConfigFile',
     'IllegalConfig',
     'FileNotFound',
@@ -162,6 +163,37 @@ class LanguageNotFound(ClientServerError):
     @property
     def data(self) -> Dict[str, Any]:
         return {'name': self.name}
+
+
+class LanguageNotDetected(ClientServerError):
+    """
+    Failed to automatically detect the language used by a file.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'LanguageNotDetected':
+        assert 'filename' in data
+        return LanguageNotDetected(data['filename'])
+
+    def __init__(self,
+                 filename: str,
+                 *,
+                 status_code: int = 400
+                 ) -> None:
+        self.__filename = filename
+        msg = "unable to automatically detect language used by file: {}"
+        msg = msg.format(filename)
+        super().__init__(status_code, msg)
+
+    @property
+    def filename(self) -> str:
+        """
+        The name of the file.
+        """
+        return self.__filename
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'filename': self.filename}
 
 
 class OperatorNotFound(ClientServerError):
