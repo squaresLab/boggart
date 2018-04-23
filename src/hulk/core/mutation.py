@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from .location import LocationRange
+from .location import FileLocationRange
 
 __all__ = ['Mutation']
 
@@ -23,14 +23,14 @@ class Mutation(object):
         operator = d['operator']
         transformation_index = d['transformation-index']
         arguments = d['arguments']
-        location = LocationRange.from_string(d['location'])
+        location = FileLocationRange.from_string(d['location'])
 
         return Mutation(operator, transformation_index, location, arguments)
 
     def __init__(self,
                  operator: str,
                  transformation_index: int,
-                 at: LocationRange,
+                 at: FileLocationRange,
                  args: Dict[str, str]
                  ) -> None:
         self.__operator = operator
@@ -60,9 +60,9 @@ class Mutation(object):
         return self.__transformation_index
 
     @property
-    def location(self) -> LocationRange:
+    def location(self) -> FileLocationRange:
         """
-        The location (range) at which the operator was applied.
+        The character range at which the operator was applied.
         """
         return self.__at
 
