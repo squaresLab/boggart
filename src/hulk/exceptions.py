@@ -10,6 +10,7 @@ __all__ = [
     'UnexpectedResponse',
     'ServerError',
     'OperatorNameAlreadyExists',
+    'OperatorNotFound',
     'LanguageNotFound',
     'BadConfigFile',
     'IllegalConfig',
