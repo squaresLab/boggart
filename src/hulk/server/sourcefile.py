@@ -11,7 +11,16 @@ __all__ = ['SourceFileManager']
 
 class SourceFileManager(object):
     def __init__(self, client_bugzoo: BugZooClient) -> None:
+        self.__bugzoo = client_bugzoo
         self.__cache_contents_cache = {} # type: Dict[Tuple[str, str], str]
+        self.__cache_offsets = {} # type: Dict[Tuple[str, str], List[int]]
+
+    def __line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
+        """
+        Returns a list specifying the offset for the first character on each
+        line in a given file belonging to a BugZoo snapshot.
+        """
+        raise NotImplementedError
 
     def line_col_to_offset(self,
                            snapshot: Bug,
@@ -22,7 +31,10 @@ class SourceFileManager(object):
         Transforms a line-column number for a given file belonging to a
         BugZoo snapshot into a zero-indexed character offset.
         """
-        raise NotImplementedError
+        line_offsets = self.__line_offsets(snapshot, filepath)
+        line_starts_at = line_offsets[line_num - 1]
+        offset = line_starts_at + col_num - 1
+        return offset
 
     def read_file(self, snapshot: Bug, filepath: str) -> str:
         """
