@@ -133,15 +133,18 @@ def read_file(name_snapshot: str, fn: str):
         del hulk.bugzoo.containers[container.uid]
 
 
-@app.route('/mutations/:filepath', methods=['GET'])
+@app.route('/mutations/<name_snapshot>/<filepath>', methods=['GET'])
 @throws_errors
-def mutations(fn: str):
+def mutations(name_snapshot: str, filepath: str):
     """
     Determines the set of possible single-order mutations that can be applied
-    to a given file.
+    to a given file belonging to a specified BugZoo snapshot.
 
-    Params:
-        fn: The file that should be analyzed.
+    Path Parameters:
+        name_snapshot: The name of the BugZoo snapshot that should be mutated.
+        filepath: The file that should be analyzed.
+
+    URL-encoded Parameters:
         language: An optional parameter that can be used to explicitly state
             the language used by the given file. If this parameter is not
             supplied, Hulk will attempt to automatically detect the language
