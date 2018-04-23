@@ -36,6 +36,15 @@ class Client(object):
             ValueError: if the provided URL lacks a scheme (e.g., 'http').
         """
         self.__api = API(base_url, timeout=timeout)
+        self.__languages = LanguageCollection(api=self.api)
+        self.__operators = OperatorCollection(api=self.api)
+
+    @property
+    def api(self) -> API:
+        """
+        The low-level client API used to communicate with the server.
+        """
+        return self.__api
 
     @property
     def languages(self) -> LanguageCollection:
@@ -43,8 +52,7 @@ class Client(object):
         The set of languages that are supported (i.e., can be mutated)
         by the server.
         """
-        # TODO: cache?
-        return LanguageCollection(api=self.__api)
+        return self.__languages
 
     @property
     def operators(self) -> OperatorCollection:
@@ -52,8 +60,7 @@ class Client(object):
         The set of mutation operators that are supported by the server.
         """
         # TODO: cache?
-        return OperatorCollection(api=self.__api)
-
+        return self.__operators
 
     def mutations(self,
                   snapshot: Bug,
@@ -98,7 +105,7 @@ class Client(object):
         if operators:
             params['operators'] = ';'.join([op.name for op in operators])
 
-        response = self._get(path, params, data=text)
+        response = self.api.get(path, params, data=text)
 
         if response.status_code != 204:
             try:

@@ -47,5 +47,5 @@ class API(object):
         Parameters:
             path:   the path of the resource.
         """
-        url = self._url(path)
+        url = self.url(path)
         return requests.get(url, params, **kwargs)
