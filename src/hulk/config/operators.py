@@ -14,7 +14,7 @@ class Operators(object):
     """
     @staticmethod
     def from_defs(defs: List[Any],
-                  base: 'Optional[Configuration]' = None
+                  base: Optional['Configuration'] = None
                   ) -> 'Operators':
         """
         Loads an operator configuration from a list of definitions taken
@@ -33,7 +33,7 @@ class Operators(object):
         return config
 
     def __init__(self,
-                 operators: 'Optional[Dict[str, Operators]]' = None
+                 operators: Optional[Dict[str, Operator]] = None
                  ) -> None:
         """
         Constructs a collection of operators for a set of operators provided

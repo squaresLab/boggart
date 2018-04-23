@@ -1,14 +1,16 @@
 from typing import Optional
-from hulk.exceptions import BadConfigFile
-from hulk.config.languages import Languages
-from hulk.config.operators import Operators
+
 import yaml
+
+from .languages import Languages
+from .operators import Operators
+from ..exceptions import BadConfigFile
 
 
 class Configuration(object):
     @staticmethod
     def from_file(filename: str,
-                  parent: 'Optional[Config]' = None
+                  parent: 'Optional[Configuration]' = None
                   ) -> 'Configuration':
         """
         Loads a configuration file from a given file.
@@ -38,7 +40,7 @@ class Configuration(object):
     def __init__(self,
                  languages: Optional[Languages] = None,
                  operators: Optional[Operators] = None
-                 ):
+                 ) -> None:
         """
         Constructs a configuration that supports a given set of operators and
         languages.

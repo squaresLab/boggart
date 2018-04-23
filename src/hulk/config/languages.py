@@ -4,6 +4,8 @@ import warnings
 from ..core import Language
 from ..exceptions import IllegalConfig
 
+__all__ = ['Languages']
+
 
 class Languages(object):
     """
@@ -11,7 +13,7 @@ class Languages(object):
     """
     @staticmethod
     def from_defs(defs: List[Any],
-                  base: 'Optional[Configuration]' = None
+                  base: Optional['Configuration'] = None
                   ) -> 'Languages':
         """
         Loads an operator configuration from a list of definitions taken
@@ -25,7 +27,7 @@ class Languages(object):
         return config
 
     def __init__(self,
-                 languages: 'Optional[Dict[str, Languages]]' = None
+                 languages: Optional[Dict[str, Language]] = None
                  ) -> None:
         """
         Constructs a collection of lamnguages for a set of languages provided
