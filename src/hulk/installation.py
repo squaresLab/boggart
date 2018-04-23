@@ -95,24 +95,6 @@ class Installation(object):
         """
         return self.__config.operators
 
-    def detect_language(self, filename: str) -> Optional[Language]:
-        """
-        Attempts to automatically detect the language used by a file based
-        on its file ending.
-
-        Returns:
-            The language associated with the file ending used by the given file.
-
-        Raises:
-            LanguageNotDetected: if the language used by the filename could not
-                be automatically detected.
-        """
-        _, suffix = os.path.splitext(filename)
-        for language in self.languages:
-            if suffix in language.file_endings:
-                return language
-        raise LanguageNotDetected(filename)
-
     def __read_file_contents(self, snapshot: Bug, filepath: str) -> str:
         """
         Fetches the contents of a specified source code file belonging to a
@@ -164,4 +146,6 @@ class Installation(object):
         text = self.read_file_contents(snapshot, filepath)
 
         # TODO talk to Rooibos
-        raise NotImplementedError
+        mutations = []
+
+        yield from mutations

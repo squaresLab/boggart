@@ -1,8 +1,9 @@
 from typing import Iterator, Any, List, FrozenSet, Optional, Dict, Set
 import warnings
+import os
 
 from ..core import Language
-from ..exceptions import IllegalConfig
+from ..exceptions import IllegalConfig, LanguageNotDetected
 
 __all__ = ['Languages']
 
@@ -98,3 +99,21 @@ class Languages(object):
         for language in self:
             endings.union(language.file_endings)
         return frozenset(endings)
+
+    def detect(self, filename: str) -> Language:
+        """
+        Attempts to automatically detect the language used by a file based
+        on its file ending.
+
+        Returns:
+            The language associated with the file ending used by the given file.
+
+        Raises:
+            LanguageNotDetected: if the language used by the filename could not
+                be automatically detected.
+        """
+        _, suffix = os.path.splitext(filename)
+        for language in self:
+            if suffix in language.file_endings:
+                return language
+        raise LanguageNotDetected(filename)

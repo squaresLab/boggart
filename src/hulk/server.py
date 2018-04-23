@@ -145,7 +145,7 @@ def mutations(name_snapshot: str, filepath: str):
         except KeyError:
             raise LanguageNotFound(args['language'])
     else:
-        language = installation.detect_language(filepath)
+        language = None
 
     # TODO determine the set of operators that should be used
 
