@@ -3,6 +3,7 @@ import os
 
 import bugzoo
 import bugzoo.client
+from bugzoo.core.bug import Bug
 
 from hulk.base import Language
 from hulk.config import Configuration, Languages, Operators
@@ -67,7 +68,7 @@ class Hulk(object):
         self.__config = config
         self.__bugzoo = client_bugzoo
 
-        self._cache_file_contents = {} # type: Dict[Tuple[str, str], str]
+        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
 
     @property
     def bugzoo(self) -> bugzoo.client.Client:
@@ -106,3 +107,32 @@ class Hulk(object):
             if suffix in language.file_endings:
                 return language
         return None # technically this is implicit
+
+    def read_file_contents(self, snapshot: Bug, filepath: str) -> str:
+        """
+        Fetches the contents of a specified source code file belonging to a
+        given BugZoo snapshot.
+
+        Raises:
+            FileNotFound: if the given file is not found inside the snapshot.
+        """
+        key_cache = (snapshot.name, filepath)
+        if key_cache in self.__cache_file_contents:
+            return self.__cache_file_contents[key_cache]
+
+        container = self.bugzoo.containers.provision(snapshot)
+        try:
+            contents = self.bugzoo.files.read(container, filepath)
+        except KeyError:
+            raise FileNotFound(fn)
+        finally:
+            del hulk.bugzoo.containers[container.uid]
+
+        self.__cache_file_contents[key_cache] = contents
+        return contents
+
+    def mutations_to_snapshot(self, snapshot: Bug, filepath: str):
+        raise NotImplementedError
+
+    def mutations_to_text(self, text: str):
+        raise NotImplementedError
