@@ -8,7 +8,7 @@ import flask
 __all__ = [
     'HulkException',
     'UnexpectedResponse',
-    'ServerError',
+    'ClientServerError',
     'OperatorNameAlreadyExists',
     'OperatorNotFound',
     'LanguageNotFound',
