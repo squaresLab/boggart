@@ -1,4 +1,4 @@
-from typing import List, Iterator
+from typing import List, Iterator, Dict, Any
 from uuid import UUID
 
 from .mutation import Mutation
@@ -9,7 +9,7 @@ __all__ = ['Mutant']
 class Mutant(object):
     def __init__(self,
                  uuid: UUID,
-                 snapshot: str,
+                 base: str,
                  mutations: List[Mutation]
                  ) -> None:
         """
@@ -17,13 +17,13 @@ class Mutant(object):
 
         Parameters:
             uuid: the UUID for the mutant.
-            snapshot: the name of the snapshot that was used to generate the
+            base: the name of the snapshot that was used to generate the
                 mutant.
             mutations: the sequence of mutations that were applied to the
                 snapshot.
         """
         self.__uuid = uuid
-        self.__snapshot = snapshot
+        self.__base = base
         self.__mutations = mutations
 
     @property
@@ -34,11 +34,11 @@ class Mutant(object):
         return self.__uuid
 
     @property
-    def snapshot(self) -> str:
+    def base(self) -> str:
         """
         The name of the snapshot that was used to generate this mutant.
         """
-        return self.__snapshot
+        return self.__base
 
     @property
     def mutations(self) -> Iterator[Mutation]:
@@ -47,3 +47,14 @@ class Mutant(object):
         snapshot in order to generate this mutant.
         """
         return self.__mutations.__iter__()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Produces a dictionary-based description of this mutant, ready to be
+        serialized as, for instance, YAML or JSON.
+        """
+        return {
+            'uuid': self.__uuid.hex,
+            'base': self.__base,
+            'mutations': list(self.mutations)
+        }
