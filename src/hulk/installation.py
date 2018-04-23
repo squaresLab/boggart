@@ -140,10 +140,11 @@ class Installation(object):
         """
         if operators is None:
             operators = list(self.operators)
-        if language is None:
-            language = self.languages.detect(filepath)
 
         text = self.__read_file_contents(snapshot, filepath)
+
+        if language is None:
+            language = self.languages.detect(filepath)
 
         # TODO talk to Rooibos
         mutations = []
