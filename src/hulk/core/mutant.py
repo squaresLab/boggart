@@ -7,6 +7,19 @@ __all__ = ['Mutant']
 
 
 class Mutant(object):
+    @staticmethod
+    def from_dict(jsn: Any) -> 'Mutant':
+        """
+        Constructs a mutant description from a dictionary.
+        """
+        assert isinstance(jsn, dict)
+
+        uuid = UUID(hex=jsn['uuid'])
+        base = jsn['base']
+        mutations = jsn['mutations']
+
+        return Mutant(uuid, base, mutations)
+
     def __init__(self,
                  uuid: UUID,
                  base: str,
