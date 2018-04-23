@@ -143,7 +143,7 @@ class Installation(object):
         if language is None:
             language = self.languages.detect(filepath)
 
-        text = self.read_file_contents(snapshot, filepath)
+        text = self.__read_file_contents(snapshot, filepath)
 
         # TODO talk to Rooibos
         mutations = []
