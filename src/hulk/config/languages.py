@@ -1,6 +1,8 @@
-from typing import Iterable, Any, List, FrozenSet, Optional, Dict
-from hulk.base import Language
-from hulk.exceptions import IllegalConfig
+from typing import Iterator, Any, List, FrozenSet, Optional, Dict, Set
+import warnings
+
+from ..core import Language
+from ..exceptions import IllegalConfig
 
 
 class Languages(object):
@@ -24,7 +26,7 @@ class Languages(object):
 
     def __init__(self,
                  languages: 'Optional[Dict[str, Languages]]' = None
-                 ):
+                 ) -> None:
         """
         Constructs a collection of lamnguages for a set of languages provided
         in the form a dictionary, indexed by name.
@@ -48,13 +50,13 @@ class Languages(object):
 
         # are the file endings used by this language already in use?
         if set(language.file_endings) & endings:
-            raise IllegalConfigError("file ending ambiguity: two or more languages share a common file ending.")
+            raise IllegalConfig("file ending ambiguity: two or more languages share a common file ending.")
 
         languages = dict(self.__languages)
         languages[language.name] = language
         return Languages(languages)
 
-    def __iter__(self) -> Iterable[Language]:
+    def __iter__(self) -> Iterator[Language]:
         """
         An iterator over the languages within this collection.
         """
@@ -90,7 +92,7 @@ class Languages(object):
         The set of file endings that are used by languages within this
         collection.
         """
-        endings = set()
+        endings = set() # type: Set[str]
         for language in self:
             endings.union(language.file_endings)
         return frozenset(endings)
