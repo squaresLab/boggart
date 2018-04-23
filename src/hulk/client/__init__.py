@@ -83,14 +83,14 @@ class Client(object):
         url = self._url(path)
         return requests.get(url, params, **kwargs)
 
-    def mutations_to_snapshot(self,
-                              snapshot: Bug,
-                              filepath: str,
-                              *,
-                              language: Optional[Language] = None,
-                              operators: Optional[List[Operator]] = None,
-                              restrict_to_lines: Optional[List[FileLine]] = None
-                              ) -> Iterator[Mutation]:
+    def mutations(self,
+                  snapshot: Bug,
+                  filepath: str,
+                  *,
+                  language: Optional[Language] = None,
+                  operators: Optional[List[Operator]] = None,
+                  restrict_to_lines: Optional[List[FileLine]] = None
+                  ) -> Iterator[Mutation]:
         """
         Returns an iterator over all of the mutations that can be applied to
         a given file belonging to a BugZoo snapshot.
@@ -117,36 +117,9 @@ class Client(object):
             FileNotFound: if no file is found with the given name in the
                 snapshot.
         """
-        raise NotImplementedError
-
-    def mutations_to_text(self,
-                          text: str,
-                          language: Language,
-                          operators: Optional[List[Operator]] = None
-                          ) -> Iterator[Mutation]:
-        """
-        Returns an iterator over all of the mutations that can be applied to
-        a given body of text.
-
-        Parameters:
-            text: the text whose mutations should be computed.
-            language: the language that the source text is written in.
-            operators: an optional list of mutation operators that should be
-                used to generate mutations. If no list is provided, then all
-                registered mutation operators for the specified language will
-                be used as a default.
-
-        Returns:
-            an iterator over the possible mutations.
-
-        Raises:
-            LanguageNotFound: given language is not registered with server.
-            OperatorNotFound: one or more of the given operators is not
-                registered with the server.
-        """
         assert operators is None or len(operators) > 0
 
-        path = "mutations/{}".format(filepath)
+        path = "mutations/{}/{}".format(snapshot.name, filepath)
         params = {}
         if language:
             params['language'] = language.name
@@ -155,36 +128,21 @@ class Client(object):
 
         response = self._get(path, params, data=text)
 
-        # TODO handle errors
+        if response.status_code != 204:
+            try:
+                err = ClientServerError.from_dict(response.json())
+            except Exception:
+                err = UnexpectedResponse(response)
+            raise err
 
-        if response.status_code == 200:
-            for jsn_mutation in response.json():
-                yield Mutation.from_dict(jsn_mutation)
+        # status code == 200
+        for jsn_mutation in response.json():
+            yield Mutation.from_dict(jsn_mutation)
 
-    def mutate_text(self,
-                    text: str,
-                    mutation: Mutation
-                    ) -> str:
-        """
-        Applies a given mutation to a body of text.
-
-        Parameters:
-            text: the body of text that should be mutated.
-            mutation: the mutation to apply to the text.
-
-        Returns:
-            a variant of the text that contains the given mutation.
-
-        Raises:
-            LocationNotFound: if the location described in the mutation does
-                not exist in the given text.
-        """
-        raise NotImplementedError
-
-    def mutate_snapshot(self,
-                        snapshot_original: Bug,
-                        mutation: Mutation
-                        ) -> Bug:
+    def mutate(self,
+               snapshot_original: Bug,
+               mutation: Mutation
+               ) -> Bug:
         """
         Applies a given mutation to a snapshot.
 
