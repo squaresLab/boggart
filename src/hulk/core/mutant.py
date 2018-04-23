@@ -1,0 +1,2 @@
+class Mutant(object):
+    pass
