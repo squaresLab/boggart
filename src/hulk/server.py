@@ -32,6 +32,15 @@ def throws_errors(func):
     return wrapper
 
 
+@app.route('/status', methods=['GET'])
+@throws_errors
+def status():
+    """
+    Produces a diagnostic summary of the health of the server.
+    """
+    return '', 204
+
+
 @app.route('/languages/<name>', methods=['GET'])
 @throws_errors
 def describe_language(name: str):
