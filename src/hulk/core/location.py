@@ -11,7 +11,7 @@ class Location(object):
         print(col)
         return Location(int(line), int(col))
 
-    def __init__(self, line: int, col: int):
+    def __init__(self, line: int, col: int) -> None:
         self.__line = line
         self.__col = col
 
@@ -47,7 +47,7 @@ class LocationRange(object):
         stop = Location.from_string(stop_s)
         return LocationRange(start, stop)
 
-    def __init__(self, start: Location, stop: Location):
+    def __init__(self, start: Location, stop: Location) -> None:
         self.__start = start
         self.__stop = stop
 
