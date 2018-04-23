@@ -80,44 +80,6 @@ class Client(object):
         url = self._url(path)
         return requests.get(url, params, **kwargs)
 
-    def read_file(self, snapshot: Bug, filepath: str) -> str:
-        """
-        Returns the contents of a given source file for a BugZoo snapshot.
-
-        Parameters:
-            snapshot: the snapshot to which the source file belongs.
-            filepath: the path to the source file, relative to the source
-                directory for the snapshot.
-
-        Returns:
-            the contents of the source file as a string.
-
-        Raises:
-             SnapshotNotFound: if the given snapshot does not appear to be
-                registered with the BugZoo server that is attached to this
-                Hulk server.
-            FileNotFound: if no file is found with the given name in the
-                snapshot.
-        """
-        cache_key = (snapshot.name, filepath)
-        if cache_key in self.__cache_file_contents:
-            return self.__cache_file_contents[cache_key]
-
-        path = "file/{}/{}".format(snapshot.name, filepath)
-        response = self._get(path)
-
-        if response.status_code == 200:
-            text = response.text
-            self.__cache_file_contents[cache_key] = text
-            return text
-
-        elif response.status_code == 400:
-            raise HulkException.from_dict(response.json())
-
-        # FIXME implement
-        else:
-            raise UnexpectedResponse()
-
     def mutations_to_snapshot(self,
                               snapshot: Bug,
                               filepath: str,
@@ -152,11 +114,7 @@ class Client(object):
             FileNotFound: if no file is found with the given name in the
                 snapshot.
         """
-        text = self.read_file(snapshot, filepath)
-        return self.mutations_to_text(text,
-                                      language=language,
-                                      operators=operators,
-                                      restrict_to_lines=restrict_to_lines)
+        raise NotImplementedError
 
     def mutations_to_text(self,
                           text: str,
