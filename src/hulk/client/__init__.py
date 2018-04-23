@@ -15,7 +15,7 @@ from .languages import LanguageCollection
 from .operators import OperatorCollection
 
 
-__ALL__ = ['Client']
+__all__ = ['Client']
 
 
 class Client(object):
