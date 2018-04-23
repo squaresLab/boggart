@@ -1,11 +1,12 @@
-from typing import Optional, Tuple, Dict
+from typing import Optional, Tuple, Dict, Iterator
 import os
 
 import bugzoo
 import bugzoo.client
 from bugzoo.core.bug import Bug
+from bugzoo.core.fileline import FileLine
 
-from hulk.base import Language
+from hulk.base import Language, Mutation, Operator
 from hulk.config import Configuration, Languages, Operators
 
 
@@ -131,8 +132,33 @@ class Hulk(object):
         self.__cache_file_contents[key_cache] = contents
         return contents
 
-    def mutations_to_snapshot(self, snapshot: Bug, filepath: str):
-        raise NotImplementedError
+    def mutations_to_snapshot(self,
+                              snapshot: Bug,
+                              filepath: str,
+                              *,
+                              language: Language = None,
+                              operators: List[Operator] = None,
+                              restrict_to_lines: Iterator[FileLine] = None
+                              ) -> Iterator[Mutation]:
+        """
+        Computes all of the first-order mutations that can be applied to a
+        given file belonging to a specified BugZoo snapshot.
 
-    def mutations_to_text(self, text: str):
+        Returns:
+            an iterator over the possible mutations.
+        """
+        text = self.read_file_contents(snapshot, filepath)
+        return self.mutations_to_text(text,
+                                      language,
+                                      operators=operators,
+                                      restrict_to_lines=restrict_to_lines)
+
+    def mutations_to_text(self,
+                          text: str,
+                          language: Language,
+                          *,
+                          operators: List[Operator] = None,
+                          restrict_to_lines: Iterator[FileLine] = None
+                          ) -> Iterator[Mutation]:
+        # TODO talk to Rooibos
         raise NotImplementedError
