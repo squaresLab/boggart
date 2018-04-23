@@ -1,7 +1,7 @@
 from typing import Iterator, Dict
 
 from .api import API
-from ..base import Language
+from ..core import Language
 
 __all__ = ['LanguageCollection']
 

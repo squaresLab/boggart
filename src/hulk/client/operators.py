@@ -1,7 +1,7 @@
 from typing import Iterator, Dict
 
 from .api import API
-from ..base import Operator
+from ..core import Operator
 
 
 class OperatorCollection(object):
