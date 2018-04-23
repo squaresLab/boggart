@@ -5,8 +5,9 @@ from typing import Any, Dict, Tuple
 
 import flask
 
-__ALL__ = [
+__all__ = [
     'HulkException',
+    'UnexpectedResponse',
     'ServerError',
     'OperatorNameAlreadyExists',
     'LanguageNotFound',
@@ -31,6 +32,17 @@ class HulkException(Exception):
         A short description of the error.
         """
         return self.__message
+
+
+class UnexpectedResponse(Exception):
+    """
+    The server produced an unexpected response that the client does not know
+    how to interpret or decode.
+    """
+    def __init__(self, response: flask.Response) -> None:
+        msg = "Server produced an unexpected response [{}]:\n{}"
+        msg = msg.format(response.status_code, response.text)
+        super().__init__(msg)
 
 
 class ClientServerError(HulkException):
