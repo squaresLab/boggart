@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable, List, Any
 
 __all__ = ['Language']
 
