@@ -113,7 +113,7 @@ class Installation(object):
                 return language
         raise LanguageNotDetected(filename)
 
-    def read_file_contents(self, snapshot: Bug, filepath: str) -> str:
+    def __read_file_contents(self, snapshot: Bug, filepath: str) -> str:
         """
         Fetches the contents of a specified source code file belonging to a
         given BugZoo snapshot.
@@ -136,33 +136,32 @@ class Installation(object):
         self.__cache_file_contents[key_cache] = contents
         return contents
 
-    def mutations_to_snapshot(self,
-                              snapshot: Bug,
-                              filepath: str,
-                              *,
-                              language: Language = None,
-                              operators: List[Operator] = None,
-                              restrict_to_lines: Iterator[FileLine] = None
-                              ) -> Iterator[Mutation]:
+    def mutations(self,
+                  snapshot: Bug,
+                  filepath: str,
+                  *,
+                  language: Language = None,
+                  operators: List[Operator] = None,
+                  restrict_to_lines: Iterator[FileLine] = None
+                  ) -> Iterator[Mutation]:
         """
         Computes all of the first-order mutations that can be applied to a
         given file belonging to a specified BugZoo snapshot.
 
         Returns:
             an iterator over the possible mutations.
-        """
-        text = self.read_file_contents(snapshot, filepath)
-        return self.mutations_to_text(text,
-                                      language,
-                                      operators=operators,
-                                      restrict_to_lines=restrict_to_lines)
 
-    def mutations_to_text(self,
-                          text: str,
-                          language: Language,
-                          *,
-                          operators: List[Operator] = None,
-                          restrict_to_lines: Iterator[FileLine] = None
-                          ) -> Iterator[Mutation]:
+        Raises:
+            LanguageNotDetected: if no language is specified and the language
+                used by the file cannot be automatically determined.
+            FileNotFound: if the given file is not found inside the snapshot.
+        """
+        if operators is None:
+            operators = list(self.operators)
+        if language is None:
+            language = self.languages.detect(filepath)
+
+        text = self.read_file_contents(snapshot, filepath)
+
         # TODO talk to Rooibos
         raise NotImplementedError
