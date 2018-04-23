@@ -126,7 +126,7 @@ class Hulk(object):
         except KeyError:
             raise FileNotFound(fn)
         finally:
-            del hulk.bugzoo.containers[container.uid]
+            del self.bugzoo.containers[container.uid]
 
         self.__cache_file_contents[key_cache] = contents
         return contents
