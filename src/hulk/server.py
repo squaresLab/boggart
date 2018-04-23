@@ -102,28 +102,6 @@ def list_operators():
     return op_list
 
 
-@app.route('/files/<name_snapshot>/<filepath>', methods=['GET'])
-@throws_errors
-def read_file(name_snapshot: str, filepath: str):
-    """
-    Reads the contents of a specified file in a given snapshot.
-
-    Raises:
-        SnapshotNotFound: if no snapshot is found with the given name.
-        FileNotFound: if the specified file is not found inside the snapshot.
-    """
-    # FIXME this is inefficient if the file is in the cache
-    try:
-        snapshot = installation.bugzoo.bugs[name_snapshot]
-    except KeyError:
-        raise SnapshotNotFound(name_snapshot)
-
-    contents = installation.read_file(snapshot, filepath)
-    response = flask.make_response(contents, 200)
-    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    return response
-
-
 @app.route('/mutations/<name_snapshot>/<filepath>', methods=['GET'])
 @throws_errors
 def mutations(name_snapshot: str, filepath: str):
