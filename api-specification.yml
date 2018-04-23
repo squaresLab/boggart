@@ -160,23 +160,6 @@ paths:
               example: Python
 
 
-  /mutations:
-    get:
-      summary: All known mutations to a given body of text.
-      description: >-
-        Produces a list of all known mutations, satisying an optional set of
-        criteria, that can be applied to a given body of text.
-      tags:
-        - mutations
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK.
-        404:
-          description: File not found.
-
-
   /mutations/${snapshot}/${filepath}:
     get:
       summary: All known mutations at a given file.
