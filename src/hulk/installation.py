@@ -9,8 +9,10 @@ from bugzoo.core.fileline import FileLine
 from hulk.base import Language, Mutation, Operator
 from hulk.config import Configuration, Languages, Operators
 
+__all__ = ['Installation']
 
-class Hulk(object):
+
+class Installation(object):
     """
     Used to manage a local installation of Hulk.
     """
@@ -40,7 +42,7 @@ class Hulk(object):
              client_bugzoo: bugzoo.client.Client,
              *,
              user_config_path: Optional[str] = None,
-             ) -> 'Hulk':
+             ) -> 'Installation':
         """
         Loads a Hulk installation.
 
@@ -48,19 +50,19 @@ class Hulk(object):
             client_bugzoo: A connection to the BugZoo server that should be
                 used by this Hulk server.
             config_filepath: The path to the user configuration file for Hulk.
-                If left unspecified, `Hulk.default_user_config_path` will be
-                used instead.
+                If left unspecified, `Installation.default_user_config_path`
+                will be used instead.
         """
         if not user_config_path:
-            user_config_path = Hulk.default_user_config_path()
+            user_config_path = Installation.default_user_config_path()
 
-        system_cfg = Configuration.from_file(Hulk.sys_config_path())
+        system_cfg = Configuration.from_file(Installation.sys_config_path())
 
         if not os.path.isfile(user_config_path):
-            return Hulk(system_cfg, client_bugzoo)
+            return Installation(system_cfg, client_bugzoo)
 
         user_cfg = Configuration.from_file(user_config_path, system_cfg)
-        return Hulk(user_cfg, client_bugzoo)
+        return Installation(user_cfg, client_bugzoo)
 
     def __init__(self,
                  config: Configuration,

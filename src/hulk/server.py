@@ -8,13 +8,13 @@ import flask
 from flask_api import FlaskAPI
 
 from .exceptions import *
-from .base import Language, Operator
-from .hulk import Hulk
+from .core import Language, Operator
+from .hulk import Installation
 
 app = FlaskAPI(__name__)
 
 # TODO: tidy this up
-installation = None # type: Optional[Hulk]
+installation = None # type: Optional[Installation]
 
 
 def throws_errors(func):
@@ -164,7 +164,7 @@ def launch(port: int = 8000,
     global installation
     assert 0 <= port <= 49151
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
-    installation = Hulk.load(client_bugzoo)
+    installation = Installation.load(client_bugzoo)
     app.run(port=port, debug=True)
 
 
