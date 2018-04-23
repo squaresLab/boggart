@@ -7,8 +7,6 @@ class Location(object):
     @staticmethod
     def from_string(s: str) -> 'Location':
         line, _, col = s.partition(':')
-        print(line)
-        print(col)
         return Location(int(line), int(col))
 
     def __init__(self, line: int, col: int) -> None:
