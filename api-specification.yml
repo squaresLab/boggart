@@ -290,6 +290,13 @@ paths:
                 example: manybugs:python:69223-69224
                 description: >-
                   The name of the BugZoo snapshot that should be mutated.
+              mutations:
+                type: array
+                description: >-
+                  The sequence of mutations that should be applied to the given
+                  snapshot to produce the mutant.
+                items:
+                  $ref: '#/definitions/Mutation'
       responses:
         200:
           description: Mutant was created.
