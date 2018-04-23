@@ -6,6 +6,7 @@ from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
 from .mutant import MutantManager
+from .sourcefile import SourceFileManager
 from ..exceptions import *
 from ..core import Language, Mutation, Operator
 from ..config import Configuration, Languages, Operators
@@ -72,8 +73,7 @@ class Installation(object):
         self.__config = config
         self.__bugzoo = client_bugzoo
         self.__mutants = MutantManager(client_bugzoo)
-
-        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
+        self.__sources = SourceFileManager(client_bugzoo)
 
     @property
     def bugzoo(self) -> BugZooClient:
@@ -82,6 +82,14 @@ class Installation(object):
         attached.
         """
         return self.__bugzoo
+
+    @property
+    def sources(self) -> SourceFileManager:
+        """
+        Provides access to the contents and caches the contents of source code
+        belonging to BugZoo snapshots.
+        """
+        return self.__sources
 
     @property
     def languages(self) -> Languages:
@@ -103,29 +111,6 @@ class Installation(object):
         The active mutants that are registered with this installation.
         """
         return self.__mutants
-
-    def __read_file_contents(self, snapshot: Bug, filepath: str) -> str:
-        """
-        Fetches the contents of a specified source code file belonging to a
-        given BugZoo snapshot.
-
-        Raises:
-            FileNotFound: if the given file is not found inside the snapshot.
-        """
-        key_cache = (snapshot.name, filepath)
-        if key_cache in self.__cache_file_contents:
-            return self.__cache_file_contents[key_cache]
-
-        container = self.bugzoo.containers.provision(snapshot)
-        try:
-            contents = self.bugzoo.files.read(container, filepath)
-        except KeyError:
-            raise FileNotFound(filepath)
-        finally:
-            del self.bugzoo.containers[container.uid]
-
-        self.__cache_file_contents[key_cache] = contents
-        return contents
 
     def mutations(self,
                   snapshot: Bug,
@@ -150,7 +135,7 @@ class Installation(object):
         if operators is None:
             operators = list(self.operators)
 
-        text = self.__read_file_contents(snapshot, filepath)
+        text = self.sources.read_file(snapshot, filepath)
 
         if language is None:
             language = self.languages.detect(filepath)
