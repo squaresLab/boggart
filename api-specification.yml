@@ -52,6 +52,13 @@ definitions:
         type: string
         description: The name of the BugZoo snapshot that was mutated.
         example: manybugs:python:69223-69224
+      mutations:
+        type: array
+        description: >-
+          The sequence of mutations that should be applied to the snapshot in
+          order to produce the mutant.
+        items:
+          $ref: '#/definitions/Mutation'
 
   Language:
     type: object
@@ -89,6 +96,41 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/TransformationSchema'
+
+  LocationRange:
+    type: string
+    example: "foo.c@1:2"
+
+  Mutation:
+    type: object
+    required:
+      - operator
+      - transformation-index
+      - location
+    properties:
+      name:
+        type: string
+        description: The name of the mutation operator that was applied.
+        example: NEGATE_IF_CONDITION_CSTYLE
+      transformation-index:
+        type: number
+        description: >-
+          The index of the particular syntax transformation that was applied
+          by the mutation operator.
+        format: int
+        example: 0
+      location:
+        $ref: '#/definitions/LocationRange'
+        description: >-
+          The contiguous range of source code to which the mutation was applied.
+      arguments:
+        type: object
+        description: >-
+          A dictionary of arguments that should be supplied to the syntax
+          transformation to apply the mutation.
+        additionalProperties:
+          type: string
+
 
 ################################################################################
 
