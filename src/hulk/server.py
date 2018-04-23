@@ -9,7 +9,7 @@ from flask_api import FlaskAPI
 
 from .exceptions import *
 from .core import Language, Operator, Mutation
-from .hulk import Installation
+from .installation import Installation
 
 app = FlaskAPI(__name__)
 
@@ -142,6 +142,12 @@ def mutations(name_snapshot: str, filepath: str):
     """
     args = flask.request.args
 
+    # fetch the given snapshot
+    try:
+        snapshot = installation.bugzoo.bugs[name_snapshot]
+    except KeyError:
+        raise SnapshotNotFound(name_snapshot)
+
     # determine the language used by the file
     if 'language' in args:
         try:
@@ -164,9 +170,9 @@ def mutations(name_snapshot: str, filepath: str):
     else:
         operators = None
 
-    mutations = [] # type: List[Mutation]
+    mutations = []
 
-    # TODO transform mutations to JSON
+    # transform mutations to JSON
     jsn = [] # type: List[Dict[str, Any]]
     return jsn
 
