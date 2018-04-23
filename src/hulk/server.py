@@ -170,10 +170,13 @@ def mutations(name_snapshot: str, filepath: str):
     else:
         operators = None
 
-    mutations = []
+    # TODO implement line restriction
 
-    # transform mutations to JSON
-    jsn = [] # type: List[Dict[str, Any]]
+    mutations = installation.mutations(snapshot,
+                                       filepath,
+                                       language=language,
+                                       operators=operators)
+    jsn = [m.to_dict() for m in mutations]
     return jsn
 
 
