@@ -1,6 +1,6 @@
 from typing import Any
 
-__all__ = ['Location', 'LocationRange']
+__all__ = ['Location', 'LocationRange', 'FileLocationRange']
 
 
 class Location(object):
@@ -74,3 +74,38 @@ class LocationRange(object):
         return "{}::{}".format(self.start, self.stop)
 
     to_string = __str__
+
+
+class FileLocationRange(LocationRange):
+    """
+    Represents a contiguous sequence of characters in a particular file.
+    """
+    @staticmethod
+    def from_string(s: str) -> 'FileLocationRange':
+        filename, _, s_range = s.rpartition('@')
+        start_s, _, stop_s = s_range.partition('::')
+        start = Location.from_string(start_s)
+        stop = Location.from_string(stop_s)
+        return FileLocationRange(filename, start, stop)
+
+    def __init__(self, filename: str, start: Location, stop: Location) -> None:
+        super().__init__(start, stop)
+        self.__filename = filename
+
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, FileLocationRange) and \
+               self.filename == other.filename and \
+               super().__eq__(other)
+
+    def __str__(self) -> str:
+        str_range = super().__str__()
+        return "{}@{}".format(self.filename, str_range)
+
+    to_string = __str__
+
+    @property
+    def filename(self) -> str:
+        """
+        The name of the file to which the character range belongs.
+        """
+        return self.__filename
