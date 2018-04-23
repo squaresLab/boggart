@@ -1,17 +1,11 @@
-# TODO mutants are killed when the server is killed
 from typing import Optional, Union, Dict, List, Iterator, Tuple
-import difflib
-import tempfile
-import os
-
-from bugzoo.core.bug import Bug
-from bugzoo.core.fileline import FileLine
+import requests
 
 from .api import API
 from .languages import LanguageCollection
 from .operators import OperatorCollection
 from ..exceptions import *
-from ..core import Operator, Language, Mutation
+from ..core import Operator, Language, Mutation, Mutant
 
 
 __all__ = ['Client']
@@ -59,8 +53,23 @@ class Client(object):
         """
         The set of mutation operators that are supported by the server.
         """
-        # TODO: cache?
         return self.__operators
+
+    def __handle_error_response(self, response: requests.Response) -> None:
+        """
+        Attempts to decode an erroneous response into an exception, and to
+        subsequently throw that exception.
+
+        Raises:
+            ClientServerError: the exception described by the error response.
+            UnexpectedResponse: if the response cannot be decoded to an
+                exception.
+        """
+        try:
+            err = ClientServerError.from_dict(response.json())
+        except Exception:
+            err = UnexpectedResponse(response)
+        raise err
 
     def mutations(self,
                   snapshot: Bug,
@@ -68,7 +77,7 @@ class Client(object):
                   *,
                   language: Optional[Language] = None,
                   operators: Optional[List[Operator]] = None,
-                  restrict_to_lines: Optional[List[FileLine]] = None
+                  restrict_to_lines: Optional[List[int]] = None
                   ) -> Iterator[Mutation]:
         """
         Returns an iterator over all of the mutations that can be applied to
@@ -107,71 +116,30 @@ class Client(object):
 
         response = self.api.get(path, params, data=text)
 
-        if response.status_code != 204:
-            try:
-                err = ClientServerError.from_dict(response.json())
-            except Exception:
-                err = UnexpectedResponse(response)
-            raise err
-
-        # status code == 200
-        for jsn_mutation in response.json():
-            yield Mutation.from_dict(jsn_mutation)
+        if response.status_code == 200:
+            for jsn_mutation in response.json():
+                yield Mutation.from_dict(jsn_mutation)
+        else:
+            self.__handle_error_response(response)
 
     def mutate(self,
-               snapshot_original: Bug,
-               mutation: Mutation
-               ) -> Bug:
+               snapshot: Bug,
+               mutations: List[Mutation]
+               ) -> Mutant:
         """
         Applies a given mutation to a snapshot.
 
         Parameters:
-            snapshot_original: the snapshot to mutate.
-            mutation: the mutation to apply to the snapshot.
+            snapshot: the snapshot that should be mutated.
+            mutations: the mutations to apply to the snapshot.
 
         Returns:
-            a variant of the given snapshot that has been subjected to the
-            given mutation.
+            a description of the generated mutant.
         """
-        # TODO move to server
-        # create a temporary dir for the mutant
-        dir_temp = tempfile.mkdtemp(suffix='.hulk')
+        payload = [m.to_dict() for m in mutations]
+        response = self.api.post("mutants", data=payload)
 
-        # TODO generate a name for the mutant
-
-        # transform mutation to diff
-        filepath = TODO
-        text_original = self.read_file(snapshot_original, filepath)
-        text_mutated = self.mutate_text(text_original, mutation)
-        diff = difflib.unified_diff(text_original.splitlines(True),
-                                    text_mutated.splitlines(True),
-                                    filepath,
-                                    filepath)
-        fn_diff = os.path.join(dir_temp, 'mutant.diff')
-        with open(fn_diff, 'w') as f:
-            r.write(diff)
-
-        # build the docker file
-        fn_dockerfile = os.path.join(dir_temp, 'Dockerfile')
-        with open(fn_dockerfile, 'w') as f:
-            contents = [
-                "FROM {}".format(snapshot_original.image),
-                "WORKDIR {}".format(snapshot_original.source_dir),
-                "COPY mutant.diff .",
-                "RUN patch -p0 < mutant.diff"
-            ]
-            f.writelines(contents)
-
-        # build bug description
-        snapshot_mutated = Bug(name=snapshot_mutated_name,
-                               image=docker_image_name,
-                               languages=snapshot_original.languages,
-                               harness=snapshot_original.harness,
-                               compiler=snapshot_original.compiler,
-                               files_to_instrument=snapshot_original.files_to_instrument)
-
-        # register with BugZoo
-
-        # build Docker image
-
-        return snapshot_mutated
+        if response.status_code == 200:
+            return Mutant.from_dict(response.json())
+        else:
+            self.__handle_error_response(response)
