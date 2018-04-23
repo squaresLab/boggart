@@ -1,8 +1,7 @@
-from typing import Optional, Tuple, Dict, Iterator
+from typing import Optional, Tuple, Dict, Iterator, List
 import os
 
-import bugzoo
-import bugzoo.client
+from bugzoo.client import Client as BugZooClient
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
@@ -40,7 +39,7 @@ class Installation(object):
 
     @classmethod
     def load(cls,
-             client_bugzoo: bugzoo.client.Client,
+             client_bugzoo: BugZooClient,
              *,
              user_config_path: Optional[str] = None,
              ) -> 'Installation':
@@ -67,7 +66,7 @@ class Installation(object):
 
     def __init__(self,
                  config: Configuration,
-                 client_bugzoo: bugzoo.client.Client
+                 client_bugzoo: BugZooClient
                  ) -> None:
         self.__config = config
         self.__bugzoo = client_bugzoo
@@ -75,7 +74,7 @@ class Installation(object):
         self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
 
     @property
-    def bugzoo(self) -> bugzoo.client.Client:
+    def bugzoo(self) -> BugZooClient:
         """
         A connection to the BugZoo server to which this Hulk server is
         attached.
@@ -130,7 +129,7 @@ class Installation(object):
         try:
             contents = self.bugzoo.files.read(container, filepath)
         except KeyError:
-            raise FileNotFound(fn)
+            raise FileNotFound(filepath)
         finally:
             del self.bugzoo.containers[container.uid]
 
