@@ -5,9 +5,9 @@ from bugzoo.client import Client as BugZooClient
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
 
-from .exceptions import *
-from .core import Language, Mutation, Operator
-from .config import Configuration, Languages, Operators
+from ..exceptions import *
+from ..core import Language, Mutation, Operator
+from ..config import Configuration, Languages, Operators
 
 __all__ = ['Installation']
 
@@ -150,3 +150,15 @@ class Installation(object):
         mutations = []
 
         yield from mutations
+
+    def mutate(self,
+               snapshot: Bug,
+               mutations: List[Mutation]
+               ) -> Mutant:
+        """
+        Generates a new mutant by applying a given set of mutations to a
+        specified BugZoo snapshot.
+        """
+        mutant = Mutant(snapshot.name)
+
+        return mutant
