@@ -127,16 +127,20 @@ def mutations(name_snapshot: str, filepath: str):
             the language used by the given file. If this parameter is not
             supplied, Hulk will attempt to automatically detect the language
             used by a given file based on its file ending.
+        operators: An optional semi-colon delimited parameter that can be used
+            to specify which mutation operators should be used. If left
+            unspecified, all available mutation operators for the language used
+            by the given file will be used.
 
     Raises:
+        SnapshotNotFound: if no snapshot can be found with the given name.
+        FileNotFound: if the given file is not found inside the snapshot.
         LanguageNotFound: if the given language is not recognized by the
             server.
         LanguageNotDetected: if the language used by the given file cannot be
             automatically detected.
     """
     args = flask.request.args
-
-    # TODO determine the file whose mutations the user wishes to obtain
 
     # determine the language used by the file
     if 'language' in args:
@@ -147,7 +151,18 @@ def mutations(name_snapshot: str, filepath: str):
     else:
         language = None
 
-    # TODO determine the set of operators that should be used
+    # determine the set of operators that should be used
+    if 'operators' in args:
+        operators = []
+        operator_names = args['operators'].split(';')
+        for name in operator_names:
+            try:
+                op = installation.operators[name]
+                operators.append(op)
+            except KeyError:
+                raise OperatorNotFound(name)
+    else:
+        operators = None
 
     mutations = [] # type: List[Mutation]
 
