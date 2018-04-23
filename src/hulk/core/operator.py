@@ -1,6 +1,7 @@
-from typing import Dict, Any, List, FrozenSet
+from typing import Dict, Any, List, FrozenSet, Iterator
 
 from .transformation import Transformation
+from .language import Language
 
 __all__ = ['Operator']
 
@@ -53,9 +54,10 @@ class Operator(object):
         return self.__name
 
     @property
-    def languages(self) -> FrozenSet[str]:
+    def languages(self) -> Iterator[str]:
         """
-        The names of the languages supported by this mutation operator.
+        Returns an iterator over the names of the languages that are supported
+        by this mutation operator.
         """
         return self.__languages.__iter__()
 
