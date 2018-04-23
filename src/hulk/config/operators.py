@@ -1,6 +1,10 @@
-from typing import Iterable, Any, List, Optional, Dict
-from hulk.base import Operator
-from hulk.config.languages import Languages
+from typing import Iterator, Any, List, Optional, Dict
+
+from .languages import Languages
+from ..core import Operator
+from ..exceptions import LanguageNotFound
+
+__all__ = ['Operators']
 
 
 class Operators(object):
@@ -60,7 +64,7 @@ class Operators(object):
         ops[op.name] = op
         return Operators(ops)
 
-    def __iter__(self) -> Iterable[Operator]:
+    def __iter__(self) -> Iterator[Operator]:
         """
         An iterator over the operators contained within this collection.
         """
