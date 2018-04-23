@@ -1,9 +1,8 @@
-import hulk.base
-import hulk.hulk
 import hulk.exceptions
 import hulk.server
 import hulk.client
+import hulk.core
 
-from hulk.base import Operator, Transformation, Language
+from hulk.core import *
 from hulk.hulk import Hulk
 from hulk.client import Client
