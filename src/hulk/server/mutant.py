@@ -24,7 +24,7 @@ class MutantManager(object):
                  operators: OperatorManager,
                  sources: SourceFileManager
                  ) -> None:
-        self.__mutants = [] # type: Dict[UUID, Mutant]
+        self.__mutants = {} # type: Dict[UUID, Mutant]
         self.__bugzoo = client_bugzoo
         self.__operators = operators
         self.__sources = sources
