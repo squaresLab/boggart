@@ -1,9 +1,11 @@
 # TODO mutants are killed when the server is killed
 from typing import List, Iterator, Dict
 from uuid import UUID, uuid4
+from difflib import unified_diff
 import tempfile
 
 from bugzoo.core.bug import Bug
+from bugzoo.core.patch import Patch
 from bugzoo.client import Client as BugZooClient
 
 from .sourcefile import SourceFileManager
@@ -104,15 +106,19 @@ class MutantManager(object):
             replacement = Replacement(location, text_mutated)
             replacements_in_file[filename].append(replacement)
 
-        # compute the mutated contents of each affected file
-        mutated_files = {} # type: Dict[str, str]
+        # transform the replacements to a diff
+        file_diffs = [] # type: Dict[str, str]
         for filename in replacements_in_file:
-            mutated_files[filename] = \
-                self.__sources.apply(snapshot,
-                                     filename,
-                                     replacements_in_file[filename])
-
-        # TODO generate a diff
+            original = self.__sources.read_file(filename)
+            mutated = self.__sources.apply(snapshot,
+                                           filename,
+                                           replacements_in_file[filename])
+            diff = '\n'.join(unified_diff(original.splitlines(True),
+                                          mutated.splitlines(True),
+                                          filename,
+                                          filename))
+            file_diffs.append(diff)
+        mutant_diff = Patch.from_unidiff('\n'.join(file_diffs))
 
         # generate the Docker image on the BugZoo server
         container = bz.containers.provision(snapshot)
