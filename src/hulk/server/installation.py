@@ -8,7 +8,7 @@ from bugzoo.core.fileline import FileLine
 from .mutant import MutantManager
 from .sourcefile import SourceFileManager
 from ..exceptions import *
-from ..core import Language, Mutation, Operator
+from ..core import Language, Mutation, Operator, Mutant
 from ..config import Configuration, Languages, Operators
 
 __all__ = ['Installation']
@@ -36,7 +36,7 @@ class Installation(object):
         The path to the system-level configuration file.
         """
         src_dir = os.path.dirname(__file__)
-        cfg_fn = os.path.join(src_dir, 'config/sys.hulk.yml')
+        cfg_fn = os.path.join(src_dir, '../config/sys.hulk.yml')
         return cfg_fn
 
     @classmethod
