@@ -52,7 +52,9 @@ class MutantManager(object):
         Raises:
             KeyError: if no mutant is registered under the given UUID.
         """
-        # FIXME destroy BugZoo resources
+        mutant = self[uuid]
+        self.__bugzoo.docker.delete_image(mutant.docker_image)
+        # FIXME deregister the BugZoo snapshot
         del self.__mutants[uuid]
 
     def __len__(self) -> int:
@@ -124,7 +126,7 @@ class MutantManager(object):
         container = bz.containers.provision(snapshot)
         try:
             bz.containers.patch(diff)
-            bz.containers.persist(snapshot, docker_image)
+            bz.containers.persist(snapshot, mutant.docker_image)
         finally:
             del bz.containers[container.uid]
 
@@ -135,7 +137,7 @@ class MutantManager(object):
                                harness=snapshot_original.harness,
                                compiler=snapshot_original.compiler,
                                files_to_instrument=snapshot_original.files_to_instrument)
-        # TODO register with BugZoo
+        bz.bugs.register(snapshot_mutated)
 
         # track the mutant
         self.__mutants[mutant.uuid] = mutant
