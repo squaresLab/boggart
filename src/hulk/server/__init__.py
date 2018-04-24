@@ -1,5 +1,6 @@
 from typing import Optional, List, Dict, Any
 from functools import wraps
+from uuid import UUID
 import argparse
 import os
 
@@ -109,6 +110,24 @@ def list_operators():
     # serialize to JSON
     op_list = [op.to_dict() for op in op_list]
     return op_list
+
+
+@app.route('/mutants', methods=['GET'])
+@throws_errors
+def interact_with_mutants():
+    if flask.request.method == 'GET':
+        list_uuid = [m.uuid for m in installation.mutants]
+        return flask.jsonify(list_uuid), 200
+
+
+@app.route('/mutants/<uuid_str>', methods=['GET'])
+@throws_errors
+def interact_with_mutant(uuid_hex: str):
+    uuid = UUID(hex=uuid_hex)
+
+    if flask.request.method == 'GET':
+        mutant = installation.mutants[uuid]
+        return flask.jsonify(mutant.to_dict()), 200
 
 
 @app.route('/mutations/<name_snapshot>/<filepath>', methods=['GET'])
