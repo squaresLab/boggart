@@ -72,8 +72,8 @@ class Installation(object):
                  ) -> None:
         self.__config = config
         self.__bugzoo = client_bugzoo
-        self.__mutants = MutantManager(client_bugzoo)
         self.__sources = SourceFileManager(client_bugzoo)
+        self.__mutants = MutantManager(client_bugzoo, self.__sources)
 
     @property
     def bugzoo(self) -> BugZooClient:
