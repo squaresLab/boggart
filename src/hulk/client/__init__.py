@@ -1,6 +1,8 @@
 from typing import Optional, Union, Dict, List, Iterator, Tuple
 import requests
 
+from bugzoo.core.bug import Bug
+
 from .api import API
 from .languages import LanguageCollection
 from .operators import OperatorCollection
@@ -137,7 +139,7 @@ class Client(object):
             a description of the generated mutant.
         """
         payload = [m.to_dict() for m in mutations]
-        response = self.api.post("mutants", data=payload)
+        response = self.api.post("mutants", json=payload)
 
         if response.status_code == 200:
             return Mutant.from_dict(response.json())

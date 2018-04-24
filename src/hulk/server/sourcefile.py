@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List
 from bugzoo.core.bug import Bug
 from bugzoo.client import Client as BugZooClient
 
-from ..core import FileLocationRange
+from ..core import FileLocationRange, Replacement
 from ..exceptions import *
 
 __all__ = ['SourceFileManager']

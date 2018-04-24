@@ -49,3 +49,7 @@ class API(object):
         """
         url = self.url(path)
         return requests.get(url, params, **kwargs)
+
+    def post(self, path: str, data = None, **kwargs) -> requests.Response:
+        url = self.url(path)
+        return requests.post(url, data, **kwargs)
