@@ -54,6 +54,20 @@ class Mutant(object):
         return self.__base
 
     @property
+    def snapshot(self) -> str:
+        """
+        The name of the BugZoo snapshot for this mutant.
+        """
+        return "hulk:{}".format(self.uuid)
+
+    @property
+    def docker_image(self) -> str:
+        """
+        The name of the Docker image for this mutant.
+        """
+        return self.snapshot
+
+    @property
     def mutations(self) -> Iterator[Mutation]:
         """
         Returns an iterator over the mutations that were applied to the
