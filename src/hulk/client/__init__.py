@@ -138,7 +138,10 @@ class Client(object):
         Returns:
             a description of the generated mutant.
         """
-        payload = [m.to_dict() for m in mutations]
+        payload = {
+            'snapshot': snapshot.name,
+            'mutations': [m.to_dict() for m in mutations]
+        }
         response = self.api.post("mutants", json=payload)
 
         if response.status_code == 200:
