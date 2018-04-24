@@ -50,6 +50,7 @@ class MutantManager(object):
         Raises:
             KeyError: if no mutant is registered under the given UUID.
         """
+        # FIXME destroy BugZoo resources
         del self.__mutants[uuid]
 
     def __len__(self) -> int:
@@ -59,16 +60,24 @@ class MutantManager(object):
         return len(self.__mutants)
 
     def generate(self, snapshot: Bug, mutations: List[Mutation]) -> Mutant:
+        """
+        Generates a mutant by applying a given set of mutations to a BugZoo
+        snapshot.
+
+        Parameters:
+            snapshot: the BugZoo snapshot to mutate.
+            mutations: the mutations to apply to the snapshot.
+
+        Returns:
+            a description of the generated mutant.
+        """
         bz = self.__bugzoo
         assert len(mutations) <= 1, "higher-order mutation is currently unsupported"
 
         # NOTE this is *incredibly* unlikely to conflict
         uuid = uuid4()
         assert uuid not in self.__mutants, "UUID already in use."
-
-        # determine the name of the Docker image for this mutant
-        docker_image = "hulk:{}".format(uuid.hex)
-        mutant_snapshot_name = docker_image
+        mutant = Mutant(uuid, snapshot.name, mutations)
 
         # group mutations by file
         file_mutations = [] # type: Dict[str, List[Mutation]]
@@ -113,16 +122,15 @@ class MutantManager(object):
         finally:
             del bz.containers[container.uid]
 
-        # build snapshot
-        snapshot_mutated = Bug(name=mutant_snapshot_name,
-                               image=docker_image,
+        # build and register a BugZoo snapshot
+        snapshot_mutated = Bug(name=mutant.snapshot,
+                               image=mutant.docker_image,
                                languages=snapshot_original.languages,
                                harness=snapshot_original.harness,
                                compiler=snapshot_original.compiler,
                                files_to_instrument=snapshot_original.files_to_instrument)
-
         # TODO register with BugZoo
 
-        # build and register the mutant
-        mutant = Mutant(uuid, snapshot.name, mutations)
+        # track the mutant
+        self.__mutants[mutant.uuid] = mutant
         return mutant
