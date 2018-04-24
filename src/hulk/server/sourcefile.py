@@ -1,4 +1,4 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
 from bugzoo.core.bug import Bug
 from bugzoo.client import Client as BugZooClient
@@ -83,3 +83,12 @@ class SourceFileManager(object):
                                            location.stop.col_num)
 
         return contents_file[start_at:stop_at + 1]
+
+    def apply(self,
+              snapshot: Bug,
+              location: FileLocationRange,
+              replacements: List[Replacement]
+              ) -> str:
+        # TODO ensure no replacements are conflicting
+        # sort replacements by the start of their affected character range
+        sorted(replacements)
