@@ -12,7 +12,7 @@ __all__ = ['SourceFileManager']
 class SourceFileManager(object):
     def __init__(self, client_bugzoo: BugZooClient) -> None:
         self.__bugzoo = client_bugzoo
-        self.__cache_contents_cache = {} # type: Dict[Tuple[str, str], str]
+        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
         self.__cache_offsets = {} # type: Dict[Tuple[str, str], List[int]]
 
     def __line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
@@ -71,24 +71,40 @@ class SourceFileManager(object):
             FileNotFound: if the given file is not found inside the snapshot.
         """
         filename = location.filepath
-        contents_file = self.read_file(filename)
+        contents_file = self.read_file(snapshot, filename)
 
         start_at = self.line_col_to_offset(snapshot,
                                            filename,
-                                           location.start.line_num,
-                                           location.start_col_num)
+                                           location.start.line,
+                                           location.start_col)
         stop_at = self.line_col_to_offset(snapshot,
                                            filename,
-                                           location.stop.line_num,
-                                           location.stop.col_num)
+                                           location.stop.line_,
+                                           location.stop.col)
 
         return contents_file[start_at:stop_at + 1]
 
     def apply(self,
               snapshot: Bug,
-              location: FileLocationRange,
+              filename: str,
               replacements: List[Replacement]
               ) -> str:
+        # TODO ensure all replacements are in the same file
+        # TODO sort replacements by the start of their affected character range
         # TODO ensure no replacements are conflicting
-        # sort replacements by the start of their affected character range
-        sorted(replacements)
+        content = self.read_file(snapshot, filename)
+        for replacement in replacements:
+            # convert location to character offset range
+            location = replacement.location
+            start_at = self.line_col_to_offset(snapshot,
+                                               filename,
+                                               location.start.line,
+                                               location.start.col)
+            stop_at = self.line_col_to_offset(snapshot,
+                                              filename,
+                                              location.stop.line,
+                                              location.stop.col)
+            content = \
+                content[:start_at] + replacement.text + content[stop_at + 1:]
+
+        return content
