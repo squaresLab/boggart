@@ -65,7 +65,7 @@ class Mutant(object):
         """
         The name of the Docker image for this mutant.
         """
-        return self.snapshot
+        return "hulk/{}".format(self.uuid)
 
     @property
     def mutations(self) -> Iterator[Mutation]:
