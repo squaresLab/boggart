@@ -20,7 +20,25 @@ class SourceFileManager(object):
         Returns a list specifying the offset for the first character on each
         line in a given file belonging to a BugZoo snapshot.
         """
-        raise NotImplementedError
+        key_cache = (snapshot.name, filepath)
+        if key_cache in self.__cache_offsets:
+            return self.__cache_offsets[key_cache]
+
+        # get the contents of the file
+        contents = self.read_file(snapshot, filepath)
+
+        # find all indices of newline characters
+        offsets = [0]
+        last_offset = 0
+        while True:
+            next_line_break = contents.find('\n', last_offset)
+            if next_line_break == -1:
+                break
+            last_offset = next_line_break + 1
+            offsets.append(last_offset)
+
+        self.__cache_offsets[key_cache] = offsets
+        return offsets
 
     def line_col_to_offset(self,
                            snapshot: Bug,
