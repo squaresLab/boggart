@@ -112,12 +112,26 @@ def list_operators():
     return op_list
 
 
-@app.route('/mutants', methods=['GET'])
+@app.route('/mutants', methods=['GET', 'POST'])
 @throws_errors
 def interact_with_mutants():
     if flask.request.method == 'GET':
         list_uuid = [m.uuid for m in installation.mutants]
         return flask.jsonify(list_uuid), 200
+
+    if flask.request.method == 'POST':
+        description = flask.request.json
+        print(description)
+        snapshot_name = description['snapshot']
+        try:
+            snapshot = installation.bugzoo.bugs[snapshot_name]
+        except KeyError:
+            return SnapshotNotFound(snapshot_name), 404
+
+        mutations = [Mutation.from_dict(m) for m in description['mutations']]
+        mutant = installation.mutants.generate(snapshot, mutations)
+        jsn_mutant = mutant.to_dict()
+        return flask.jsonify(jsn_mutant), 200
 
 
 @app.route('/mutants/<uuid_str>', methods=['GET'])
