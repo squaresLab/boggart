@@ -83,5 +83,5 @@ class Mutant(object):
         return {
             'uuid': self.__uuid.hex,
             'base': self.__base,
-            'mutations': list(self.mutations)
+            'mutations': [m.to_dict() for m in self.mutations]
         }
