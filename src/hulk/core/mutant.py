@@ -16,7 +16,7 @@ class Mutant(object):
 
         uuid = UUID(hex=jsn['uuid'])
         base = jsn['base']
-        mutations = jsn['mutations']
+        mutations = [Mutation.from_dict(m) for m in jsn['mutations']]
 
         return Mutant(uuid, base, mutations)
 
