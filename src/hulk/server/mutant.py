@@ -84,7 +84,7 @@ class MutantManager(object):
         mutant = Mutant(uuid, snapshot.name, mutations)
 
         # group mutations by file
-        file_mutations = [] # type: Dict[str, List[Mutation]]
+        file_mutations = {} # type: Dict[str, List[Mutation]]
         for mutation in mutant.mutations:
             location = mutation.location
             filename = location.filename
@@ -111,32 +111,40 @@ class MutantManager(object):
         # transform the replacements to a diff
         file_diffs = [] # type: Dict[str, str]
         for filename in replacements_in_file:
-            original = self.__sources.read_file(filename)
+            original = self.__sources.read_file(snapshot, filename)
             mutated = self.__sources.apply(snapshot,
                                            filename,
                                            replacements_in_file[filename])
-            diff = '\n'.join(unified_diff(original.splitlines(True),
-                                          mutated.splitlines(True),
-                                          filename,
-                                          filename))
+            # print("ORIGINAL:\n{}".format(original))
+            # print("MUTATED:\n{}".format(mutated))
+            diff = ''.join(unified_diff(original.splitlines(True),
+                                        mutated.splitlines(True),
+                                        filename,
+                                        filename))
             file_diffs.append(diff)
+        diff_s = '\n'.join(file_diffs)
         mutant_diff = Patch.from_unidiff('\n'.join(file_diffs))
+        # print(str(mutant_diff))
 
         # generate the Docker image on the BugZoo server
         container = bz.containers.provision(snapshot)
         try:
-            bz.containers.patch(diff)
-            bz.containers.persist(snapshot, mutant.docker_image)
+            bz.containers.patch(container, diff)
+            bz.containers.persist(container, mutant.docker_image)
         finally:
             del bz.containers[container.uid]
 
         # build and register a BugZoo snapshot
         snapshot_mutated = Bug(name=mutant.snapshot,
                                image=mutant.docker_image,
-                               languages=snapshot_original.languages,
-                               harness=snapshot_original.harness,
-                               compiler=snapshot_original.compiler,
-                               files_to_instrument=snapshot_original.files_to_instrument)
+                               program=snapshot.program,
+                               dataset=None,
+                               source=None,
+                               source_dir=snapshot.source_dir,
+                               languages=snapshot.languages,
+                               harness=snapshot.harness,
+                               compiler=snapshot.compiler,
+                               files_to_instrument=snapshot.files_to_instrument)
         bz.bugs.register(snapshot_mutated)
 
         # track the mutant
