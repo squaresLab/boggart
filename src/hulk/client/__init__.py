@@ -19,7 +19,9 @@ class Client(object):
     """
     def __init__(self,
                  base_url: str,
-                 timeout: int = 30
+                 *,
+                 timeout: int = 30,
+                 timeout_connection: int = 60
                  ) -> None:
         """
         Constructs a new client for communicating with a given Hulk server.
@@ -31,7 +33,9 @@ class Client(object):
         Raises:
             ValueError: if the provided URL lacks a scheme (e.g., 'http').
         """
-        self.__api = API(base_url, timeout=timeout)
+        self.__api = API(base_url,
+                         timeout=timeout,
+                         timeout_connection=timeout_connection)
         self.__languages = LanguageCollection(api=self.api)
         self.__operators = OperatorCollection(api=self.api)
 
