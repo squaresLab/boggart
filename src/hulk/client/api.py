@@ -1,7 +1,11 @@
 from typing import Dict, Union, List
 from urllib.parse import urljoin, urlparse
+from timeit import default_timer as timer
+import time
 
 import requests
+
+from ..exceptions import ConnectionFailure
 
 
 class API(object):
@@ -33,7 +37,23 @@ class API(object):
         self.__base_url = base_url
         self.__timeout = timeout
 
-        # FIXME attempt to connect to server
+        # attempt to establish a connection
+        url = self.url("status")
+        time_left = float(timeout_connection)
+        time_started = timer()
+        connected = False
+        while time_left > 0.0 and not connected:
+            try:
+                r = requests.get(url, timeout=time_left)
+                connected = r.status_code == 204
+            except requests.exceptions.ConnectionError:
+                time.sleep(1.0)
+            except requests.exceptions.Timeout:
+                raise ConnectionFailure
+            time.sleep(0.05)
+            time_left -= timer() - time_started
+        if not connected:
+            raise ConnectionFailure
 
     @property
     def base_url(self) -> str:
