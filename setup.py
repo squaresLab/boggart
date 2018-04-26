@@ -13,9 +13,9 @@ setup(
     license='mit',
     python_requires='>=3.5',
     install_requires=[
-        'bugzoo>=2.0.15',
+        'bugzoo>=2.1.0',
         'pyyaml',
-        'requests',
+        'requests>=2.0.0',
         'flask>=0.10',
         'Flask-API'
     ],
