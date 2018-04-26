@@ -16,7 +16,8 @@ __all__ = [
     'BadConfigFile',
     'IllegalConfig',
     'FileNotFound',
-    'SnapshotNotFound'
+    'SnapshotNotFound',
+    'ConnectionFailure'
 ]
 
 
@@ -34,6 +35,14 @@ class HulkException(Exception):
         A short description of the error.
         """
         return self.__message
+
+
+class ConnectionFailure(HulkException):
+    """
+    Failed to establish a connection to the server within the timeout.
+    """
+    def __init__(self) -> None:
+        super().__init__("failed to establish connection to server within timeout.")
 
 
 class UnexpectedResponse(Exception):
