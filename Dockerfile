@@ -13,3 +13,5 @@ COPY tests/ tests/
 COPY src/ src/
 RUN pip install . --no-cache --upgrade \
  && rm -rf /tmp/*
+
+ENTRYPOINT ["hulkd"]
