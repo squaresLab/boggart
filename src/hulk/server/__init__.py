@@ -214,13 +214,15 @@ def mutations(name_snapshot: str, filepath: str):
 
 
 def launch(port: int = 8000,
-           url_bugzoo: str = 'http://127.0.0.1:6060'
+           url_bugzoo: str = 'http://127.0.0.1:6060',
+           host: str = '0.0.0.0',
+           debug: bool = False
            ) -> None:
     global installation
     assert 0 <= port <= 49151
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
     installation = Installation.load(client_bugzoo)
-    app.run(port=port, debug=True)
+    app.run(port=port, host=host, debug=debug)
 
 
 def main() -> None:
@@ -234,6 +236,15 @@ def main() -> None:
                         type=str,
                         default='http://127.0.0.1:6060',
                         help='the URL of the BugZoo server.')
+    parser.add_argument('--host',
+                        type=str,
+                        default='0.0.0.0',
+                        help='the IP address of the host.')
+    parser.add_argument('--debug',
+                        action='store_true',
+                        help='enables debugging mode.')
     args = parser.parse_args()
     launch(port=args.port,
-           url_bugzoo=args.bugzoo)
+           url_bugzoo=args.bugzoo,
+           host=args.host,
+           debug=args.debug)
