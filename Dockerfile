@@ -14,4 +14,6 @@ COPY src/ src/
 RUN pip install . --no-cache --upgrade \
  && rm -rf /tmp/*
 
-ENTRYPOINT ["hulkd"]
+COPY docker-entrypoint.sh /usr/bin
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]

@@ -2,3 +2,4 @@
 !src
 !tests
 !setup.py
+!docker-entrypoint.sh
