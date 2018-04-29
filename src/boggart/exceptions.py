@@ -6,7 +6,7 @@ from typing import Any, Dict, Tuple
 import flask
 
 __all__ = [
-    'HulkException',
+    'BoggartException',
     'UnexpectedResponse',
     'ClientServerError',
     'OperatorNameAlreadyExists',
@@ -21,9 +21,9 @@ __all__ = [
 ]
 
 
-class HulkException(Exception):
+class BoggartException(Exception):
     """
-    Base class for all exceptions produced by Hulk.
+    Base class for all exceptions produced by Boggart.
     """
     def __init__(self, message: str) -> None:
         self.__message = message
@@ -37,7 +37,7 @@ class HulkException(Exception):
         return self.__message
 
 
-class ConnectionFailure(HulkException):
+class ConnectionFailure(BoggartException):
     """
     Failed to establish a connection to the server within the timeout.
     """
@@ -56,14 +56,14 @@ class UnexpectedResponse(Exception):
         super().__init__(msg)
 
 
-class ClientServerError(HulkException):
+class ClientServerError(BoggartException):
     """
     Base class for all exceptions that may be thrown from the server to the
     client. Provides the necessary machinery to write/read errors to/from
     JSON descriptions.
     """
     @staticmethod
-    def from_dict(d: dict) -> 'HulkException':
+    def from_dict(d: dict) -> 'BoggartException':
         assert 'error' in d
         d = d['error']
 
@@ -296,7 +296,7 @@ class FileNotFound(ClientServerError):
         return {'name': self.name}
 
 
-class BadConfigFile(HulkException):
+class BadConfigFile(BoggartException):
     """
     Used to indicate that a given configuration file is ill-formed.
     """
@@ -304,7 +304,7 @@ class BadConfigFile(HulkException):
         super().__init__(reason)
 
 
-class IllegalConfig(HulkException):
+class IllegalConfig(BoggartException):
     """
     Used to indicate that a given configuration is syntatically correct but
     that it describes an illegal configuration.

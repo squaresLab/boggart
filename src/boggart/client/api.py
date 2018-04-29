@@ -16,11 +16,11 @@ class API(object):
                  timeout_connection: int = 60
                  ) -> None:
         """
-        Constructs a new low-level API client for communicating with a Hulk
+        Constructs a new low-level API client for communicating with a boggart
         server at a given address.
 
         Parameters:
-            base_url: the base URL of the Hulk server.
+            base_url: the base URL of the boggart server.
             timeout: the default timeout for API calls (in seconds).
             timeout_connection: the maximum numbers of seconds to wait when
                 attempting to connect to the server before raising a
@@ -58,7 +58,7 @@ class API(object):
     @property
     def base_url(self) -> str:
         """
-        The base URL of the Hulk server.
+        The base URL of the server.
         """
         return self.__base_url
 

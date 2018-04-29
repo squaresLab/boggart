@@ -15,7 +15,7 @@ __all__ = ['Client']
 
 class Client(object):
     """
-    A client for communicating with a Hulk server.
+    A client for communicating with a boggart server.
     """
     def __init__(self,
                  base_url: str,
@@ -24,10 +24,10 @@ class Client(object):
                  timeout_connection: int = 60
                  ) -> None:
         """
-        Constructs a new client for communicating with a given Hulk server.
+        Constructs a new client for communicating with a given boggart server.
 
         Parameters:
-            base_url:   the URL of the Hulk server.
+            base_url:   the URL of the boggart server.
             timeout:    the default timeout for API calls (in seconds).
 
         Raises:
@@ -94,8 +94,8 @@ class Client(object):
             filepath: the path to the source code file inside the snapshot,
                 relative to its source directory.
             language: the language that the source code file is written in. If
-                left unspecified, Hulk will attempt to automatically determine
-                the language based on the file ending.
+                left unspecified, boggart will attempt to automatically
+                determine the language based on the file ending.
             operators: an optional list of mutation operators that should be
                 used to generate mutations. If no list is provided, then all
                 registered mutation operators for the specified language will
@@ -107,7 +107,7 @@ class Client(object):
         Raises:
             SnapshotNotFound: if the given snapshot does not appear to be
                 registered with the BugZoo server that is attached to this
-                Hulk server.
+                boggart server.
             FileNotFound: if no file is found with the given name in the
                 snapshot.
         """

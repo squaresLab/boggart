@@ -16,7 +16,7 @@ __all__ = ['Installation']
 
 class Installation(object):
     """
-    Used to manage a local installation of Hulk.
+    Used to manage a local installation of boggart.
     """
     @classmethod
     def default_user_config_path(cls) -> str:
@@ -27,7 +27,7 @@ class Installation(object):
             return os.environ['HULK_USER_CONFIG_PATH']
 
         home = os.environ['HOME']
-        default_path = os.path.join(home, '.hulk.yml')
+        default_path = os.path.join(home, '.boggart.yml')
         return default_path
 
     @classmethod
@@ -36,7 +36,7 @@ class Installation(object):
         The path to the system-level configuration file.
         """
         src_dir = os.path.dirname(__file__)
-        cfg_fn = os.path.join(src_dir, '../config/sys.hulk.yml')
+        cfg_fn = os.path.join(src_dir, '../config/sys.boggart.yml')
         return cfg_fn
 
     @classmethod
@@ -46,12 +46,12 @@ class Installation(object):
              user_config_path: Optional[str] = None,
              ) -> 'Installation':
         """
-        Loads a Hulk installation.
+        Loads a boggart installation.
 
         Parameters:
             client_bugzoo: A connection to the BugZoo server that should be
-                used by this Hulk server.
-            config_filepath: The path to the user configuration file for Hulk.
+                used by this boggart server.
+            config_filepath: The path to the user configuration file for boggart.
                 If left unspecified, `Installation.default_user_config_path`
                 will be used instead.
         """
@@ -80,7 +80,7 @@ class Installation(object):
     @property
     def bugzoo(self) -> BugZooClient:
         """
-        A connection to the BugZoo server to which this Hulk server is
+        A connection to the BugZoo server to which this boggart server is
         attached.
         """
         return self.__bugzoo
@@ -96,14 +96,14 @@ class Installation(object):
     @property
     def languages(self) -> Languages:
         """
-        The languages registered with this local Hulk installation.
+        The languages registered with this installation.
         """
         return self.__config.languages
 
     @property
     def operators(self) -> Operators:
         """
-        The mutation operators registered with this local Hulk installation.
+        The mutation operators registered with this installation.
         """
         return self.__config.operators
 

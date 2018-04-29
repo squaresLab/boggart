@@ -1,6 +1,6 @@
 import pytest
-import hulk
-from hulk import Client
+import boggart
+from boggart import Client
 
 
 def test_constructor():

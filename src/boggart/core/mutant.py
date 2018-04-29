@@ -58,14 +58,14 @@ class Mutant(object):
         """
         The name of the BugZoo snapshot for this mutant.
         """
-        return "hulk:{}".format(self.uuid)
+        return "boggart:{}".format(self.uuid)
 
     @property
     def docker_image(self) -> str:
         """
         The name of the Docker image for this mutant.
         """
-        return "hulk/{}".format(self.uuid)
+        return "boggart/{}".format(self.uuid)
 
     @property
     def mutations(self) -> Iterator[Mutation]:

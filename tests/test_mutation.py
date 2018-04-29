@@ -1,7 +1,7 @@
 import pytest
-from hulk.base import Mutation, \
-                      Location, \
-                      LocationRange
+from boggart.base import Mutation, \
+                         Location, \
+                         LocationRange
 
 
 def test_eq():

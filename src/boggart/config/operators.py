@@ -10,7 +10,7 @@ __all__ = ['Operators']
 class Operators(object):
     """
     Maintains information about the mutation operators that are supported
-    by Hulk.
+    by Boggart.
     """
     @staticmethod
     def from_defs(defs: List[Any],
@@ -49,7 +49,7 @@ class Operators(object):
         Params:
             - op: the mutation operator that should be added.
             - languages: the collection of languages that are supported by a
-                particular configuration of Hulk.
+                particular configuration of Boggart.
 
         Raises:
             - LanguageNotFound: if the given mutation operator supports a

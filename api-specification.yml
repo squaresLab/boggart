@@ -1,12 +1,12 @@
 swagger: '2.0'
 info:
   description: |
-    Official documentation for Hulk's RESTful API.
+    Official documentation for boggart's RESTful API.
   version: '1.0'
-  title: Hulk - RESTful API Specification
+  title: boggart -- RESTful API Specification
   contact:
-    name: Hulk on GitHub
-    url: https://github.com/squaresLab/Hulk
+    name: boggart on GitHub
+    url: https://github.com/squaresLab/boggart
 host: localhost
 basePath: /v1
 
@@ -137,7 +137,7 @@ definitions:
 paths:
   /status:
     get:
-      summary: Status of the Hulk server.
+      summary: Status of the boggart server.
       description: >-
         Produces a diagnostic summary of the health of the server.
       tags:

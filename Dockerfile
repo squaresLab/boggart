@@ -7,7 +7,7 @@ RUN apk add --no-cache python3 git gcc gfortran python3-dev build-base openblas-
  && if [[ ! -e /usr/bin/pip ]]; then ln -s pip3 /usr/bin/pip ; fi \
  && if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi
 
-WORKDIR /tmp/hulk
+WORKDIR /tmp/boggart
 COPY setup.py .
 COPY tests/ tests/
 COPY src/ src/

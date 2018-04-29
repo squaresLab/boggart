@@ -5,7 +5,7 @@ __all__ = ['Language']
 
 class Language(object):
     """
-    Represents a programming language that is supported by Hulk.
+    Represents a programming language that is supported by boggart.
     """
     @staticmethod
     def from_dict(d: dict) -> 'Language':

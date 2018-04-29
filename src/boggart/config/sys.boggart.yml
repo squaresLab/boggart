@@ -1,12 +1,12 @@
 #
-# This system-level configuration file is responsible for providing Hulk with
+# This system-level configuration file is responsible for providing Boggart with
 # its default set of supported languages and mutation operators. Please do not
 # modify it! To add support for new languages and mutation operators to your
 # local installation, you should provide a user-level configuration file.
 #
-# By default, Hulk looks for user-level configuration files at the path given
-# by the environmental variable `HULK_USER_CONFIG_PATH`. If
-# `HULK_USER_CONFIG_PATH` is undefined, `${HOME}/.hulk.yml` will be used
+# By default, Boggart looks for user-level configuration files at the path given
+# by the environmental variable `BOGGART_USER_CONFIG_PATH`. If
+# `BOGGART_USER_CONFIG_PATH` is undefined, `${HOME}/.boggart.yml` will be used
 # instead.
 #
 version: '1.0'

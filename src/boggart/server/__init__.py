@@ -83,8 +83,8 @@ def describe_operator(name: str):
 @throws_errors
 def list_operators():
     """
-    Produces a list of all operators that are registered Hulk that satisfy a
-    set of optionally provided parameters.
+    Produces a list of all operators that are registered with boggart that
+    satisfy a set of optionally provided parameters.
 
     Params:
         language: If supplied, restricts the set of operators to those that
@@ -158,7 +158,7 @@ def mutations(name_snapshot: str, filepath: str):
     URL-encoded Parameters:
         language: An optional parameter that can be used to explicitly state
             the language used by the given file. If this parameter is not
-            supplied, Hulk will attempt to automatically detect the language
+            supplied, boggart will attempt to automatically detect the language
             used by a given file based on its file ending.
         operators: An optional semi-colon delimited parameter that can be used
             to specify which mutation operators should be used. If left
@@ -226,7 +226,7 @@ def launch(port: int = 8000,
 
 
 def main() -> None:
-    desc = 'Hulk'
+    desc = 'boggart'
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('-p', '--port',
                         type=int,

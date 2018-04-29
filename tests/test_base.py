@@ -1,9 +1,9 @@
 import pytest
-from hulk.base import Language, \
-                      Transformation, \
-                      Operator, \
-                      Location, \
-                      LocationRange
+from boggart.base import Language, \
+                         Transformation, \
+                         Operator, \
+                         Location, \
+                         LocationRange
 
 
 def test_location_equality():
