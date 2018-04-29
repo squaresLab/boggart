@@ -14,7 +14,18 @@ def test_location_equality():
     assert a == b
     assert b == a
     assert a != c
-    assert a != None
+    assert c != a
+
+
+def test_location_range_equality():
+    a = LocationRange.from_string("6:10::8:12")
+    b = LocationRange.from_string("6:10::8:12")
+    c = LocationRange.from_string("6:11::8:12")
+
+    assert a == b
+    assert b == a
+    assert a != c
+    assert c != a
 
 
 def test_location_from_string():
