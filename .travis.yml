@@ -5,11 +5,15 @@ python:
 - '3.5'
 - '3.6'
 install:
+- pip install coveralls
 - pip install mypy mypy-extensions
 - pip install --upgrade .
 script:
 - mypy src --ignore-missing-imports
 - python setup.py test
+- coverage run --source=boggart setup.py test
+after_success:
+- coveralls
 notifications:
   email: false
 deploy:
