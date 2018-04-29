@@ -1,4 +1,5 @@
 import boggart.exceptions
+import boggart.warnings
 import boggart.server
 import boggart.client
 import boggart.core
