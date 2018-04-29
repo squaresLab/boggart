@@ -43,7 +43,7 @@ class Installation(object):
     def load(cls,
              client_bugzoo: BugZooClient,
              *,
-             user_config_path: Optional[str] = None,
+             user_config_path: Optional[str] = None
              ) -> 'Installation':
         """
         Loads a boggart installation.
