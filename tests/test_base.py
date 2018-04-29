@@ -26,7 +26,6 @@ def test_location_from_string():
 
 def test_location_to_string():
     loc = Location(18, 10)
-    assert str(loc) == loc.to_string()
     assert str(loc) == '18:10'
 
 
@@ -40,7 +39,6 @@ def test_location_range_from_string():
 
 def test_location_range_to_string():
     loc = LocationRange(Location(0, 20), Location(14, 0))
-    assert str(loc) == loc.to_string()
     assert str(loc) == '0:20::14:0'
 
 
