@@ -1,6 +1,6 @@
 # boggart 
 
-[![Build Status](https://travis-ci.com/squaresLab/boggart.svg?branch=master)](https://travis-ci.com/squaresLab/boggart)
+[![Build Status](https://travis-ci.org/squaresLab/boggart.svg?branch=master)](https://travis-ci.org/squaresLab/boggart)
 [![Maintainability](https://api.codeclimate.com/v1/badges/4fb3632c3c3c6d935e1b/maintainability)](https://codeclimate.com/github/squaresLab/boggart/maintainability)
 
 boggart is a microservices-based service for mutation testing of code written
