@@ -6,7 +6,7 @@ import time
 from contextlib import contextmanager
 
 import bugzoo.client
-from boggart.installation import Installation
+from boggart.server import Installation
 
 
 @contextmanager

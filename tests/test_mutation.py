@@ -1,5 +1,5 @@
 import pytest
-from boggart.base import Mutation, \
+from boggart.core import Mutation, \
                          Location, \
                          LocationRange
 

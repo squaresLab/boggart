@@ -1,5 +1,5 @@
 import pytest
-from boggart.base import Language, \
+from boggart.core import Language, \
                          Transformation, \
                          Operator, \
                          Location, \
