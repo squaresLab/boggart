@@ -1,10 +1,14 @@
-#!/usr/bin/env python
-from glob import glob
-from setuptools import setup, find_packages
+import os
+import glob
+import setuptools
 
-setup(
+path = os.path.join(os.path.dirname(__file__), 'src/boggartd/version.py')
+with open(path, 'r') as f:
+    exec(f.read())
+
+setuptools.setup(
     name='boggart',
-    version='0.0.1',
+    version=__version__,
     description='Lightweight, extensible, language-independent mutation testing.',
     long_description='TBA',
     author='Chris Timperley',
@@ -27,12 +31,14 @@ setup(
         'pytest'
     ],
     include_package_data=True,
-    packages=find_packages('src'),
+    packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     package_data={
         '': ['*.yml']
     },
-    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    py_modules=[
+        splitext(basename(path))[0] for path in glob.glob('src/*.py')
+    ],
     entry_points = {
         'console_scripts': [ 'boggartd = boggartd.server:main' ]
     },
