@@ -3,7 +3,8 @@ from boggart.core import Language, \
                          Transformation, \
                          Operator, \
                          Location, \
-                         LocationRange
+                         LocationRange, \
+                         FileLocationRange
 
 
 def test_location_equality():
@@ -51,6 +52,20 @@ def test_location_range_from_string():
 def test_location_range_to_string():
     loc = LocationRange(Location(0, 20), Location(14, 0))
     assert str(loc) == '0:20::14:0'
+
+    loc_s = "5:6::9:12"
+    loc = LocationRange.from_string(loc_s)
+    assert str(loc_s)
+
+
+def test_file_location_range_to_and_from_string():
+    loc = FileLocationRange("foo.c", Location(1, 1), Location(3, 10))
+    loc_s = "foo.c@1:1::3:10"
+    assert str(loc) == loc_s
+
+    loc_from_s = FileLocationRange.from_string(loc_s)
+    assert str(loc_from_s) == loc_s
+    assert loc == loc_from_s
 
 
 def test_transformation_serialisation():

@@ -1,12 +1,11 @@
 import pytest
-from boggart.core import Mutation, \
-                         Location, \
-                         LocationRange
+
+from boggart.core import Mutation, FileLocationRange
 
 
 def test_eq():
-    lx = LocationRange(Location(14, 0), Location(28, 10))
-    ly = LocationRange(Location(30, 5), Location(31, 6))
+    lx = FileLocationRange.from_string("foo.c@14:0::28:10")
+    ly = FileLocationRange.from_string("foo.c@30:5::31:6")
     op = 'foo'
     args = {'x': 'bar'}
 
@@ -24,14 +23,13 @@ def test_eq():
 
 
 def test_to_and_from_dict():
-    location = LocationRange(Location(1, 5),
-                             Location(2, 30))
+    location = FileLocationRange.from_string('bar.c@1:5::2:30')
     mutation = Mutation('foo', 0, location, {'x': '120'})
 
     expected = {
         'operator': 'foo',
         'transformation-index': 0,
-        'location': '1:5::2:30',
+        'location': 'bar.c@1:5::2:30',
         'arguments': {'x': '120'}
     }
 
