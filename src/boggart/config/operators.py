@@ -14,7 +14,8 @@ class Operators(object):
     """
     @staticmethod
     def from_defs(defs: List[Any],
-                  base: Optional['Configuration'] = None
+                  languages: 'Languages',
+                  base: 'Operators' = None
                   ) -> 'Operators':
         """
         Loads an operator configuration from a list of definitions taken
@@ -22,14 +23,14 @@ class Operators(object):
         parent (overall) configuration.
 
         Raises:
-            - LanguageNotFound: if one of the operators given by the provided
-                definitions supports a language that is not contained within
-                the given configuration.
+            LanguageNotFound: if one of the operators given by the provided
+              definitions supports a language that is not contained within
+              the given configuration.
         """
-        config = base.operators if base else Operators()
+        config = base if base else Operators()
         for d in defs:
             op = Operator.from_dict(d)
-            config = config.add(op, base.languages)
+            config = config.add(op, languages)
         return config
 
     def __init__(self,
@@ -47,14 +48,14 @@ class Operators(object):
         includes a given mutation operator.
 
         Params:
-            - op: the mutation operator that should be added.
-            - languages: the collection of languages that are supported by a
-                particular configuration of Boggart.
+            op: the mutation operator that should be added.
+            languages: the collection of languages that are supported by a
+              particular configuration of Boggart.
 
         Raises:
-            - LanguageNotFound: if the given mutation operator supports a
-                language that is not contained within the provided collection
-                of languages.
+            LanguageNotFound: if the given mutation operator supports a
+              language that is not contained within the provided collection
+              of languages.
         """
         for supported_language in op.languages:
             if supported_language not in languages:
@@ -68,8 +69,7 @@ class Operators(object):
         """
         An iterator over the operators contained within this collection.
         """
-        for name in self.__operators:
-            yield self.__operators[name]
+        return self.__operators.values().__iter__()
 
     def __getitem__(self, name: str) -> Operator:
         """

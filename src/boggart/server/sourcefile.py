@@ -88,17 +88,17 @@ class SourceFileManager(object):
         Raises:
             FileNotFound: if the given file is not found inside the snapshot.
         """
-        filename = location.filepath
+        filename = location.filename
         contents_file = self.read_file(snapshot, filename)
 
         start_at = self.line_col_to_offset(snapshot,
                                            filename,
                                            location.start.line,
-                                           location.start_col)
+                                           location.start.column)
         stop_at = self.line_col_to_offset(snapshot,
                                            filename,
-                                           location.stop.line_,
-                                           location.stop.col)
+                                           location.stop.line,
+                                           location.stop.column)
 
         return contents_file[start_at:stop_at + 1]
 
@@ -117,11 +117,11 @@ class SourceFileManager(object):
             start_at = self.line_col_to_offset(snapshot,
                                                filename,
                                                location.start.line,
-                                               location.start.col)
+                                               location.start.column)
             stop_at = self.line_col_to_offset(snapshot,
                                               filename,
                                               location.stop.line,
-                                              location.stop.col)
+                                              location.stop.column)
             content = \
                 content[:start_at] + replacement.text + content[stop_at + 1:]
 

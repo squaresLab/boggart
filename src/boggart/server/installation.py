@@ -143,18 +143,6 @@ class Installation(object):
             language = self.languages.detect(filepath)
 
         # TODO talk to Rooibos
-        mutations = []
+        mutations = [] # type: List[Mutation]
 
         yield from mutations
-
-    def mutate(self,
-               snapshot: Bug,
-               mutations: List[Mutation]
-               ) -> Mutant:
-        """
-        Generates a new mutant by applying a given set of mutations to a
-        specified BugZoo snapshot.
-        """
-        mutant = Mutant(snapshot.name)
-
-        return mutant

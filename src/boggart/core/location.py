@@ -26,12 +26,12 @@ class Location(object):
     def column(self) -> int:
         return self.__col
 
-    col = column
+    @property
+    def col(self) -> int:
+        return self.__col
 
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
-
-    to_string = __str__
 
 
 class LocationRange(object):

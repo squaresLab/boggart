@@ -96,7 +96,7 @@ def list_operators():
         args = {}
 
     # get a list of all registered operators
-    op_list: List[Operator] = list(installation.operators)
+    op_list = list(installation.operators) # type: List[Operator]
 
     # perform optional language filtering
     if 'language' in args:

@@ -1,4 +1,4 @@
-from typing import Optional, Union, Dict, List, Iterator, Tuple
+from typing import Optional, Union, Dict, List, Iterator, Tuple, NoReturn
 import requests
 
 from bugzoo.core.bug import Bug
@@ -61,7 +61,7 @@ class Client(object):
         """
         return self.__operators
 
-    def __handle_error_response(self, response: requests.Response) -> None:
+    def __handle_error_response(self, response: requests.Response) -> NoReturn:
         """
         Attempts to decode an erroneous response into an exception, and to
         subsequently throw that exception.
@@ -120,7 +120,7 @@ class Client(object):
         if operators:
             params['operators'] = ';'.join([op.name for op in operators])
 
-        response = self.api.get(path, params, data=text)
+        response = self.api.get(path, params)
 
         if response.status_code == 200:
             for jsn_mutation in response.json():

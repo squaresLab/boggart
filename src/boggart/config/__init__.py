@@ -10,7 +10,7 @@ from ..exceptions import BadConfigFile
 class Configuration(object):
     @staticmethod
     def from_file(filename: str,
-                  parent: 'Optional[Configuration]' = None
+                  parent: Optional['Configuration'] = None
                   ) -> 'Configuration':
         """
         Loads a configuration file from a given file.
@@ -27,15 +27,14 @@ class Configuration(object):
         if yml['version'] != '1.0':
             raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")
 
-        # update the languages provided by this configuration
-        languages = Languages.from_defs(yml.get('languages', []), config)
-        config = Configuration(languages, operators)
-
-        # update the operators provided by this configuration
-        operators = Operators.from_defs(yml.get('operators', []), config)
-        config = Configuration(languages, operators)
-
-        return config
+        # update the languages and operators provided by this configuration
+        languages = \
+            Languages.from_defs(yml.get('languages', []), config.languages)
+        operators = \
+            Operators.from_defs(yml.get('operators', []),
+                                languages=config.languages,
+                                base=config.operators)
+        return Configuration(languages, operators)
 
     def __init__(self,
                  languages: Optional[Languages] = None,

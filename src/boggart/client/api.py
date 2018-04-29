@@ -1,4 +1,4 @@
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Any
 from urllib.parse import urljoin, urlparse
 from timeit import default_timer as timer
 import time
@@ -70,7 +70,7 @@ class API(object):
 
     def get(self,
             path: str,
-            params: Dict[str, Union[str, List[str]]] = None,
+            params: Dict[str, Any] = None,
             **kwargs
             ) -> requests.Response:
         """

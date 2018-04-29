@@ -45,7 +45,7 @@ class ConnectionFailure(BoggartException):
         super().__init__("failed to establish connection to server within timeout.")
 
 
-class UnexpectedResponse(Exception):
+class UnexpectedResponse(BoggartException):
     """
     The server produced an unexpected response that the client does not know
     how to interpret or decode.

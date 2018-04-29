@@ -109,7 +109,7 @@ class MutantManager(object):
             replacements_in_file[filename].append(replacement)
 
         # transform the replacements to a diff
-        file_diffs = [] # type: Dict[str, str]
+        file_diffs = [] # type: List[str]
         for filename in replacements_in_file:
             original = self.__sources.read_file(snapshot, filename)
             mutated = self.__sources.apply(snapshot,

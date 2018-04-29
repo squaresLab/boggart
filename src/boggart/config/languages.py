@@ -4,6 +4,7 @@ import os
 
 from ..core import Language
 from ..exceptions import IllegalConfig, LanguageNotDetected
+from ..warnings import LanguageOverwriteWarning
 
 __all__ = ['Languages']
 
@@ -13,15 +14,13 @@ class Languages(object):
     Maintains information about the languages that are supported by Hulk.
     """
     @staticmethod
-    def from_defs(defs: List[Any],
-                  base: Optional['Configuration'] = None
-                  ) -> 'Languages':
+    def from_defs(defs: List[Any], base: 'Languages' = None) -> 'Languages':
         """
         Loads an operator configuration from a list of definitions taken
         from a configuration file, together with an optionally provided
         parent (overall) configuration.
         """
-        config = base.languages if base else Languages()
+        config = base if base else Languages()
         for d in defs:
             language = Language.from_dict(d)
             config = config.add(language)
