@@ -2,7 +2,7 @@ import os
 import glob
 import setuptools
 
-path = os.path.join(os.path.dirname(__file__), 'src/boggartd/version.py')
+path = os.path.join(os.path.dirname(__file__), 'src/boggart/version.py')
 with open(path, 'r') as f:
     exec(f.read())
 
