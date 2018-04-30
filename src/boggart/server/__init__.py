@@ -6,6 +6,7 @@ import os
 
 import bugzoo
 import flask
+import rooibos
 from flask_api import FlaskAPI
 
 from .installation import Installation
@@ -215,13 +216,15 @@ def mutations(name_snapshot: str, filepath: str):
 
 def launch(port: int = 8000,
            url_bugzoo: str = 'http://127.0.0.1:6060',
+           url_rooibos: str = 'http://host.docker.internal:8888',
            host: str = '0.0.0.0',
            debug: bool = False
            ) -> None:
     global installation
     assert 0 <= port <= 49151
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
-    installation = Installation.load(client_bugzoo)
+    client_rooibos = rooibos.Client(url_rooibos, timeout_connection = 60)
+    installation = Installation.load(client_bugzoo, client_rooibos)
     app.run(port=port, host=host, debug=debug)
 
 
@@ -232,6 +235,10 @@ def main() -> None:
                         type=int,
                         default=8000,
                         help='the port that should be used by this server.')
+    parser.add_argument('--rooibos',
+                        type=str,
+                        default='http://host.docker.internal:8888',
+                        help='the URL of the Rooibos server.')
     parser.add_argument('--bugzoo',
                         type=str,
                         default='http://127.0.0.1:6060',
@@ -246,5 +253,6 @@ def main() -> None:
     args = parser.parse_args()
     launch(port=args.port,
            url_bugzoo=args.bugzoo,
+           url_rooibos=args.rooibos,
            host=args.host,
            debug=args.debug)

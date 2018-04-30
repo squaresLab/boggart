@@ -7,25 +7,23 @@ import tempfile
 from bugzoo.core.bug import Bug
 from bugzoo.core.patch import Patch
 from bugzoo.client import Client as BugZooClient
+from rooibos import Client as RooibosClient
 
 from .sourcefile import SourceFileManager
 from ..config.operators import Operators as OperatorManager
 from ..core import Mutant, Mutation, Replacement
 
 
-# FIXME implement via rooibos.rewrite
-def REWRITER(template: str, arguments: Dict[str, str]) -> str:
-    return template
-
-
 class MutantManager(object):
     def __init__(self,
                  client_bugzoo: BugZooClient,
+                 client_rooibos: RooibosClient,
                  operators: OperatorManager,
                  sources: SourceFileManager
                  ) -> None:
         self.__mutants = {} # type: Dict[UUID, Mutant]
         self.__bugzoo = client_bugzoo
+        self.__rooibos = client_rooibos
         self.__operators = operators
         self.__sources = sources
 
@@ -103,7 +101,8 @@ class MutantManager(object):
 
             operator = self.__operators[mutation.operator]
             transformation = operator.transformations[mutation.transformation_index]
-            text_mutated = REWRITER(transformation.rewrite, mutation.arguments)
+            text_mutated = self.__rooibos.substitute(transformation.rewrite,
+                                                     mutation.arguments)
 
             replacement = Replacement(location, text_mutated)
             replacements_in_file[filename].append(replacement)

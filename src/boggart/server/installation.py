@@ -1,14 +1,16 @@
 from typing import Optional, Tuple, Dict, Iterator, List
 import os
 
+import rooibos
 from bugzoo.client import Client as BugZooClient
 from bugzoo.core.bug import Bug
 from bugzoo.core.fileline import FileLine
+from rooibos import Client as RooibosClient
 
 from .mutant import MutantManager
 from .sourcefile import SourceFileManager
 from ..exceptions import *
-from ..core import Language, Mutation, Operator, Mutant
+from ..core import Language, Mutation, Operator, Mutant, FileLocationRange, Location
 from ..config import Configuration, Languages, Operators
 
 __all__ = ['Installation']
@@ -42,6 +44,7 @@ class Installation(object):
     @classmethod
     def load(cls,
              client_bugzoo: BugZooClient,
+             client_rooibos: RooibosClient,
              *,
              user_config_path: Optional[str] = None
              ) -> 'Installation':
@@ -61,19 +64,22 @@ class Installation(object):
         system_cfg = Configuration.from_file(Installation.sys_config_path())
 
         if not os.path.isfile(user_config_path):
-            return Installation(system_cfg, client_bugzoo)
+            return Installation(system_cfg, client_bugzoo, client_rooibos)
 
         user_cfg = Configuration.from_file(user_config_path, system_cfg)
-        return Installation(user_cfg, client_bugzoo)
+        return Installation(user_cfg, client_bugzoo, client_rooibos)
 
     def __init__(self,
                  config: Configuration,
-                 client_bugzoo: BugZooClient
+                 client_bugzoo: BugZooClient,
+                 client_rooibos: RooibosClient
                  ) -> None:
         self.__config = config
         self.__bugzoo = client_bugzoo
+        self.__rooibos = client_rooibos
         self.__sources = SourceFileManager(client_bugzoo)
         self.__mutants = MutantManager(client_bugzoo,
+                                       client_rooibos,
                                        config.operators,
                                        self.__sources)
 
@@ -84,6 +90,14 @@ class Installation(object):
         attached.
         """
         return self.__bugzoo
+
+    @property
+    def rooibos(self) -> RooibosClient:
+        """
+        A connection to the Rooibos server to which this boggart server is
+        attached.
+        """
+        return self.__rooibos
 
     @property
     def sources(self) -> SourceFileManager:
@@ -134,6 +148,21 @@ class Installation(object):
                 used by the file cannot be automatically determined.
             FileNotFound: if the given file is not found inside the snapshot.
         """
+        def match_to_mutation(op_name: str,
+                              transformation_index: int,
+                              match: rooibos.Match
+                              ) -> Mutation:
+            start = Location(match.location.start.line, match.location.start.col)
+            stop = Location(match.location.stop.line, match.location.stop.col)
+            location = FileLocationRange(filepath, start, stop)
+
+            args = {} # type: Dict[str, str]
+            for term in match.environment:
+                value = match.environment[term].fragment
+                args[term] = value
+
+            return Mutation(op_name, transformation_index, location, args)
+
         if operators is None:
             operators = list(self.operators)
 
@@ -142,7 +171,7 @@ class Installation(object):
         if language is None:
             language = self.languages.detect(filepath)
 
-        # TODO talk to Rooibos
-        mutations = [] # type: List[Mutation]
-
-        yield from mutations
+        for operator in operators:
+            for (idx, transformation) in enumerate(operator.transformations):
+                for match in self.rooibos.matches(text, transformation.match):
+                    yield match_to_mutation(operator.name, idx, match)
