@@ -39,10 +39,13 @@ class API(object):
 
         # attempt to establish a connection
         url = self.url("status")
-        time_left = float(timeout_connection)
         time_started = timer()
         connected = False
-        while time_left > 0.0 and not connected:
+        while not connected:
+            time_running = timer() - time_started
+            time_left = timeout_connection - time_running
+            if time_left <= 0.0:
+                raise ConnectionFailure
             try:
                 r = requests.get(url, timeout=time_left)
                 connected = r.status_code == 204
@@ -51,9 +54,6 @@ class API(object):
             except requests.exceptions.Timeout:
                 raise ConnectionFailure
             time.sleep(0.05)
-            time_left -= timer() - time_started
-        if not connected:
-            raise ConnectionFailure
 
     @property
     def base_url(self) -> str:
