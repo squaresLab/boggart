@@ -36,3 +36,85 @@ operators:
     transformations:
       - match: "if (:[1])"
         rewrite: "if (!(:[1]))"
+
+  - name: delete-void-function-call
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: ":[1]()"
+        rewrite: ""
+
+  - name: flip-arithmetic-operator
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: "+"
+        rewrite: "-"
+      - match: "-"
+        rewrite: "+"
+      - match: "*"
+        rewrite: "/"
+      - match: "/"
+        rewrite: "*"
+
+  - name: flip-boolean-operator
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: "&&"
+        rewrite: "||"
+      - match: "||"
+        rewrite: "&&"
+
+  - name: flip-relational-operator
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: "<"
+        rewrite: ">="
+      - match: ">="
+        rewrite: "<"
+      - match: ">"
+        rewrite: "<="
+      - match: "<="
+        rewrite: ">"
+      - match: "=="
+        rewrite: "!="
+      - match: "!="
+        rewrite: "=="
+
+  - name: undo-transformation
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: ":[1] = :[2](:[3])"
+        rewrite: ":[1] = :[3]"
+
+  - name: delete-conditional-control-flow
+    languages:
+      - C
+      - C++
+      - Java
+    transformations:
+      - match: "if (:[1]) { return; }"
+        rewrite: ""
+      - match: "if (:[1]) { break; }"
+        rewrite: ""
+
+  - name: flip-signedness
+    languages:
+      - C
+      - C++
+    transformations:
+      - match: "unsigned int"
+        rewrite: "int"
