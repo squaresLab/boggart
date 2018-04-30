@@ -40,7 +40,7 @@ setuptools.setup(
         splitext(basename(path))[0] for path in glob.glob('src/*.py')
     ],
     entry_points = {
-        'console_scripts': [ 'boggartd = boggartd.server:main' ]
+        'console_scripts': [ 'boggartd = boggart.server:main' ]
     },
     test_suite = 'tests'
 )
