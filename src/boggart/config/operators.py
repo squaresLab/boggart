@@ -27,11 +27,11 @@ class Operators(object):
               definitions supports a language that is not contained within
               the given configuration.
         """
-        config = base if base else Operators()
+        operators = base if base else Operators()
         for d in defs:
             op = Operator.from_dict(d)
-            config = config.add(op, languages)
-        return config
+            operators = operators.add(op, languages)
+        return operators
 
     def __init__(self,
                  operators: Optional[Dict[str, Operator]] = None
@@ -64,6 +64,12 @@ class Operators(object):
         ops = dict(self.__operators)
         ops[op.name] = op
         return Operators(ops)
+
+    def __len__(self) -> int:
+        """
+        Returns the number of operators contained within this collection.
+        """
+        return len(self.__operators)
 
     def __iter__(self) -> Iterator[Operator]:
         """

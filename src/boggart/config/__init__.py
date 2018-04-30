@@ -29,11 +29,11 @@ class Configuration(object):
 
         # update the languages and operators provided by this configuration
         languages = \
-            Languages.from_defs(yml.get('languages', []), config.languages)
+            Languages.from_defs(yml.get('languages', []), languages)
         operators = \
             Operators.from_defs(yml.get('operators', []),
-                                languages=config.languages,
-                                base=config.operators)
+                                languages=languages,
+                                base=operators)
         return Configuration(languages, operators)
 
     def __init__(self,

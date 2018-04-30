@@ -81,6 +81,12 @@ class Languages(object):
         """
         return self.supports(name)
 
+    def __len__(self) -> int:
+        """
+        Returns the number of languages contained within this collection.
+        """
+        return len(self.__languages)
+
     def supports(self, name: str) -> bool:
         """
         Determines whether this colelctions contains a language with a given
