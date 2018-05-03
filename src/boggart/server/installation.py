@@ -10,7 +10,8 @@ from rooibos import Client as RooibosClient
 from .mutant import MutantManager
 from .sourcefile import SourceFileManager
 from ..exceptions import *
-from ..core import Language, Mutation, Operator, Mutant, FileLocationRange, Location
+from ..core import Language, Mutation, Operator, Mutant, FileLocationRange, \
+                   Location
 from ..config import Configuration, Languages, Operators
 
 __all__ = ['Installation']
@@ -54,9 +55,9 @@ class Installation(object):
         Parameters:
             client_bugzoo: A connection to the BugZoo server that should be
                 used by this boggart server.
-            config_filepath: The path to the user configuration file for boggart.
-                If left unspecified, `Installation.default_user_config_path`
-                will be used instead.
+            config_filepath: The path to the user configuration file for
+                boggart. If left unspecified,
+                `Installation.default_user_config_path` will be used instead.
         """
         if not user_config_path:
             user_config_path = Installation.default_user_config_path()
@@ -152,11 +153,13 @@ class Installation(object):
                               transformation_index: int,
                               match: rooibos.Match
                               ) -> Mutation:
-            start = Location(match.location.start.line, match.location.start.col)
-            stop = Location(match.location.stop.line, match.location.stop.col)
+            start = Location(match.location.start.line,
+                             match.location.start.col)
+            stop = Location(match.location.stop.line,
+                            match.location.stop.col)
             location = FileLocationRange(filepath, start, stop)
 
-            args = {} # type: Dict[str, str]
+            args = {}  # type: Dict[str, str]
             for term in match.environment:
                 value = match.environment[term].fragment
                 args[term] = value

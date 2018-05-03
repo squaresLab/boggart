@@ -1,6 +1,8 @@
 from typing import Optional, Union, Dict, List, Iterator, Tuple, NoReturn
-import requests
 
+import logging
+
+import requests
 from bugzoo.core.bug import Bug
 
 from .api import API

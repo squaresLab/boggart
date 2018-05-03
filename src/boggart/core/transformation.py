@@ -28,9 +28,9 @@ class Transformation(object):
         return hash((self.match, self.rewrite))
 
     def __eq__(self, other: Any) -> bool:
-        return  isinstance(other, Transformation) and \
-                self.match == other.match and \
-                self.rewrite == other.rewrite
+        return isinstance(other, Transformation) and \
+               self.match == other.match and \
+               self.rewrite == other.rewrite
 
     @property
     def match(self) -> str:
@@ -47,4 +47,3 @@ class Transformation(object):
         """
         return {'match': self.__match,
                 'rewrite': self.__rewrite}
-

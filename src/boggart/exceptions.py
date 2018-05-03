@@ -42,7 +42,9 @@ class ConnectionFailure(BoggartException):
     Failed to establish a connection to the server within the timeout.
     """
     def __init__(self) -> None:
-        super().__init__("failed to establish connection to server within timeout.")
+        super().__init__(
+            "failed to establish connection to server within timeout."
+        )
 
 
 class UnexpectedResponse(BoggartException):
@@ -78,7 +80,7 @@ class ClientServerError(BoggartException):
             'IllegalConfig': IllegalConfig
         })[d['kind']]
 
-        return cls.from_data(d.get('data', {})) # type: ignore
+        return cls.from_data(d.get('data', {}))  # type: ignore
 
     def __init__(self, status_code: int, message: str) -> None:
         self.__status_code = status_code

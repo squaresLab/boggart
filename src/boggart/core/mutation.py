@@ -39,11 +39,11 @@ class Mutation(object):
         self.__args = dict(args)
 
     def __eq__(self, other: Any) -> bool:
-        return  isinstance(other, Mutation) and \
-                self.operator == other.operator and \
-                self.transformation_index == other.transformation_index and \
-                self.location == other.location and \
-                self.arguments == other.arguments
+        return isinstance(other, Mutation) and \
+               self.operator == other.operator and \
+               self.transformation_index == other.transformation_index and \
+               self.location == other.location and \
+               self.arguments == other.arguments
 
     @property
     def operator(self) -> str:

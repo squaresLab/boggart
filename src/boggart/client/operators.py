@@ -20,7 +20,7 @@ class OperatorCollection(object):
         dict_list = api.get("/operators").json()
         operators = [Operator.from_dict(d) for d in dict_list]
         self.__contents = \
-            {op.name: op for op in operators} # type: Dict[str, Operator]
+            {op.name: op for op in operators}  # type: Dict[str, Operator]
 
     def __iter__(self) -> Iterator[Operator]:
         """

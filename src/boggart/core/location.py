@@ -14,9 +14,9 @@ class Location(object):
         self.__col = col
 
     def __eq__(self, other: Any) -> bool:
-        return  isinstance(other, Location) and \
-                self.line == other.line and \
-                self.col == other.col
+        return isinstance(other, Location) and \
+               self.line == other.line and \
+               self.col == other.col
 
     @property
     def line(self) -> int:
@@ -50,9 +50,9 @@ class LocationRange(object):
         self.__stop = stop
 
     def __eq__(self, other: Any) -> bool:
-        return  isinstance(other, LocationRange) and \
-                self.start == other.start and \
-                self.stop == other.stop
+        return isinstance(other, LocationRange) and \
+               self.start == other.start and \
+               self.stop == other.stop
 
     @property
     def start(self) -> Location:

@@ -22,7 +22,7 @@ class LanguageCollection(object):
         language_dict_list = api.get("/languages").json()
         languages = [Language.from_dict(d) for d in language_dict_list]
         self.__contents = \
-            {lang.name: lang for lang in languages} # type: Dict[str, Language]
+            {lang.name: lang for lang in languages}  # type: Dict[str, Language]  # noqa: pycodestyle
 
     def __iter__(self) -> Iterator[Language]:
         """

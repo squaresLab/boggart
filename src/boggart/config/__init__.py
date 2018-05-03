@@ -25,7 +25,7 @@ class Configuration(object):
         if 'version' not in yml:
             raise BadConfigFile("expected 'version' property")
         if yml['version'] != '1.0':
-            raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")
+            raise BadConfigFile("unexpected 'version' property; only '1.0' is currently supported.")  # noqa: pycodestyle
 
         # update the languages and operators provided by this configuration
         languages = \

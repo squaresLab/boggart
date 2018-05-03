@@ -6,9 +6,11 @@ python:
 - '3.6'
 install:
 - pip install coveralls
+- pip install pycodestyle
 - pip install mypy mypy-extensions
 - pip install --upgrade .
 script:
+- pycodestyle --show-source src
 - mypy src --ignore-missing-imports
 - python setup.py test
 - coverage run --source=boggart setup.py test

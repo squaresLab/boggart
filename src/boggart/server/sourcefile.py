@@ -12,8 +12,8 @@ __all__ = ['SourceFileManager']
 class SourceFileManager(object):
     def __init__(self, client_bugzoo: BugZooClient) -> None:
         self.__bugzoo = client_bugzoo
-        self.__cache_file_contents = {} # type: Dict[Tuple[str, str], str]
-        self.__cache_offsets = {} # type: Dict[Tuple[str, str], List[int]]
+        self.__cache_file_contents = {}  # type: Dict[Tuple[str, str], str]
+        self.__cache_offsets = {}  # type: Dict[Tuple[str, str], List[int]]
 
     def __line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
         """
@@ -96,9 +96,9 @@ class SourceFileManager(object):
                                            location.start.line,
                                            location.start.column)
         stop_at = self.line_col_to_offset(snapshot,
-                                           filename,
-                                           location.stop.line,
-                                           location.stop.column)
+                                          filename,
+                                          location.stop.line,
+                                          location.stop.column)
 
         return contents_file[start_at:stop_at + 1]
 

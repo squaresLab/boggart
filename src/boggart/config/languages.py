@@ -46,13 +46,14 @@ class Languages(object):
         # warning and remove its file endings from consideration.
         if language.name in self.__languages:
             old_version = self.__languages[language.name]
-            msg = "config overwrites existing language definition: {}.".format(language.name)
+            msg = "config overwrites existing language definition: {}."
+            msg = msg.format(language.name)
             warnings.warn(msg, LanguageOverwriteWarning)
             endings -= set(old_version.file_endings)
 
         # are the file endings used by this language already in use?
         if set(language.file_endings) & endings:
-            raise IllegalConfig("file ending ambiguity: two or more languages share a common file ending.")
+            raise IllegalConfig("file ending ambiguity: two or more languages share a common file ending.")  # noqa: pycodestyle
 
         languages = dict(self.__languages)
         languages[language.name] = language
@@ -100,7 +101,7 @@ class Languages(object):
         The set of file endings that are used by languages within this
         collection.
         """
-        endings = set() # type: Set[str]
+        endings = set()  # type: Set[str]
         for language in self:
             endings.union(language.file_endings)
         return frozenset(endings)
@@ -111,7 +112,8 @@ class Languages(object):
         on its file ending.
 
         Returns:
-            The language associated with the file ending used by the given file.
+            The language associated with the file ending used by the given
+            file.
 
         Raises:
             LanguageNotDetected: if the language used by the filename could not

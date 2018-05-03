@@ -21,7 +21,7 @@ class MutantManager(object):
                  operators: OperatorManager,
                  sources: SourceFileManager
                  ) -> None:
-        self.__mutants = {} # type: Dict[UUID, Mutant]
+        self.__mutants = {}  # type: Dict[UUID, Mutant]
         self.__bugzoo = client_bugzoo
         self.__rooibos = client_rooibos
         self.__operators = operators
@@ -74,7 +74,8 @@ class MutantManager(object):
             a description of the generated mutant.
         """
         bz = self.__bugzoo
-        assert len(mutations) <= 1, "higher-order mutation is currently unsupported"
+        assert len(mutations) <= 1, \
+            "higher-order mutation is currently unsupported"
 
         # NOTE this is *incredibly* unlikely to conflict
         uuid = uuid4()
@@ -82,7 +83,7 @@ class MutantManager(object):
         mutant = Mutant(uuid, snapshot.name, mutations)
 
         # group mutations by file
-        file_mutations = {} # type: Dict[str, List[Mutation]]
+        file_mutations = {}  # type: Dict[str, List[Mutation]]
         for mutation in mutant.mutations:
             location = mutation.location
             filename = location.filename
@@ -92,7 +93,7 @@ class MutantManager(object):
             file_mutations[filename].append(mutation)
 
         # transform each mutation into a replacement and group by file
-        replacements_in_file = {} # type: Dict[str, List[Replacement]]
+        replacements_in_file = {}  # type: Dict[str, List[Replacement]]
         for mutation in mutant.mutations:
             location = mutation.location
             filename = location.filename
@@ -100,7 +101,8 @@ class MutantManager(object):
                 replacements_in_file[filename] = []
 
             operator = self.__operators[mutation.operator]
-            transformation = operator.transformations[mutation.transformation_index]
+            transformation = \
+                operator.transformations[mutation.transformation_index]
             text_mutated = self.__rooibos.substitute(transformation.rewrite,
                                                      mutation.arguments)
 
@@ -108,14 +110,12 @@ class MutantManager(object):
             replacements_in_file[filename].append(replacement)
 
         # transform the replacements to a diff
-        file_diffs = [] # type: List[str]
+        file_diffs = []  # type: List[str]
         for filename in replacements_in_file:
             original = self.__sources.read_file(snapshot, filename)
             mutated = self.__sources.apply(snapshot,
                                            filename,
                                            replacements_in_file[filename])
-            # print("ORIGINAL:\n{}".format(original))
-            # print("MUTATED:\n{}".format(mutated))
             diff = ''.join(unified_diff(original.splitlines(True),
                                         mutated.splitlines(True),
                                         filename,
@@ -123,7 +123,6 @@ class MutantManager(object):
             file_diffs.append(diff)
         diff_s = '\n'.join(file_diffs)
         mutant_diff = Patch.from_unidiff('\n'.join(file_diffs))
-        # print(str(mutant_diff))
 
         # generate the Docker image on the BugZoo server
         container = bz.containers.provision(snapshot)
@@ -134,6 +133,7 @@ class MutantManager(object):
             del bz.containers[container.uid]
 
         # build and register a BugZoo snapshot
+        files_to_instrument = snapshot.files_to_instrument
         snapshot_mutated = Bug(name=mutant.snapshot,
                                image=mutant.docker_image,
                                program=snapshot.program,
@@ -143,7 +143,7 @@ class MutantManager(object):
                                languages=snapshot.languages,
                                harness=snapshot.harness,
                                compiler=snapshot.compiler,
-                               files_to_instrument=snapshot.files_to_instrument)
+                               files_to_instrument=files_to_instrument)
         bz.bugs.register(snapshot_mutated)
 
         # track the mutant

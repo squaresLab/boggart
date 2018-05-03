@@ -21,7 +21,8 @@ from ..client import Client
 app = FlaskAPI(__name__)
 
 # TODO: tidy this up
-installation = None # type: Any
+installation = None  # type: Any
+
 
 @contextmanager
 def ephemeral(*,
@@ -83,8 +84,10 @@ def ephemeral_stack(*,
     """
     url_rooibos = "http://127.0.0.1:{}".format(port_rooibos)
     url_bugzoo = "http://127.0.0.1:{}".format(port_bugzoo)
-    with bugzoo.server.ephemeral(port=port_bugzoo, verbose=verbose) as client_bz:
-        with rooibos.ephemeral_server(port=port_rooibos, verbose=verbose) as client_rooibos:
+    with bugzoo.server.ephemeral(port=port_bugzoo,
+                                 verbose=verbose) as client_bz:
+        with rooibos.ephemeral_server(port=port_rooibos,
+                                      verbose=verbose) as client_rooibos:
             with ephemeral(url_rooibos=url_rooibos,
                            url_bugzoo=url_bugzoo,
                            port=port_boggart,
@@ -170,7 +173,7 @@ def list_operators():
         args = {}
 
     # get a list of all registered operators
-    op_list = list(installation.operators) # type: List[Operator]
+    op_list = list(installation.operators)  # type: List[Operator]
 
     # perform optional language filtering
     if 'language' in args:
@@ -296,7 +299,7 @@ def launch(port: int = 8000,
     global installation
     assert 0 <= port <= 49151
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
-    client_rooibos = rooibos.Client(url_rooibos, timeout_connection = 60)
+    client_rooibos = rooibos.Client(url_rooibos, timeout_connection=60)
     installation = Installation.load(client_bugzoo, client_rooibos)
     app.run(port=port, host=host, debug=debug)
 

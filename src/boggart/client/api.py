@@ -32,7 +32,7 @@ class API(object):
                 established within the connection timeout window.
         """
         if not urlparse(base_url).scheme:
-          raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")
+            raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")  # noqa: pycodestyle
 
         self.__base_url = base_url
         self.__timeout = timeout
@@ -82,6 +82,6 @@ class API(object):
         url = self.url(path)
         return requests.get(url, params, **kwargs)
 
-    def post(self, path: str, data = None, **kwargs) -> requests.Response:
+    def post(self, path: str, data=None, **kwargs) -> requests.Response:
         url = self.url(path)
         return requests.post(url, data, **kwargs)
