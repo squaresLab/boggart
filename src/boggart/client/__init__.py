@@ -40,6 +40,22 @@ class Client(object):
         self.__operators = OperatorCollection(api=self.api)
 
     @property
+    def base_url_bugzoo(self) -> str:
+        """
+        The base URL of the BugZoo server to which this boggart server is
+        attached.
+        """
+        raise NotImplementedError
+
+    @property
+    def base_url_rooibos(self) -> str:
+        """
+        The base URL of the Rooibos server to which this boggart server is
+        attached.
+        """
+        raise NotImplementedError
+
+    @property
     def api(self) -> API:
         """
         The low-level client API used to communicate with the server.

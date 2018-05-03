@@ -37,14 +37,14 @@ operators:
       - match: "if (:[1])"
         rewrite: "if (!(:[1]))"
 
-  - name: delete-void-function-call
-    languages:
-      - C
-      - C++
-      - Java
-    transformations:
-      - match: ":[1]()"
-        rewrite: ""
+  #  - name: delete-void-function-call
+  #    languages:
+  #      - C
+  #      - C++
+  #      - Java
+  #    transformations:
+  #      - match: ":[1]();"
+  #        rewrite: ""
 
   - name: flip-arithmetic-operator
     languages:

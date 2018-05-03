@@ -1,10 +1,14 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Iterator
 from functools import wraps
+from contextlib import contextmanager
 from uuid import UUID
 import argparse
 import os
+import signal
+import subprocess
 
 import bugzoo
+import bugzoo.server
 import flask
 import rooibos
 from flask_api import FlaskAPI
@@ -12,11 +16,80 @@ from flask_api import FlaskAPI
 from .installation import Installation
 from ..exceptions import *
 from ..core import Language, Operator, Mutation
+from ..client import Client
 
 app = FlaskAPI(__name__)
 
 # TODO: tidy this up
-installation = None # type: Optional[Installation]
+installation = None # type: Any
+
+@contextmanager
+def ephemeral(*,
+              url_bugzoo: str = 'http://127.0.0.1:6060',
+              url_rooibos: str = 'http://127.0.0.1:8888',
+              port: int = 8000,
+              verbose: bool = False
+              ) -> Iterator[Client]:
+    """
+    Launches an ephemeral server instance that will be immediately
+    close when no longer in context.
+
+    Parameters:
+        port: the port that the server should run on.
+        verbose: if set to True, the server will print its output to the
+            stdout, otherwise it will remain silent.
+
+    Returns:
+        a client for communicating with the server.
+    """
+    url = "http://127.0.0.1:{}".format(port)
+    cmd = ["boggartd",
+           "-p", str(port),
+           "--bugzoo", url_bugzoo,
+           "--rooibos", url_rooibos]
+    try:
+        stdout = None if verbose else subprocess.DEVNULL
+        stderr = None if verbose else subprocess.DEVNULL
+        proc = subprocess.Popen(cmd,
+                                preexec_fn=os.setsid,
+                                stdout=stdout,
+                                stderr=stderr)
+        yield Client(url)
+    finally:
+        os.killpg(proc.pid, signal.SIGTERM)
+
+
+@contextmanager
+def ephemeral_stack(*,
+                    port_boggart: int = 8000,
+                    port_rooibos: int = 8888,
+                    port_bugzoo: int = 6060,
+                    verbose: bool = False
+                    ) -> Iterator[Client]:
+    """
+    Launches an ephemeral server instance along with a complete underlying
+    stack (i.e., an ephemeral Rooibos and BugZoo), all of which will be
+    immediately destroyed upon leaving the context.
+
+    Parameters:
+        port_boggart: the port that the boggart server should run on.
+        port_rooibos: the port that the Rooibos server should run on.
+        port_bugzoo: the port that the BugZoo server should run on.
+        verbose: if set to True, the server will print its output to the
+            stdout, otherwise it will remain silent.
+
+    Returns:
+        a client for communicating with the boggart server.
+    """
+    url_rooibos = "http://127.0.0.1:{}".format(port_rooibos)
+    url_bugzoo = "http://127.0.0.1:{}".format(port_bugzoo)
+    with bugzoo.server.ephemeral(port=port_bugzoo, verbose=verbose) as client_bz:
+        with rooibos.ephemeral_server(port=port_rooibos, verbose=verbose) as client_rooibos:
+            with ephemeral(url_rooibos=url_rooibos,
+                           url_bugzoo=url_bugzoo,
+                           port=port_boggart,
+                           verbose=verbose) as client_boggart:
+                yield client_boggart
 
 
 def throws_errors(func):
@@ -202,7 +275,7 @@ def mutations(name_snapshot: str, filepath: str):
             except KeyError:
                 raise OperatorNotFound(name)
     else:
-        operators = None
+        operators = list(installation.operators)
 
     # TODO implement line restriction
 
