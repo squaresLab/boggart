@@ -204,7 +204,7 @@ def list_operators():
     jsn_op_list = [op.to_dict() for op in op_list]
     logger.info("operators that satisfy given constraints: [%s]",
                 ', '.join([op.name for op in op_list]),
-                operators={'operators': jsn_op_list})
+                extra={'operators': jsn_op_list})
     return jsn_op_list
 
 
