@@ -1,5 +1,4 @@
 from typing import Optional, Union, Dict, List, Iterator, Tuple, NoReturn
-
 import logging
 
 import requests
@@ -10,6 +9,9 @@ from .languages import LanguageCollection
 from .operators import OperatorCollection
 from ..exceptions import *
 from ..core import Operator, Language, Mutation, Mutant
+
+
+logger = logging.getLogger(__name__)
 
 
 __all__ = ['Client']
@@ -35,11 +37,17 @@ class Client(object):
         Raises:
             ValueError: if the provided URL lacks a scheme (e.g., 'http').
         """
+        logger.info("constructing client for boggart server: %s", base_url)
         self.__api = API(base_url,
                          timeout=timeout,
                          timeout_connection=timeout_connection)
         self.__languages = LanguageCollection(api=self.api)
         self.__operators = OperatorCollection(api=self.api)
+        logger.info("registered languages: %s",
+                    ', '.join([l.name for l in self.__languages]))
+        logger.info("registered operators: %s",
+                    ', '.join([op.name for op in self.__operators]))
+        logger.info("constructed client for boggart server: %s", base_url)
 
     @property
     def base_url_bugzoo(self) -> str:
@@ -89,9 +97,16 @@ class Client(object):
             UnexpectedResponse: if the response cannot be decoded to an
                 exception.
         """
+        logger.debug("handling erroneous response [%d]:\n%s",
+                     response.status_code,
+                     response.text)
         try:
             err = ClientServerError.from_dict(response.json())
+            logger.debug("parsed erroneous response to: %s", repr(err))
         except Exception:
+            logger.debug("unexpected response [%d]:\n%s",
+                         response.status_code,
+                         response.text)
             err = UnexpectedResponse(response)
         raise err
 
@@ -131,6 +146,9 @@ class Client(object):
         """
         assert operators is None or len(operators) > 0
 
+        logger.info("Finding mutations in file '%s' belonging to snapshot '%s'.",  # noqa: pycodestyle
+                    filepath,
+                    snapshot.name)
         path = "mutations/{}/{}".format(snapshot.name, filepath)
         params = {}
         if language:
@@ -142,8 +160,13 @@ class Client(object):
 
         if response.status_code == 200:
             for jsn_mutation in response.json():
-                yield Mutation.from_dict(jsn_mutation)
+                logger.debug("Decoding mutation.",
+                             extra={'mutation': jsn_mutation})
+                mutation = Mutation.from_dict(jsn_mutation)
+                logger.info("Found mutation: %s", repr(mutation))
+                yield mutation
         else:
+            logger.info("An error occurred whilst attempting to find mutations.")  # noqa: pycodestyle
             self.__handle_error_response(response)
 
     def mutate(self,
@@ -164,9 +187,19 @@ class Client(object):
             'snapshot': snapshot.name,
             'mutations': [m.to_dict() for m in mutations]
         }
+        logger.info("Applying mutations to snapshot '%s': %s",
+                    snapshot.name,
+                    ', '.join(repr(m) for m in mutations),
+                    extra=payload)
         response = self.api.post("mutants", json=payload)
 
         if response.status_code == 200:
-            return Mutant.from_dict(response.json())
+            mutant = Mutant.from_dict(response.json())
+            logger.info("Applied mutations to snapshot '%s' to generate mutant: %s",  # noqa: pycodestyle
+                        snapshot.name,
+                        repr(mutant),
+                        extra={'mutant': response.json()})
+            return mutant
         else:
+            logger.info("An error occurred whilst attempting to mutate snapshot.")  # noqa: pycodestyle
             self.__handle_error_response(response)

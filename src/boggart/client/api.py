@@ -2,10 +2,16 @@ from typing import Dict, Union, List, Any
 from urllib.parse import urljoin, urlparse
 from timeit import default_timer as timer
 import time
+import logging
 
 import requests
 
 from ..exceptions import ConnectionFailure
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+__all__ = ['API']
 
 
 class API(object):
@@ -32,12 +38,15 @@ class API(object):
                 established within the connection timeout window.
         """
         if not urlparse(base_url).scheme:
+            logger.error("invalid base URL provided: missing scheme.")
             raise ValueError("invalid base URL provided: missing scheme (e.g., 'http').")  # noqa: pycodestyle
 
         self.__base_url = base_url
         self.__timeout = timeout
 
-        # attempt to establish a connection
+        logger.info("attempting to establish connection to server '%s' with timeout of %d seconds",  # noqa: pycodestyle
+                    base_url,
+                    timeout)
         url = self.url("status")
         time_started = timer()
         connected = False
@@ -45,13 +54,16 @@ class API(object):
             time_running = timer() - time_started
             time_left = timeout_connection - time_running
             if time_left <= 0.0:
+                logger.error("failed to connect to server: %s", base_url)
                 raise ConnectionFailure
             try:
                 r = requests.get(url, timeout=time_left)
                 connected = r.status_code == 204
+                logger.info("connected to server: %s", base_url)
             except requests.exceptions.ConnectionError:
                 time.sleep(1.0)
             except requests.exceptions.Timeout:
+                logger.error("failed to connect to server: %s", base_url)
                 raise ConnectionFailure
             time.sleep(0.05)
 

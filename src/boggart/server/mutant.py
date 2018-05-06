@@ -3,6 +3,7 @@ from typing import List, Iterator, Dict
 from uuid import UUID, uuid4
 from difflib import unified_diff
 import tempfile
+import logging
 
 from bugzoo.core.bug import Bug
 from bugzoo.core.patch import Patch
@@ -12,6 +13,8 @@ from rooibos import Client as RooibosClient
 from .sourcefile import SourceFileManager
 from ..config.operators import Operators as OperatorManager
 from ..core import Mutant, Mutation, Replacement
+
+logger = logging.getLogger(__name__)
 
 
 class MutantManager(object):
@@ -50,8 +53,18 @@ class MutantManager(object):
         Raises:
             KeyError: if no mutant is registered under the given UUID.
         """
-        mutant = self[uuid]
-        self.__bugzoo.docker.delete_image(mutant.docker_image)
+        logger.info("Attempting to destroy mutant with UUID: %s", uuid.hex)
+        try:
+            mutant = self[uuid]
+        except KeyError:
+            logger.exception("Failed to find mutant with UUID: %s", uuid.hex)
+            raise
+        try:
+            self.__bugzoo.docker.delete_image(mutant.docker_image)
+        except Exception:
+            logger.exception("Failed to destroy docker image (%s) for mutant: %s",  # noqa: pycodestyle
+                             mutant.docker_image,
+                             mutant)
         # FIXME deregister the BugZoo snapshot
         del self.__mutants[uuid]
 
@@ -73,16 +86,27 @@ class MutantManager(object):
         Returns:
             a description of the generated mutant.
         """
+        logger.info("Generating mutant of snapshot '%s' by applying mutations: %s",  # noqa: pycodestyle
+                    snapshot.name,
+                    ', '.join([repr(m) for m in mutations]))
         bz = self.__bugzoo
         assert len(mutations) <= 1, \
             "higher-order mutation is currently unsupported"
 
         # NOTE this is *incredibly* unlikely to conflict
         uuid = uuid4()
-        assert uuid not in self.__mutants, "UUID already in use."
+        logger.debug("Generated UUID for mutant: %s", uuid.hex)
+        try:
+            assert uuid not in self.__mutants, "UUID already in use."
+        except AssertionError:
+            logger.exception("Automatically generated UUID is already in use: %s",  # noqa: pycodestyle
+                             uuid)
+            raise
         mutant = Mutant(uuid, snapshot.name, mutations)
+        logger.debug("Constructed mutant description: %s", mutant)
 
         # group mutations by file
+        logger.debug("Grouping mutations by file")
         file_mutations = {}  # type: Dict[str, List[Mutation]]
         for mutation in mutant.mutations:
             location = mutation.location
@@ -91,8 +115,10 @@ class MutantManager(object):
             if filename not in file_mutations:
                 file_mutations[filename] = []
             file_mutations[filename].append(mutation)
+        logger.debug("Grouped mutations by file: %s", file_mutations)
 
         # transform each mutation into a replacement and group by file
+        logger.debug("Transforming mutations into replacements")
         replacements_in_file = {}  # type: Dict[str, List[Replacement]]
         for mutation in mutant.mutations:
             location = mutation.location
@@ -107,9 +133,15 @@ class MutantManager(object):
                                                      mutation.arguments)
 
             replacement = Replacement(location, text_mutated)
+            logger.info("Transformed mutation, %s, to replacement: %s",
+                        mutation,
+                        replacement)
             replacements_in_file[filename].append(replacement)
+        logger.debug("Transformed mutations to replacements: %s",
+                     replacements_in_file)
 
         # transform the replacements to a diff
+        logger.debug("Transforming replacements to diff")
         file_diffs = []  # type: List[str]
         for filename in replacements_in_file:
             original = self.__sources.read_file(snapshot, filename)
@@ -120,17 +152,29 @@ class MutantManager(object):
                                         mutated.splitlines(True),
                                         filename,
                                         filename))
+            logger.debug("Transformed replacements to file to diff:\n%s",
+                         diff)
             file_diffs.append(diff)
         diff_s = '\n'.join(file_diffs)
+        logger.info("Transformed mutations to diff:\n%s", diff_s)
         mutant_diff = Patch.from_unidiff('\n'.join(file_diffs))
 
         # generate the Docker image on the BugZoo server
+        logger.debug("Provisioning container to persist mutant as a snapshot")
         container = bz.containers.provision(snapshot)
+        logger.debug("Provisioned container, %s, for mutant, %s",
+                     container.uid,
+                     mutant.uuid.hex)
         try:
+            logger.debug("Applying mutation patch to original source code.")
             bz.containers.patch(container, diff)
+            logger.debug("Applied mutation patch to original source code.")
             bz.containers.persist(container, mutant.docker_image)
         finally:
             del bz.containers[container.uid]
+            logger.debug("Destroyed temporary container, %s, for mutant, %s",
+                         container.uid,
+                         mutant.uuid.hex)
 
         # build and register a BugZoo snapshot
         files_to_instrument = snapshot.files_to_instrument
@@ -144,8 +188,17 @@ class MutantManager(object):
                                harness=snapshot.harness,
                                compiler=snapshot.compiler,
                                files_to_instrument=files_to_instrument)
+        logger.debug("Registering snapshot for mutant with BugZoo: %s",
+                     mutant.uuid.hex)
         bz.bugs.register(snapshot_mutated)
+        logger.debug("Registered snapshot for mutant with BugZoo: %s",
+                     mutant.uuid.hex)
 
         # track the mutant
+        logger.debug("Registering mutant with UUID '%s': %s",
+                     mutant.uuid.hex,
+                     mutant)
         self.__mutants[mutant.uuid] = mutant
+        logger.debug("Registered mutant with UUID '%s'", mutant.uuid.hex)
+        logger.info("Generated mutant: %s", mutant)
         return mutant

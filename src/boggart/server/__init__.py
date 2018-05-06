@@ -6,6 +6,9 @@ import argparse
 import os
 import signal
 import subprocess
+import logging
+import logging.handlers
+import sys
 
 import bugzoo
 import bugzoo.server
@@ -19,6 +22,9 @@ from ..core import Language, Operator, Mutation
 from ..client import Client
 
 app = FlaskAPI(__name__)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # TODO: tidy this up
 installation = None  # type: Any
@@ -116,6 +122,7 @@ def status():
     """
     Produces a diagnostic summary of the health of the server.
     """
+    logger.info("inspecting server health")
     return '', 204
 
 
@@ -129,10 +136,13 @@ def describe_language(name: str):
         LanguageNotFound: if no language is registered with this server
             under the given name.
     """
+    logger.info("attempting to find language with name: %s", name)
     try:
         language = installation.languages[name]
+        logger.info("found language with name %s: %s", name, language)
         return language.to_dict()
     except KeyError:
+        logger.error("failed to find language: %s", name)
         raise LanguageNotFound(name)
 
 
@@ -141,6 +151,7 @@ def list_languages():
     """
     Produces a list of all languages that are supported by this server.
     """
+    logger.info("retrieving list of supported languages")
     return [lang.to_dict() for lang in installation.languages]
 
 
@@ -150,9 +161,13 @@ def describe_operator(name: str):
     """
     Describes a named operator.
     """
+    logger.info("attempting to find operator with name: %s", name)
     try:
-        return installation.operators[name].to_dict()
+        operator = installation.operators[name]
+        logger.info("found operator with name %s: %s", name, operator)
+        return operator.to_dict()
     except KeyError:
+        logger.error("failed to find operator: %s", name)
         raise OperatorNotFound(name)
 
 
@@ -171,6 +186,7 @@ def list_operators():
     args = flask.request.get_json()
     if args is None:
         args = {}
+    logger.info("requesting list of operators", extra=args)
 
     # get a list of all registered operators
     op_list = list(installation.operators)  # type: List[Operator]
@@ -185,28 +201,42 @@ def list_operators():
         op_list = [op for op in op_list if op.supports_language(language)]
 
     # serialize to JSON
-    op_list = [op.to_dict() for op in op_list]
-    return op_list
+    jsn_op_list = [op.to_dict() for op in op_list]
+    logger.info("operators that satisfy given constraints: [%s]",
+                ', '.join([op.name for op in op_list]),
+                operators={'operators': jsn_op_list})
+    return jsn_op_list
 
 
 @app.route('/mutants', methods=['GET', 'POST'])
 @throws_errors
 def interact_with_mutants():
     if flask.request.method == 'GET':
+        logger.info("request list of mutants")
         list_uuid = [m.uuid for m in installation.mutants]
+        logger.info("%d mutants: %s", len(list_uuid), list_uuid,
+                    extra={'mutants': list_uuid})
         return flask.jsonify(list_uuid), 200
 
     if flask.request.method == 'POST':
         description = flask.request.json
-        print(description)
         snapshot_name = description['snapshot']
+        logger.info("generating mutant of snapshot '%s'",
+                    snapshot_name,
+                    extra={'payload', description})
         try:
             snapshot = installation.bugzoo.bugs[snapshot_name]
         except KeyError:
+            logger.error("failed to generate mutant: snapshot (%s) was not found",  # noqa: pycodestyle
+                         snapshot_name,
+                         exc_info=True)
             return SnapshotNotFound(snapshot_name), 404
 
         mutations = [Mutation.from_dict(m) for m in description['mutations']]
+        logger.debug("generating mutant of snapshot '%s' using mutations: %s",
+                     snapshot_name, mutations)
         mutant = installation.mutants.generate(snapshot, mutations)
+        logger.info("generated mutant: %s", mutant)
         jsn_mutant = mutant.to_dict()
         return flask.jsonify(jsn_mutant), 200
 
@@ -217,7 +247,11 @@ def interact_with_mutant(uuid_hex: str):
     uuid = UUID(hex=uuid_hex)
 
     if flask.request.method == 'GET':
-        mutant = installation.mutants[uuid]
+        logger.info("fetching information about mutant: %s", uuid)
+        try:
+            mutant = installation.mutants[uuid]
+        except Exception:
+            logger.exception("failed to find mutant: %s", uuid)
         return flask.jsonify(mutant.to_dict()), 200
 
 
@@ -251,33 +285,49 @@ def mutations(name_snapshot: str, filepath: str):
             automatically detected.
     """
     args = flask.request.args
+    logger.info("attempting to find mutations to file '%s' belonging to snapshot '%s'",  # noqa: pycodestyle
+                name_snapshot,
+                filepath,
+                extra={'arguments': args})
 
     # fetch the given snapshot
+    logger.info("attempting to retrieve snapshot: %s", name_snapshot)
     try:
         snapshot = installation.bugzoo.bugs[name_snapshot]
     except KeyError:
+        logger.exception("failed to find snapshot: %s", name_snapshot)
         raise SnapshotNotFound(name_snapshot)
+    logger.info("retrieved snapshot: %s", name_snapshot)
 
     # determine the language used by the file
     if 'language' in args:
+        logger.info("obtaining language from arguments")
         try:
             language = installation.languages[args['language']]
         except KeyError:
             raise LanguageNotFound(args['language'])
     else:
+        logger.info("no language specified -- attempt to autodetect.")
         language = None
 
     # determine the set of operators that should be used
     if 'operators' in args:
         operators = []
         operator_names = args['operators'].split(';')
+        logger.info("finding operators specified by argument: %s",
+                    args['operators'],
+                    extra={'operators': operator_names})
         for name in operator_names:
             try:
+                logger.debug("looking for operator: %s", name)
                 op = installation.operators[name]
+                logger.debug("found operator with name %s: %s", name, op)
                 operators.append(op)
             except KeyError:
+                logger.exception("failed to find operator: %s", name)
                 raise OperatorNotFound(name)
     else:
+        logger.info("using all available operators to generate mutations")
         operators = list(installation.operators)
 
     # TODO implement line restriction
@@ -294,13 +344,40 @@ def launch(port: int = 8000,
            url_bugzoo: str = 'http://127.0.0.1:6060',
            url_rooibos: str = 'http://host.docker.internal:8888',
            host: str = '0.0.0.0',
-           debug: bool = False
+           debug: bool = False,
+           log_filename: Optional[str] = None
            ) -> None:
     global installation
+
+    log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')  # noqa: pycodestyle
+
+    if not log_filename:
+        log_filename = "boggartd.log"
+        log_filename = os.path.join(os.getcwd(), log_filename)
+
+    log_to_file = logging.handlers.WatchedFileHandler(log_filename)
+    log_to_file.setLevel(logging.DEBUG)
+    log_to_file.setFormatter(log_formatter)
+
+    log_to_stdout = logging.StreamHandler(sys.stdout)
+    log_to_stdout.setLevel(logging.INFO)
+    log_to_stdout.setFormatter(log_formatter)
+
+    log_main = logging.getLogger('boggart')  # type: logging.Logger
+    log_main.addHandler(log_to_stdout)
+    log_main.addHandler(log_to_file)
+
     assert 0 <= port <= 49151
+
+    logger.info("attempting to connect to BugZoo server: %s", url_bugzoo)
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
+    logger.info("connected to BugZoo server")
+    logger.info("attempting to connect to Rooibos server: %s",
+                url_rooibos)
     client_rooibos = rooibos.Client(url_rooibos, timeout_connection=60)
+    logger.info("connected to Rooibos server")
     installation = Installation.load(client_bugzoo, client_rooibos)
+    logger.info("launching HTTP server at %s:%d", host, port)
     app.run(port=port, host=host, debug=debug)
 
 
@@ -311,6 +388,9 @@ def main() -> None:
                         type=int,
                         default=8000,
                         help='the port that should be used by this server.')
+    parser.add_argument('--log-file',
+                        type=str,
+                        help='the path to the file where logs should be written.')  # noqa: pycodestyle
     parser.add_argument('--rooibos',
                         type=str,
                         default='http://host.docker.internal:8888',
@@ -327,8 +407,10 @@ def main() -> None:
                         action='store_true',
                         help='enables debugging mode.')
     args = parser.parse_args()
+
     launch(port=args.port,
            url_bugzoo=args.bugzoo,
            url_rooibos=args.rooibos,
            host=args.host,
-           debug=args.debug)
+           debug=args.debug,
+           log_filename=args.log_file)

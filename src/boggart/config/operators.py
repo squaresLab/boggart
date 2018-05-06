@@ -1,8 +1,11 @@
 from typing import Iterator, Any, List, Optional, Dict
+import logging
 
 from .languages import Languages
 from ..core import Operator
 from ..exceptions import LanguageNotFound
+
+logger = logging.getLogger(__name__)
 
 __all__ = ['Operators']
 
@@ -27,10 +30,13 @@ class Operators(object):
               definitions supports a language that is not contained within
               the given configuration.
         """
+        logger.info("Loading operators from definitions: %s", defs)
         operators = base if base else Operators()
         for d in defs:
+            logger.info("Loading operator from definition: %s", d)
             op = Operator.from_dict(d)
             operators = operators.add(op, languages)
+        logger.info("Loaded operators from definitions.")
         return operators
 
     def __init__(self,
@@ -57,12 +63,16 @@ class Operators(object):
               language that is not contained within the provided collection
               of languages.
         """
+        logger.info("Adding operator to collection: %s", op)
         for supported_language in op.languages:
             if supported_language not in languages:
+                logger.error("Failed to add operator, %s, to collection: language not found (%s)",  # noqa: pycodestyle
+                             op, supported_language)
                 raise LanguageNotFound(supported_language)
 
         ops = dict(self.__operators)
         ops[op.name] = op
+        logger.info("Added operator to collection: %s", op)
         return Operators(ops)
 
     def __len__(self) -> int:

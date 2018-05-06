@@ -1,10 +1,13 @@
 from typing import Iterator, Any, List, FrozenSet, Optional, Dict, Set
 import warnings
 import os
+import logging
 
 from ..core import Language
 from ..exceptions import IllegalConfig, LanguageNotDetected
 from ..warnings import LanguageOverwriteWarning
+
+logger = logging.getLogger(__name__)
 
 __all__ = ['Languages']
 
@@ -20,10 +23,15 @@ class Languages(object):
         from a configuration file, together with an optionally provided
         parent (overall) configuration.
         """
+        logger.info("Loading languages from definitions: %s", defs)
         config = base if base else Languages()
         for d in defs:
+            logger.info("Loading language from definition: %s", d)
             language = Language.from_dict(d)
+            logger.info("Adding loaded language to configuration: %s",
+                        language)
             config = config.add(language)
+        logger.info("Loaded languages from definitions.")
         return config
 
     def __init__(self,
@@ -40,6 +48,7 @@ class Languages(object):
         Returns a variant of this collection of languages that also includes a
         given language.
         """
+        logger.info("Added language to collection: %s", language)
         endings = set(self.supported_file_endings)
 
         # if there already exists a language with the given name, produce a
@@ -53,10 +62,12 @@ class Languages(object):
 
         # are the file endings used by this language already in use?
         if set(language.file_endings) & endings:
+            logger.error("failed to load language due to an existing language sharing a common file ending.")  # noqa: pycodestyle
             raise IllegalConfig("file ending ambiguity: two or more languages share a common file ending.")  # noqa: pycodestyle
 
         languages = dict(self.__languages)
         languages[language.name] = language
+        logger.info("Added language to collection: %s", language)
         return Languages(languages)
 
     def __iter__(self) -> Iterator[Language]:
@@ -119,8 +130,15 @@ class Languages(object):
             LanguageNotDetected: if the language used by the filename could not
                 be automatically detected.
         """
+        logger.info("Attempting to detect language used by file: %s",
+                    filename)
         _, suffix = os.path.splitext(filename)
+        logger.debug("Using suffix of file, '%s': '%s'",
+                     filename, suffix)
         for language in self:
             if suffix in language.file_endings:
+                logger.info("Detected language used by file, '%s': %s",
+                            filename, language)
                 return language
+        logger.error("Failed to detect language used by file: %s", filename)
         raise LanguageNotDetected(filename)
