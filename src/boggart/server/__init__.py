@@ -255,7 +255,7 @@ def interact_with_mutant(uuid_hex: str):
         return flask.jsonify(mutant.to_dict()), 200
 
 
-@app.route('/mutations/<name_snapshot>/<filepath>', methods=['GET'])
+@app.route('/mutations/<name_snapshot>/<path:filepath>', methods=['GET'])
 @throws_errors
 def mutations(name_snapshot: str, filepath: str):
     """
