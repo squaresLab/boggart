@@ -354,7 +354,9 @@ def launch(port: int = 8000,
            ) -> None:
     global installation
 
-    log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')  # noqa: pycodestyle
+    log_formatter = \
+        logging.Formatter('%(asctime)s:%(name)s:%(levelname)s: %(message)s',
+                          '%Y-%m-%d %H:%M:%S')
 
     if not log_filename:
         log_filename = "boggartd.log"
@@ -364,7 +366,7 @@ def launch(port: int = 8000,
     log_to_file.setLevel(logging.DEBUG)
     log_to_file.setFormatter(log_formatter)
 
-    log_to_stdout = logging.StreamHandler(sys.stdout)
+    log_to_stdout = logging.StreamHandler()
     log_to_stdout.setLevel(logging.INFO)
     log_to_stdout.setFormatter(log_formatter)
 
