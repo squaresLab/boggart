@@ -286,8 +286,8 @@ def mutations(name_snapshot: str, filepath: str):
     """
     args = flask.request.args
     logger.info("attempting to find mutations to file '%s' belonging to snapshot '%s'",  # noqa: pycodestyle
-                name_snapshot,
                 filepath,
+                name_snapshot,
                 extra={'arguments': args})
 
     # fetch the given snapshot
@@ -336,6 +336,11 @@ def mutations(name_snapshot: str, filepath: str):
                                        filepath,
                                        language=language,
                                        operators=operators)
+    logger.info("found {} mutations of file '%s' in snapshot '%s' that satisfy the given constraints.",  # noqa: pycodestyle
+                len(mutations),
+                filepath,
+                name_snapshot)
+
     jsn = [m.to_dict() for m in mutations]
     return jsn
 
