@@ -336,7 +336,7 @@ def mutations(name_snapshot: str, filepath: str):
                                        filepath,
                                        language=language,
                                        operators=operators)
-    logger.info("found {} mutations of file '%s' in snapshot '%s' that satisfy the given constraints.",  # noqa: pycodestyle
+    logger.info("found %d mutations of file '%s' in snapshot '%s' that satisfy the given constraints.",  # noqa: pycodestyle
                 len(mutations),
                 filepath,
                 name_snapshot)
