@@ -52,14 +52,14 @@ operators:
       - C++
       - Java
     transformations:
-      - match: " + "
-        rewrite: " - "
-      - match: " - "
-        rewrite: " + "
-      - match: " * "
-        rewrite: " / "
-      - match: " / "
-        rewrite: " * "
+      - match: ":[1] + :[2]"
+        rewrite: ":[1] - :[2]"
+      - match: ":[1] - :[2]"
+        rewrite: ":[1] + :[2]"
+      - match: ":[1] * :[2]"
+        rewrite: ":[1] / :[2]"
+      - match: ":[1] / :[2]"
+        rewrite: ":[1] * :[2]"
 
   - name: flip-boolean-operator
     languages:
@@ -67,10 +67,10 @@ operators:
       - C++
       - Java
     transformations:
-      - match: " && "
-        rewrite: " || "
-      - match: " || "
-        rewrite: " && "
+      - match: ":[1] && :[2]"
+        rewrite: ":[1] || :[2]"
+      - match: ":[1] || :[2]"
+        rewrite: ":[1] && :[2]"
 
   - name: flip-relational-operator
     languages:
@@ -78,18 +78,18 @@ operators:
       - C++
       - Java
     transformations:
-      - match: " < "
-        rewrite: " >= "
-      - match: " >= "
-        rewrite: " < "
-      - match: " > "
-        rewrite: " <= "
-      - match: " <= "
-        rewrite: " > "
-      - match: " == "
-        rewrite: " != "
-      - match: " != "
-        rewrite: " == "
+      - match: ":[1] < :[2]"
+        rewrite: ":[1] >= :[2]"
+      - match: ":[1] >= :[2]"
+        rewrite: ":[1] < :[2]"
+      - match: ":[1] > :[2]"
+        rewrite: ":[1] <= :[2]"
+      - match: ":[1] <= :[2]"
+        rewrite: ":[1] > :[2]"
+      - match: ":[1] == :[2]"
+        rewrite: ":[1] != :[2]"
+      - match: ":[1] != :[2]"
+        rewrite: ":[1] == :[2]"
 
   - name: undo-transformation
     languages:
@@ -116,5 +116,5 @@ operators:
       - C
       - C++
     transformations:
-      - match: "unsigned int "
-        rewrite: "int "
+      - match: "unsigned int :[1] ="
+        rewrite: "int :[1] ="
