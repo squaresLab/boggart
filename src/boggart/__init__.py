@@ -10,3 +10,4 @@ from .core import *
 from .client import Client
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger(__name__).setLevel(logging.INFO)
