@@ -122,7 +122,7 @@ class BadFormat(ClientServerError):
     @staticmethod
     def from_data(data: dict) -> 'BadFormat':
         assert 'reason' in data
-        return BadFormatError(data['reason'])
+        return BadFormat(data['reason'])
 
     def __init__(self, reason: str) -> None:
         self.__reason = reason
