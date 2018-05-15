@@ -223,7 +223,7 @@ def interact_with_mutants():
         snapshot_name = description['snapshot']
         logger.info("generating mutant of snapshot '%s'",
                     snapshot_name,
-                    extra={'payload', description})
+                    extra={'payload': description})
         try:
             snapshot = installation.bugzoo.bugs[snapshot_name]
         except KeyError:
