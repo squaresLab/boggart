@@ -94,6 +94,7 @@ class MutantManager(object):
             "higher-order mutation is currently unsupported"
 
         # NOTE this is *incredibly* unlikely to conflict
+        logging.debug("Generating UUID for mutant...")
         uuid = uuid4()
         logger.debug("Generated UUID for mutant: %s", uuid.hex)
         try:
@@ -102,6 +103,7 @@ class MutantManager(object):
             logger.exception("Automatically generated UUID is already in use: %s",  # noqa: pycodestyle
                              uuid)
             raise
+        logger.debug("Constructing mutation description...")
         mutant = Mutant(uuid, snapshot.name, mutations)
         logger.debug("Constructed mutant description: %s", mutant)
 
