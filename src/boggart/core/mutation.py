@@ -1,6 +1,7 @@
 from typing import Dict, Any
 
 from .location import FileLocationRange
+from ..exceptions import BadFormat
 
 __all__ = ['Mutation']
 
@@ -14,16 +15,28 @@ class Mutation(object):
     def from_dict(d: dict) -> 'Mutation':
         """
         Constructs a mutation from a dictionary-based description.
+
+        Raises:
+            BadFormat: if the provided dictionary does not match the expected format.
         """
-        assert 'operator' in d
-        assert 'transformation-index' in d
-        assert 'location' in d
-        assert 'arguments' in d
+        if not isinstance(d, dict):
+            raise BadFormat("expected data structure to be a dictionary.")
+        if not 'operator' in d:
+            raise BadFormat("expected 'operator' property.")
+        if not 'transformation-index' in d:
+            raise BadFormat("expected 'transformation-index' property.")
+        if not 'location' in d:
+            raise BadFormat("expected 'location' property.")
+        if not 'arguments' in d:
+            raise BadFormat("expected 'arguments' property.")
 
         operator = d['operator']
         transformation_index = d['transformation-index']
         arguments = d['arguments']
-        location = FileLocationRange.from_string(d['location'])
+        try:
+            location = FileLocationRange.from_string(d['location'])
+        except Exception:
+            raise BadFormat("failed to parse location string.")
 
         return Mutation(operator, transformation_index, location, arguments)
 
