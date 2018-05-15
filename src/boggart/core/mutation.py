@@ -20,14 +20,14 @@ class Mutation(object):
             BadFormat: if the provided dictionary does not match the expected format.
         """
         if not isinstance(d, dict):
-            raise BadFormat("expected data structure to be a dictionary.")
-        if not 'operator' in d:
+            raise BadFormat("expected data structure to be a dictionary.")  # noqa: pycodestyle
+        if 'operator' not in d:
             raise BadFormat("expected 'operator' property.")
-        if not 'transformation-index' in d:
+        if 'transformation-index' not in d:
             raise BadFormat("expected 'transformation-index' property.")
-        if not 'location' in d:
+        if 'location' not in d:
             raise BadFormat("expected 'location' property.")
-        if not 'arguments' in d:
+        if 'arguments' not in d:
             raise BadFormat("expected 'arguments' property.")
 
         operator = d['operator']
