@@ -17,7 +17,8 @@ __all__ = [
     'IllegalConfig',
     'FileNotFound',
     'SnapshotNotFound',
-    'ConnectionFailure'
+    'ConnectionFailure',
+    'BadFormat'
 ]
 
 
@@ -112,6 +113,28 @@ class ClientServerError(BoggartException):
             jsn['data'] = data
         jsn = {'error': jsn}
         return jsn, self.__status_code
+
+
+class BadFormat(ClientServerError):
+    """
+    A given data structure did not match the expected format.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'BadFormat':
+        assert 'reason' in data
+        return BadFormatError(data['reason'])
+
+    def __init__(self, reason: str) -> None:
+        self.__reason = reason
+        super().__init__(400, "unexpected format: {}".format(reason))
+
+    @property
+    def reason(self) -> str:
+        return self.__reason
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'reason': self.reason}
 
 
 class OperatorNameAlreadyExists(ClientServerError):
