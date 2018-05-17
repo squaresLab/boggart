@@ -353,6 +353,7 @@ def launch(port: int = 8000,
            log_filename: Optional[str] = None
            ) -> None:
     global installation
+    logger.info("launching boggartd v%s", boggart.__version__)
 
     log_formatter = \
         logging.Formatter('%(asctime)s:%(name)s:%(levelname)s: %(message)s',
