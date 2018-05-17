@@ -72,7 +72,7 @@ class SourceFileManager(object):
                      line_col_s)
         line_offsets = self.__line_offsets(snapshot, filepath)
         line_starts_at = line_offsets[line_num - 1]
-        offset = line_starts_at + col_num - 1
+        offset = line_starts_at + col_num
         logger.debug("Transformed line-column, '%s', into character offset: %s",  # noqa: pycodestyle
                      line_col_s,
                      offset)
@@ -136,7 +136,7 @@ class SourceFileManager(object):
                                           location.stop.line,
                                           location.stop.column)
 
-        contents = contents_file[start_at:stop_at + 1]
+        contents = contents_file[start_at:stop_at]
         logger.debug("Read characters at %s in snapshot, %s: %s",
                      location, snapshot.name, contents)
         return contents
@@ -165,7 +165,7 @@ class SourceFileManager(object):
                                               location.stop.line,
                                               location.stop.column)
             content = \
-                content[:start_at] + replacement.text + content[stop_at + 1:]
+                content[:start_at] + replacement.text + content[stop_at:]
         logger.debug("Applied replacements to source file, '%s/%s': %s:\n%s",
                      snapshot.name, filename,
                      replacements,
