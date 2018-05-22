@@ -112,7 +112,11 @@ def throws_errors(func):
         try:
             return func(*args, **kwargs)
         except ClientServerError as err:
+            logger.exception("encountered an error while handling request: %s", err.message)  # noqa: pycodestyle
             return err.to_response()
+        except Exception as err:
+            logger.exception("encountered unexpected error while handling request: %s", e)  # noqa: pycodestyle
+            return UnexpectedServerError(err).to_response()
     return wrapper
 
 
@@ -331,17 +335,28 @@ def mutations(name_snapshot: str, filepath: str):
         operators = list(installation.operators)
 
     # TODO implement line restriction
+    try:
+        generator_mutations = \
+            installation.mutations(snapshot,
+                                   filepath,
+                                   language=language,
+                                   operators=operators)
+        mutations = list(generator_mutations)
+    except BoggartException as e:
+        logger.exception("failed to find mutations due to error: %s", e.message)  # noqa: pycodestyle
+        raise
+    except Exception as e:
+        logger.exception("failed to find mutations due to unexpected error: %s", e)  # noqa: pycodestyle
+        raise
 
-    mutations = installation.mutations(snapshot,
-                                       filepath,
-                                       language=language,
-                                       operators=operators)
     logger.info("found %d mutations of file '%s' in snapshot '%s' that satisfy the given constraints.",  # noqa: pycodestyle
                 len(mutations),
                 filepath,
                 name_snapshot)
 
+    logger.debug("serialising discovered mutations")
     jsn = [m.to_dict() for m in mutations]
+    logger.debug("serialised discovered mutations")
     return jsn
 
 
@@ -362,7 +377,7 @@ def launch(port: int = 8000,
         log_filename = "boggartd.log"
         log_filename = os.path.join(os.getcwd(), log_filename)
 
-    log_to_file = logging.handlers.WatchedFileHandler(log_filename)
+    log_to_file = logging.handlers.WatchedFileHandler(log_filename, mode='w')
     log_to_file.setLevel(logging.DEBUG)
     log_to_file.setFormatter(log_formatter)
 

@@ -18,7 +18,8 @@ __all__ = [
     'FileNotFound',
     'SnapshotNotFound',
     'ConnectionFailure',
-    'BadFormat'
+    'BadFormat',
+    'UnexpectedServerError'
 ]
 
 
@@ -78,7 +79,8 @@ class ClientServerError(BoggartException):
             'OperatorNameAlreadyExists': OperatorNameAlreadyExists,
             'LanguageNotFound': LanguageNotFound,
             'BadConfigFile': BadConfigFile,
-            'IllegalConfig': IllegalConfig
+            'IllegalConfig': IllegalConfig,
+            'UnexpectedServerError': UnexpectedServerError
         })[d['kind']]
 
         return cls.from_data(d.get('data', {}))  # type: ignore
@@ -135,6 +137,32 @@ class BadFormat(ClientServerError):
     @property
     def data(self) -> Dict[str, Any]:
         return {'reason': self.reason}
+
+
+class UnexpectedServerError(ClientServerError):
+    """
+    The server encountered an unexpected error.
+    """
+    @staticmethod
+    def from_exception(ex: Exception) -> 'UnexpectedServerError':
+        return UnexpectedServerError(str(ex))
+
+    @staticmethod
+    def from_data(data: dict) -> 'UnexpectedServerError':
+        assert 'message' in data
+        return UnexpectedServerError(data['message'])
+
+    def __init__(self, message: str) -> None:
+        self.__message = message
+        super().__init__(500, "unexpected error: {}".format(message))
+
+    @property
+    def message(self) -> str:
+        return self.__message
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'message': self.message}
 
 
 class OperatorNameAlreadyExists(ClientServerError):
