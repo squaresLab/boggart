@@ -17,7 +17,8 @@ class Mutation(object):
         Constructs a mutation from a dictionary-based description.
 
         Raises:
-            BadFormat: if the provided dictionary does not match the expected format.
+            BadFormat: if the provided dictionary does not match the expected
+                format.
         """
         if not isinstance(d, dict):
             raise BadFormat("expected data structure to be a dictionary.")  # noqa: pycodestyle
