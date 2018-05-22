@@ -115,7 +115,7 @@ def throws_errors(func):
             logger.exception("encountered an error while handling request: %s", err.message)  # noqa: pycodestyle
             return err.to_response()
         except Exception as err:
-            logger.exception("encountered unexpected error while handling request: %s", e)  # noqa: pycodestyle
+            logger.exception("encountered unexpected error while handling request: %s", err)  # noqa: pycodestyle
             return UnexpectedServerError(err).to_response()
     return wrapper
 
