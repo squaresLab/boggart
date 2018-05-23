@@ -85,15 +85,13 @@ class API(object):
             params: Dict[str, Any] = None,
             **kwargs
             ) -> requests.Response:
-        """
-        Sends a GET request to the server.
-
-        Parameters:
-            path:   the path of the resource.
-        """
         url = self.url(path)
         return requests.get(url, params, **kwargs)
 
     def post(self, path: str, data=None, **kwargs) -> requests.Response:
         url = self.url(path)
         return requests.post(url, data, **kwargs)
+
+    def put(self, path: str, **kwargs) -> requests.Response:
+        url = self.url(path)
+        return requests.put(url, **kwargs)

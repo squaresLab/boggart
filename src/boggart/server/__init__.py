@@ -116,7 +116,7 @@ def throws_errors(func):
             return err.to_response()
         except Exception as err:
             logger.exception("encountered unexpected error while handling request: %s", err)  # noqa: pycodestyle
-            return UnexpectedServerError(err).to_response()
+            return UnexpectedServerError.from_exception(err).to_response()
     return wrapper
 
 
@@ -212,6 +212,36 @@ def list_operators():
     return jsn_op_list
 
 
+@app.route('/diff/mutations/<name_snapshot>', methods=['PUT'])
+@throws_errors
+def mutations_to_diff(name_snapshot: str):
+    """
+    Transforms a set of mutations to a given snapshot into a unified diff.
+    """
+    sources = installation.sources
+    logger.info("attempting to transform mutations into unified diff")
+    logger.debug("attempting to retrieve snapshot: %s", name_snapshot)
+    try:
+        snapshot = installation.bugzoo.bugs[name_snapshot]
+    except KeyError:
+        logger.exception("failed to find snapshot: %s", name_snapshot)
+        raise SnapshotNotFound(name_snapshot)
+
+    logger.debug("extracting mutations from payload")
+    try:
+        mutations = \
+            [Mutation.from_dict(m) for m in flask.request.json['mutations']]
+    except KeyError:
+        logger.exception("failed to transform mutations into unified diff: failed to read mutations from payload.")  # noqa: pycodestyle
+        raise BadFormat("expected a JSON-encoded list of mutations")
+    logger.debug("extracted mutations from payload")
+
+    diff = sources.mutations_to_diff(snapshot, mutations)
+    diff_s = str(diff)
+    logger.info("transformed mutations into unified diff.")
+    return diff_s, 200
+
+
 @app.route('/mutants', methods=['GET', 'POST'])
 @throws_errors
 def interact_with_mutants():
@@ -295,13 +325,13 @@ def mutations(name_snapshot: str, filepath: str):
                 extra={'arguments': args})
 
     # fetch the given snapshot
-    logger.info("attempting to retrieve snapshot: %s", name_snapshot)
+    logger.debug("attempting to retrieve snapshot: %s", name_snapshot)
     try:
         snapshot = installation.bugzoo.bugs[name_snapshot]
     except KeyError:
         logger.exception("failed to find snapshot: %s", name_snapshot)
         raise SnapshotNotFound(name_snapshot)
-    logger.info("retrieved snapshot: %s", name_snapshot)
+    logger.debug("retrieved snapshot: %s", name_snapshot)
 
     # determine the language used by the file
     if 'language' in args:

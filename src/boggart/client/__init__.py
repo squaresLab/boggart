@@ -2,7 +2,9 @@ from typing import Optional, Union, Dict, List, Iterator, Tuple, NoReturn
 import logging
 
 import requests
+from bugzoo.core.patch import Patch
 from bugzoo.core.bug import Bug
+from bugzoo.util import indent
 
 from .api import API
 from .languages import LanguageCollection
@@ -109,6 +111,31 @@ class Client(object):
                          response.text)
             err = UnexpectedResponse(response)
         raise err
+
+    def mutations_to_diff(self,
+                          snapshot: Bug,
+                          mutations: List[Mutation]
+                          ) -> Patch:
+        """
+        Transforms a given set of mutations to a snapshot into a unified diff.
+        """
+        logger.info("transforming mutations to snapshot [%s] into a diff",  # noqa: pycodestyle
+                    snapshot.name)
+        path = "diff/mutations/{}".format(snapshot.name)
+        payload = {
+            'mutations': [m.to_dict() for m in mutations]
+        }
+
+        response = self.api.put(path, json=payload)
+        if response.status_code == 200:
+            diff = Patch.from_unidiff(response.text)
+            diff_s = "[DIFF]\n{}\n[/DIFF]".format(indent(str(diff), 2))
+            logger.info("transformed mutations to snapshot [%s] to diff:\n%s",
+                        indent(diff_s, 2))
+            return diff
+        else:
+            logger.info("an error occurred whilst attempting to transform mutations to snapshot into a diff.")  # noqa: pycodestyle
+            self.__handle_error_response(response)
 
     def mutations(self,
                   snapshot: Bug,

@@ -93,7 +93,9 @@ class Installation(object):
         self.__config = config
         self.__bugzoo = client_bugzoo
         self.__rooibos = client_rooibos
-        self.__sources = SourceFileManager(client_bugzoo)
+        self.__sources = SourceFileManager(client_bugzoo,
+                                           client_rooibos,
+                                           config.operators)
         self.__mutants = MutantManager(client_bugzoo,
                                        client_rooibos,
                                        config.operators,

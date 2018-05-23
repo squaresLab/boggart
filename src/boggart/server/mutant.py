@@ -1,7 +1,6 @@
 # TODO mutants are killed when the server is killed
 from typing import List, Iterator, Dict
 from uuid import UUID, uuid4
-from difflib import unified_diff
 import tempfile
 import logging
 
@@ -94,89 +93,39 @@ class MutantManager(object):
             "higher-order mutation is currently unsupported"
 
         # NOTE this is *incredibly* unlikely to conflict
-        logging.debug("Generating UUID for mutant...")
+        logging.debug("generating UUID for mutant...")
         uuid = uuid4()
-        logger.debug("Generated UUID for mutant: %s", uuid.hex)
+        logger.debug("generated UUID for mutant: %s", uuid.hex)
         try:
             assert uuid not in self.__mutants, "UUID already in use."
         except AssertionError:
-            logger.exception("Automatically generated UUID is already in use: %s",  # noqa: pycodestyle
+            logger.exception("automatically generated UUID is already in use: %s",  # noqa: pycodestyle
                              uuid)
             raise
-        logger.debug("Constructing mutation description...")
+        logger.debug("constructing mutation description...")
         mutant = Mutant(uuid, snapshot.name, mutations)
-        logger.debug("Constructed mutant description: %s", mutant)
+        logger.debug("constructed mutant description: %s", mutant)
 
-        # group mutations by file
-        logger.debug("Grouping mutations by file")
-        file_mutations = {}  # type: Dict[str, List[Mutation]]
-        for mutation in mutant.mutations:
-            location = mutation.location
-            filename = location.filename
-
-            if filename not in file_mutations:
-                file_mutations[filename] = []
-            file_mutations[filename].append(mutation)
-        logger.debug("Grouped mutations by file: %s", file_mutations)
-
-        # transform each mutation into a replacement and group by file
-        logger.debug("Transforming mutations into replacements")
-        replacements_in_file = {}  # type: Dict[str, List[Replacement]]
-        for mutation in mutant.mutations:
-            location = mutation.location
-            filename = location.filename
-            if filename not in replacements_in_file:
-                replacements_in_file[filename] = []
-
-            operator = self.__operators[mutation.operator]
-            transformation = \
-                operator.transformations[mutation.transformation_index]
-            text_mutated = self.__rooibos.substitute(transformation.rewrite,
-                                                     mutation.arguments)
-
-            replacement = Replacement(location, text_mutated)
-            logger.info("Transformed mutation, %s, to replacement: %s",
-                        mutation,
-                        replacement)
-            replacements_in_file[filename].append(replacement)
-        logger.debug("Transformed mutations to replacements: %s",
-                     replacements_in_file)
-
-        # transform the replacements to a diff
-        logger.debug("Transforming replacements to diff")
-        file_diffs = []  # type: List[str]
-        for filename in replacements_in_file:
-            original = self.__sources.read_file(snapshot, filename)
-            mutated = self.__sources.apply(snapshot,
-                                           filename,
-                                           replacements_in_file[filename])
-            diff = ''.join(unified_diff(original.splitlines(True),
-                                        mutated.splitlines(True),
-                                        filename,
-                                        filename))
-            logger.debug("Transformed replacements to file to diff:\n%s",
-                         diff)
-            file_diffs.append(diff)
-        diff_s = '\n'.join(file_diffs)
-        logger.info("Transformed mutations to diff:\n%s", diff_s)
-        mutant_diff = Patch.from_unidiff('\n'.join(file_diffs))
+        # generate a diff for the mutant
+        logger.debug("generating a unified diff for mutant")
+        diff = \
+            self.__sources.mutations_to_diff(snapshot, list(mutant.mutations))
+        logger.debug("generated unified diff for mutant")
 
         # generate the Docker image on the BugZoo server
-        logger.debug("Provisioning container to persist mutant as a snapshot")
+        logger.debug("provisioning container to persist mutant as a snapshot")
         container = bz.containers.provision(snapshot)
-        logger.debug("Provisioned container, %s, for mutant, %s",
-                     container.uid,
-                     mutant.uuid.hex)
+        logger.debug("provisioned container [%s] for mutant [%s].",
+                     container.uid, mutant.uuid.hex)
         try:
-            logger.debug("Applying mutation patch to original source code.")
+            logger.debug("applying mutation patch to original source code.")
             bz.containers.patch(container, diff)
-            logger.debug("Applied mutation patch to original source code.")
+            logger.debug("applied mutation patch to original source code.")
             bz.containers.persist(container, mutant.docker_image)
         finally:
             del bz.containers[container.uid]
-            logger.debug("Destroyed temporary container, %s, for mutant, %s",
-                         container.uid,
-                         mutant.uuid.hex)
+            logger.debug("destroyed temporary container [%s] for mutant [%s].",
+                         container.uid, mutant.uuid.hex)
 
         # build and register a BugZoo snapshot
         files_to_instrument = snapshot.files_to_instrument

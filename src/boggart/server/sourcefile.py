@@ -1,10 +1,14 @@
 from typing import Dict, Tuple, List
+from difflib import unified_diff
 import logging
 
+from bugzoo.core.patch import Patch
 from bugzoo.core.bug import Bug
 from bugzoo.client import Client as BugZooClient
+from rooibos import Client as RooibosClient
 
-from ..core import FileLocationRange, Replacement
+from ..config.operators import Operators as OperatorManager
+from ..core import FileLocationRange, Replacement, Mutation
 from ..exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -13,8 +17,14 @@ __all__ = ['SourceFileManager']
 
 
 class SourceFileManager(object):
-    def __init__(self, client_bugzoo: BugZooClient) -> None:
+    def __init__(self,
+                 client_bugzoo: BugZooClient,
+                 client_rooibos: RooibosClient,
+                 operators: OperatorManager
+                 ) -> None:
         self.__bugzoo = client_bugzoo
+        self.__rooibos = client_rooibos
+        self.__operators = operators
         self.__cache_file_contents = {}  # type: Dict[Tuple[str, str], str]
         self.__cache_offsets = {}  # type: Dict[Tuple[str, str], List[int]]
 
@@ -77,6 +87,99 @@ class SourceFileManager(object):
                      line_col_s,
                      offset)
         return offset
+
+    def mutations_to_diff(self,
+                          snapshot: Bug,
+                          mutations: List[Mutation]
+                          ) -> Patch:
+        """
+        Transforms a list of mutations to a given snapshot into a unified diff
+        that can be applied to that snapshot.
+        """
+        replacements = self.mutations_to_replacements(snapshot, mutations)
+        diff = self.replacements_to_diff(snapshot, replacements)
+        return diff
+
+    def mutations_to_replacements(self,
+                                  snapshot: Bug,
+                                  mutations: List[Mutation]
+                                  ) -> Dict[str, List[Replacement]]:
+        """
+        Transforms a list of mutations to a given snapshot into a set of
+        source code replacements.
+
+        Parameters:
+            snapshot: the snapshot to which the mutations should be applied.
+            mutations: the mutations to apply to the snapshot.
+
+        Returns:
+            a mapping from (modified) files in the snapshot, given by their
+            paths relative to the source directory for the snapshot, to a list
+            of source code replacements in that file.
+        """
+        logger.debug("transforming mutations into replacements")
+        file_to_replacements = {}  # type: Dict[str, List[Replacement]]
+        for mutation in mutations:
+            fn = mutation.location.filename
+            if fn not in file_to_replacements:
+                file_to_replacements[fn] = []
+            replacement = self.mutation_to_replacement(snapshot, mutation)
+            file_to_replacements[fn].append(replacement)
+        logger.debug("transformed mutations to replacements: %s",
+                     file_to_replacements)
+        return file_to_replacements
+
+    def mutation_to_replacement(self,
+                                snapshot: Bug,
+                                mutation: Mutation
+                                ) -> Replacement:
+        """
+        Transforms a given mutation to a snapshot into a replacement.
+        """
+        logger.debug("transforming mutation [%s] to replacement.", mutation)
+        operator = self.__operators[mutation.operator]
+        transformation = \
+            operator.transformations[mutation.transformation_index]
+        text_mutated = self.__rooibos.substitute(transformation.rewrite,
+                                                 mutation.arguments)
+        replacement = Replacement(mutation.location, text_mutated)
+        logger.debug("transformed mutation [%s] to replacement [%s].",
+                     mutation, replacement)
+        return replacement
+
+    def replacements_to_diff(self,
+                             snapshot: Bug,
+                             file_to_replacements: Dict[str, List[Replacement]]
+                             ) -> Patch:
+        """
+        Transforms a set of replacements into a unified diff for a given
+        snapshot.
+
+        Parameters:
+            snapshot: the snapshot to which the replacements should be
+                applied.
+            file_to_replacements: a mapping from files, indexed by their path
+                relative to the source directory for the snapshot, to
+                replacements in that file.
+
+        Returns:
+            a unified diff that applies all of the given replacements to the
+            source code for the given snapshot.
+        """
+        logger.debug("transforming replacements to diff")
+        file_diffs = []  # type: List[str]
+        for (filename, replacements) in file_to_replacements.items():
+            original = self.read_file(snapshot, filename)
+            mutated = self.apply(snapshot, filename, replacements)
+            diff = ''.join(unified_diff(original.splitlines(True),
+                                        mutated.splitlines(True),
+                                        filename, filename))
+            logger.debug("transformed replacements to file to diff:\n%s", diff)
+            file_diffs.append(diff)
+        diff_s = '\n'.join(file_diffs)
+        logger.debug("transformed mutations to diff:\n%s", diff_s)
+        diff = Patch.from_unidiff('\n'.join(file_diffs))
+        return diff
 
     def read_file(self, snapshot: Bug, filepath: str) -> str:
         """
