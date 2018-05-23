@@ -31,6 +31,9 @@ class Language(object):
                self.name == other.name and \
                list(self.file_endings) == list(other.file_endings)
 
+    def __repr__(self) -> str:
+        return "Language({self.name})".format(self=self)
+
     @property
     def name(self) -> str:
         """

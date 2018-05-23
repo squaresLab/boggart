@@ -24,6 +24,9 @@ class Transformation(object):
         self.__match = match
         self.__rewrite = rewrite
 
+    def __repr__(self) -> str:
+        return "Transformation({}, {})".format(self.match, self.rewrite)
+
     def __hash__(self) -> int:
         return hash((self.match, self.rewrite))
 

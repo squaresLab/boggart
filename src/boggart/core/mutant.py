@@ -39,6 +39,11 @@ class Mutant(object):
         self.__base = base
         self.__mutations = mutations
 
+    def __repr__(self) -> str:
+        return "Mutant({}, {}, {})".format(self.uuid,
+                                           self.base,
+                                           repr(self.mutations))
+
     @property
     def uuid(self) -> UUID:
         """

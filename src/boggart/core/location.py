@@ -33,6 +33,9 @@ class Location(object):
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
 
+    def __repr__(self) -> str:
+        return "Location({})".format(str(self))
+
 
 class LocationRange(object):
     """
@@ -71,6 +74,9 @@ class LocationRange(object):
     def __str__(self) -> str:
         return "{}::{}".format(self.start, self.stop)
 
+    def __repr__(self) -> str:
+        return "LocationRange({})".format(str(self))
+
     to_string = __str__
 
 
@@ -98,6 +104,9 @@ class FileLocationRange(LocationRange):
     def __str__(self) -> str:
         str_range = super().__str__()
         return "{}@{}".format(self.filename, str_range)
+
+    def __repr__(self) -> str:
+        return "FileLocationRange({})".format(str(self))
 
     to_string = __str__
 

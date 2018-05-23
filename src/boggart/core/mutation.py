@@ -52,6 +52,12 @@ class Mutation(object):
         self.__at = at
         self.__args = dict(args)
 
+    def __repr__(self) -> str:
+        return "Mutation({}, {}, {}, {})".format(self.operator,
+                                                 self.transformation_index,
+                                                 repr(self.at),
+                                                 repr(self.arguments))
+
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, Mutation) and \
                self.operator == other.operator and \
