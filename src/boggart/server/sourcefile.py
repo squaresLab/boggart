@@ -28,7 +28,7 @@ class SourceFileManager(object):
         self.__cache_file_contents = {}  # type: Dict[Tuple[str, str], str]
         self.__cache_offsets = {}  # type: Dict[Tuple[str, str], List[int]]
 
-    def __line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
+    def _line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
         """
         Returns a list specifying the offset for the first character on each
         line in a given file belonging to a BugZoo snapshot.
@@ -74,15 +74,17 @@ class SourceFileManager(object):
         Transforms a line-column number for a given file belonging to a
         BugZoo snapshot into a zero-indexed character offset.
         """
+        assert line_num > 0
+        assert col_num >= 0
         line_col_s = "%s/%s[%d:%d]".format(snapshot.name,
                                            filepath,
                                            line_num,
                                            col_num)
         logger.debug("Transforming line-column, '%s', into a character offset",  # noqa: pycodestyle
                      line_col_s)
-        line_offsets = self.__line_offsets(snapshot, filepath)
+        line_offsets = self._line_offsets(snapshot, filepath)
         line_starts_at = line_offsets[line_num - 1]
-        offset = line_starts_at + col_num - 1
+        offset = line_starts_at + col_num
         logger.debug("Transformed line-column, '%s', into character offset: %s",  # noqa: pycodestyle
                      line_col_s,
                      offset)
@@ -252,12 +254,10 @@ class SourceFileManager(object):
         # TODO ensure all replacements are in the same file
         # TODO sort replacements by the start of their affected character range
         # TODO ensure no replacements are conflicting
-        logger.debug("Applying replacements to source file, '%s/%s': %s",
-                     snapshot.name, filename,
-                     replacements)
+        logger.debug("applying replacements to source file, '%s/%s': %s",
+                     snapshot.name, filename, replacements)
         content = self.read_file(snapshot, filename)
         for replacement in replacements:
-            # convert location to character offset range
             location = replacement.location
             start_at = self.line_col_to_offset(snapshot,
                                                filename,
@@ -268,8 +268,8 @@ class SourceFileManager(object):
                                               location.stop.line,
                                               location.stop.column)
             content = \
-                content[:start_at] + replacement.text + content[stop_at + 1:]
-        logger.debug("Applied replacements to source file, '%s/%s': %s:\n%s",
+                content[:start_at] + replacement.text + content[stop_at:]
+        logger.debug("applied replacements to source file, '%s/%s': %s:\n%s",
                      snapshot.name, filename,
                      replacements,
                      content)
