@@ -104,6 +104,6 @@ class Mutation(object):
         return {
             'operator': self.operator,
             'transformation-index': self.transformation_index,
-            'location': self.location.to_string(),
+            'location': str(self.location),
             'arguments': self.arguments
         }
