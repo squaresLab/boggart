@@ -19,6 +19,7 @@ setuptools.setup(
     install_requires=[
         'bugzoo>=2.1.3',
         'rooibos>=0.3.0',
+        'attrs>=17.2.0',
         'pyyaml',
         'requests>=2.0.0',
         'flask>=0.10',

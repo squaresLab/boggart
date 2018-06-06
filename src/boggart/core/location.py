@@ -1,44 +1,31 @@
 from typing import Any
 
+import attr
+
 from bugzoo.core.fileline import FileLine
 
 __all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine']
 
 
+@attr.s(frozen=True)
 class Location(object):
     @staticmethod
     def from_string(s: str) -> 'Location':
         line, _, col = s.partition(':')
         return Location(int(line), int(col))
 
-    def __init__(self, line: int, col: int) -> None:
-        self.__line = line
-        self.__col = col
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Location) and \
-               self.line == other.line and \
-               self.col == other.col
-
-    @property
-    def line(self) -> int:
-        return self.__line
+    line = attr.ib(type=int)
+    col = attr.ib(type=int)
 
     @property
     def column(self) -> int:
-        return self.__col
-
-    @property
-    def col(self) -> int:
-        return self.__col
+        return self.col
 
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
 
-    def __repr__(self) -> str:
-        return "Location({})".format(str(self))
 
-
+@attr.s(frozen=True)
 class LocationRange(object):
     """
     Captures a continuous range of source code locations.
@@ -50,39 +37,15 @@ class LocationRange(object):
         stop = Location.from_string(stop_s)
         return LocationRange(start, stop)
 
-    def __init__(self, start: Location, stop: Location) -> None:
-        self.__start = start
-        self.__stop = stop
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, LocationRange) and \
-               self.start == other.start and \
-               self.stop == other.stop
-
-    @property
-    def start(self) -> Location:
-        """
-        The location that marks the start of this range.
-        """
-        return self.__start
-
-    @property
-    def stop(self) -> Location:
-        """
-        The location that marks the end of this range (inclusive).
-        """
-        return self.__stop
+    start = attr.ib(type=Location)
+    stop = attr.ib(type=Location)
 
     def __str__(self) -> str:
         return "{}::{}".format(self.start, self.stop)
 
-    def __repr__(self) -> str:
-        return "LocationRange({})".format(str(self))
 
-    to_string = __str__
-
-
-class FileLocationRange(LocationRange):
+@attr.s(frozen=True)
+class FileLocationRange(object):
     """
     Represents a contiguous sequence of characters in a particular file.
     """
@@ -94,27 +57,9 @@ class FileLocationRange(LocationRange):
         stop = Location.from_string(stop_s)
         return FileLocationRange(filename, start, stop)
 
-    def __init__(self, filename: str, start: Location, stop: Location) -> None:
-        super().__init__(start, stop)
-        self.__filename = filename
-
-    def __eq__(self, other: Any) -> bool:
-        return isinstance(other, FileLocationRange) and \
-               self.filename == other.filename and \
-               super().__eq__(other)
+    filename = attr.ib(type=str)
+    start = attr.ib(type=Location)
+    stop = attr.ib(type=Location)
 
     def __str__(self) -> str:
-        str_range = super().__str__()
-        return "{}@{}".format(self.filename, str_range)
-
-    def __repr__(self) -> str:
-        return "FileLocationRange({})".format(str(self))
-
-    to_string = __str__
-
-    @property
-    def filename(self) -> str:
-        """
-        The name of the file to which the character range belongs.
-        """
-        return self.__filename
+        return "{}@{}::{}".format(self.filename, self.start, self.stop)
