@@ -1,6 +1,8 @@
 from typing import Any
 
-__all__ = ['Location', 'LocationRange', 'FileLocationRange']
+from bugzoo.core.fileline import FileLine
+
+__all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine']
 
 
 class Location(object):

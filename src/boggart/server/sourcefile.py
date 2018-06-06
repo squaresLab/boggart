@@ -8,7 +8,7 @@ from bugzoo.client import Client as BugZooClient
 from rooibos import Client as RooibosClient
 
 from ..config.operators import Operators as OperatorManager
-from ..core import FileLocationRange, Replacement, Mutation
+from ..core import FileLocationRange, Replacement, Mutation, FileLine
 from ..exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -27,6 +27,29 @@ class SourceFileManager(object):
         self.__operators = operators
         self.__cache_file_contents = {}  # type: Dict[Tuple[str, str], str]
         self.__cache_offsets = {}  # type: Dict[Tuple[str, str], List[int]]
+
+    def num_lines(self, snapshot: Bug, filepath: str) -> int:
+        """
+        Computes the number of lines that belong to a particular file in a
+        given snapshot.
+
+        Raises:
+            FileNotFound: if the given file is not found within the provided
+                snapshot.
+        """
+        return len(self._line_offsets(snapshot, filepath))
+
+    def _forget_file(self, snapshot: Bug, filepath: str) -> None:
+        """
+        Removes all stored information for a particular file belonging to a
+        given snapshot.
+        """
+        try:
+            cache_key = (snapshot.name, filepath)
+            del self.__cache_offsets[cache_key]
+            del self.__cache_file_contents[cache_key]
+        except KeyError:
+            pass
 
     def _line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
         """
@@ -218,6 +241,32 @@ class SourceFileManager(object):
 
         self.__cache_file_contents[key_cache] = contents
         return contents
+
+    def read_line(self,
+                  snapshot: Bug,
+                  location: FileLine,
+                  *,
+                  keep_newline: bool = False
+                  ) -> str:
+        """
+        Fetches the contents of a given line belonging to a particular
+        BugZoo snapshot.
+
+        Raises:
+            FileNotFound: if the file associated with the given line is
+                not found inside the snapshot.
+
+        TODO: LineNotFound
+        """
+        content_file = self.read_file(snapshot, location.filename)
+        line_offsets = self._line_offsets(snapshot, location.filename)
+        start_at = line_offsets[location.num - 1]
+        if len(line_offsets) == location.num:
+            content_line = content_file[start_at:]
+        else:
+            end_at = line_offsets[location.num]
+            content_line = content_file[start_at:end_at]
+        return content_line if keep_newline else content_line.rstrip('\n')
 
     def read_chars(self, snapshot: Bug, location: FileLocationRange) -> str:
         """

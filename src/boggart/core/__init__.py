@@ -1,5 +1,5 @@
 from .language import Language
-from .location import Location, LocationRange, FileLocationRange
+from .location import Location, LocationRange, FileLocationRange, FileLine
 from .replacement import Replacement
 from .transformation import Transformation
 from .operator import Operator
