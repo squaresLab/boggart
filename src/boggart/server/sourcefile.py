@@ -8,7 +8,7 @@ from bugzoo.client import Client as BugZooClient
 from rooibos import Client as RooibosClient
 
 from ..config.operators import Operators as OperatorManager
-from ..core import FileLocationRange, Replacement, Mutation, FileLine
+from ..core import FileLocationRange, Replacement, Mutation, FileLine, Location
 from ..exceptions import *
 
 logger = logging.getLogger(__name__)

@@ -1,8 +1,9 @@
-from .location import FileLocationRange
-
 __all__ = ['Replacement']
 
+from .location import FileLocationRange
 
+
+# FIXME: use attrs
 class Replacement(object):
     """
     Describes the replacement of a contiguous body of text in a single source
