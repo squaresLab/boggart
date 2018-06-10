@@ -131,7 +131,7 @@ class Client(object):
             diff = Patch.from_unidiff(response.text)
             diff_s = "[DIFF]\n{}\n[/DIFF]".format(indent(str(diff), 2))
             logger.info("transformed mutations to snapshot [%s] to diff:\n%s",
-                        indent(diff_s, 2))
+                        snapshot.name, indent(diff_s, 2))
             return diff
         else:
             logger.info("an error occurred whilst attempting to transform mutations to snapshot into a diff.")  # noqa: pycodestyle
