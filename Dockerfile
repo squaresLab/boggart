@@ -11,7 +11,7 @@ WORKDIR /tmp/boggart
 COPY setup.py .
 COPY tests/ tests/
 COPY src/ src/
-RUN pip install . --no-cache --upgrade \
+RUN pip install . --no-cache \
  && rm -rf /tmp/*
 
 COPY docker-entrypoint.sh /usr/bin
