@@ -51,6 +51,28 @@ class SourceFileManager(object):
         except KeyError:
             pass
 
+    def _fetch_files(self, snapshot: Bug, filepaths: List[str]) -> None:
+        """
+        Pre-emptively stores the contents of a given list of files for a
+        particular snapshot.
+        """
+        bgz = self.__bugzoo
+        container = bgz.containers.provision(snapshot)
+        try:
+            for filepath in filepaths:
+                key = (snapshot.name, filepath)
+                try:
+                    if key in self.__cache_file_contents:
+                        continue
+                    self.__cache_file_contents[key] = \
+                        bgz.files.read(container, filepath)
+                except KeyError:
+                    logger.exception("Failed to read source file, '%s/%s': file not found",  # noqa: pycodestyle
+                                     snapshot.name, filepath)
+                    raise FileNotFound(filepath)
+        finally:
+            del bgz.containers[container.uid]
+
     def _line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
         """
         Returns a list specifying the offset for the first character on each

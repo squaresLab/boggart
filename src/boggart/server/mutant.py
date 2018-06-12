@@ -7,11 +7,13 @@ import logging
 from bugzoo.core.bug import Bug
 from bugzoo.core.patch import Patch
 from bugzoo.client import Client as BugZooClient
+from bugzoo.exceptions import BugZooException
 from rooibos import Client as RooibosClient
 
 from .sourcefile import SourceFileManager
 from ..config.operators import Operators as OperatorManager
 from ..core import Mutant, Mutation, Replacement
+from ..exceptions import BuildFailure
 
 logger = logging.getLogger(__name__)
 

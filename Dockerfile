@@ -9,12 +9,11 @@ RUN apk add --no-cache python3 git gcc gfortran python3-dev build-base openblas-
 RUN ln -s locale.h /usr/include/xlocale.h \
  && pip install numpy==1.14.2 --no-cache
 
-WORKDIR /tmp/boggart
+WORKDIR /opt/boggart
 COPY setup.py .
 COPY tests/ tests/
 COPY src/ src/
-RUN pip install . --no-cache \
- && rm -rf /tmp/*
+RUN pip install . --no-cache
 
 COPY docker-entrypoint.sh /usr/bin
 RUN chmod +x /usr/bin/docker-entrypoint.sh
