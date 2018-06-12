@@ -19,7 +19,8 @@ __all__ = [
     'SnapshotNotFound',
     'ConnectionFailure',
     'BadFormat',
-    'UnexpectedServerError'
+    'UnexpectedServerError',
+    'BuildFailure'
 ]
 
 
@@ -115,6 +116,18 @@ class ClientServerError(BoggartException):
             jsn['data'] = data
         jsn = {'error': jsn}
         return jsn, self.__status_code
+
+
+class BuildFailure(ClientServerError):
+    """
+    The mutant failed to build.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'BuildFailure':
+        return BuildFailure()
+
+    def __init__(self) -> None:
+        super().__init__(400, "failed to build mutant.")
 
 
 class BadFormat(ClientServerError):
