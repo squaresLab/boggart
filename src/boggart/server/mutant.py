@@ -84,8 +84,11 @@ class MutantManager(object):
 
         Returns:
             a description of the generated mutant.
+
+        Raises:
+            BuildFailure: if the mutant failed to build.
         """
-        logger.info("Generating mutant of snapshot '%s' by applying mutations: %s",  # noqa: pycodestyle
+        logger.info("generating mutant of snapshot '%s' by applying mutations: %s",  # noqa: pycodestyle
                     snapshot.name,
                     ', '.join([repr(m) for m in mutations]))
         bz = self.__bugzoo
@@ -121,7 +124,14 @@ class MutantManager(object):
             logger.debug("applying mutation patch to original source code.")
             bz.containers.patch(container, diff)
             logger.debug("applied mutation patch to original source code.")
+            try:
+                logger.debug("attempting to build source code for mutant.")
+                outcome = bz.containers.build(container)
+                logger.debug("built source code for mutant.")
+            except BugZooException:
+                raise BuildFailure
             bz.containers.persist(container, mutant.docker_image)
+            logger.debug("persisted mutant to Docker image")
         finally:
             del bz.containers[container.uid]
             logger.debug("destroyed temporary container [%s] for mutant [%s].",
