@@ -16,6 +16,7 @@ from ..core import Language, Mutation, Operator, Mutant, FileLocationRange, \
 from ..config import Configuration, Languages, Operators
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 __all__ = ['Installation']
 
@@ -169,6 +170,7 @@ class Installation(object):
         logger.info("Computing mutations to file, '%s', in snapshot, '%s'",
                     filepath,
                     snapshot.name)
+        sources = self.sources
 
         def match_to_mutation(op_name: str,
                               transformation_index: int,
@@ -197,7 +199,7 @@ class Installation(object):
                     ', '.join([op.name for op in operators]))
 
         logger.info("Obtaining source code for specified file: %s", filepath)
-        text = self.sources.read_file(snapshot, filepath)
+        text = sources.read_file(snapshot, filepath)
         logger.info("Obtained source code for file %s:\n%s", filepath, text)
 
         if language is None:
@@ -212,5 +214,27 @@ class Installation(object):
                 logger.debug("Finding all instances of match template in source code: %s",  # noqa: pycodestyle
                              transformation.match)
                 for match in self.rooibos.matches(text, transformation.match):
-                    logger.debug("Found template match: %s", match)
-                    yield match_to_mutation(operator.name, idx, match)
+                    # FIXME this is a horrible hack
+                    offset_start = \
+                        sources.line_col_to_offset(snapshot,
+                                                   filepath,
+                                                   match.location.start.line,
+                                                   match.location.start.col)
+                    offset_stop = \
+                        sources.line_col_to_offset(snapshot,
+                                                   filepath,
+                                                   match.location.stop.line,
+                                                   match.location.stop.col)
+                    content_match = text[offset_start:offset_stop]
+
+                    logger.debug("Found possible template match:\n%s",
+                                 content_match)
+                    is_sat = \
+                        transformation.satisfies_constraints(match,
+                                                             text,
+                                                             offset_start,
+                                                             offset_stop)
+                    if is_sat:
+                        yield match_to_mutation(operator.name, idx, match)
+                    else:
+                        logger.debug("Template match doesn't satisfy transformation constraints: %s", match)  # noqa: pycodestyle

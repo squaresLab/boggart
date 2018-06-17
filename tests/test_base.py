@@ -69,7 +69,7 @@ def test_file_location_range_to_and_from_string():
 
 
 def test_transformation_serialisation():
-    expected = Transformation(':x = :y', ':y = :x')
+    expected = Transformation(':x = :y', ':y = :x', [])
     actual = Transformation.from_dict(expected.to_dict())
     assert expected == actual
 

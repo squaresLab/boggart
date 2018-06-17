@@ -416,6 +416,7 @@ def launch(port: int = 8000,
     log_to_stdout.setFormatter(log_formatter)
 
     log_main = logging.getLogger('boggart')  # type: logging.Logger
+    log_main.setLevel(logging.DEBUG)
     log_main.addHandler(log_to_stdout)
     log_main.addHandler(log_to_file)
 

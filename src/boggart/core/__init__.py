@@ -5,3 +5,4 @@ from .transformation import Transformation
 from .operator import Operator
 from .mutation import Mutation
 from .mutant import Mutant
+from .constraint import Constraint
