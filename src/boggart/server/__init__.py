@@ -275,6 +275,13 @@ def interact_with_mutants():
         return flask.jsonify(jsn_mutant), 200
 
 
+@app.route('/mutants', methods=['DELETE'])
+@throws_errors
+def clear_mutants():
+    installation.mutants.clear()
+    return '', 204
+
+
 @app.route('/mutants/<uuid_str>', methods=['GET'])
 @throws_errors
 def interact_with_mutant(uuid_hex: str):
@@ -286,7 +293,23 @@ def interact_with_mutant(uuid_hex: str):
             mutant = installation.mutants[uuid]
         except Exception:
             logger.exception("failed to find mutant: %s", uuid)
+            raise MutantNotFound(uuid_hex)
         return flask.jsonify(mutant.to_dict()), 200
+
+
+@app.route('/mutants/<uuid_str>', methods=['DELETE'])
+@throws_errors
+def delete_mutant(uuid_hex: str):
+    uuid = UUID(hex=uuid_hex)
+
+    logger.info("destroying mutant: %s", uuid_hex)
+    try:
+        mutant = installation.mutants[uuid]
+        logger.info("destroyed mutant: %s", uuid_hex)
+    except Exception:
+        logger.exception("failed to find mutant: %s", uuid_hex)
+        raise MutantNotFound(uuid_hex)
+    return flask.jsonify(mutant.to_dict()), 200
 
 
 @app.route('/mutations/<name_snapshot>/<path:filepath>', methods=['GET'])
@@ -429,9 +452,12 @@ def launch(port: int = 8000,
                 url_rooibos)
     client_rooibos = rooibos.Client(url_rooibos, timeout_connection=60)
     logger.info("connected to Rooibos server")
-    installation = Installation.load(client_bugzoo, client_rooibos)
-    logger.info("launching HTTP server at %s:%d", host, port)
-    app.run(port=port, host=host, debug=debug)
+    try:
+        installation = Installation.load(client_bugzoo, client_rooibos)
+        logger.info("launching HTTP server at %s:%d", host, port)
+        app.run(port=port, host=host, debug=debug)
+    finally:
+        installation.mutants.clear()
 
 
 def main() -> None:

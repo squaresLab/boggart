@@ -74,7 +74,7 @@ class PrecededBy(Constraint):
         return PrecededBy(d['any-of'])
 
     options = attr.ib(type=FrozenSet[str],
-                      converter=frozenset)
+                      converter=frozenset)  # type: ignore
 
     def is_satisfied_by(self,
                         match: Match,

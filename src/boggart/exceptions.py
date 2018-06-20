@@ -16,6 +16,7 @@ __all__ = [
     'BadConfigFile',
     'IllegalConfig',
     'FileNotFound',
+    'MutantNotFound',
     'SnapshotNotFound',
     'ConnectionFailure',
     'BadFormat',
@@ -330,6 +331,36 @@ class SnapshotNotFound(ClientServerError):
     @property
     def data(self) -> Dict[str, Any]:
         return {'name': self.name}
+
+
+class MutantNotFound(ClientServerError):
+    """
+    Used to indicate that the requested file was not found.
+    """
+    @staticmethod
+    def from_data(data: dict) -> 'MutantNotFound':
+        assert 'uuid' in data
+        return MutantNotFound(data['uuid'])
+
+    def __init__(self,
+                 uuid: str,
+                 *,
+                 status_code: int = 404
+                 ) -> None:
+        self.__uuid = uuid
+        msg = "mutant not found: {}".format(uuid)
+        super().__init__(status_code, msg)
+
+    @property
+    def uuid(self) -> str:
+        """
+        The UUID of the missing mutant.
+        """
+        return self.__uuid
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return {'uuid': self.uuid}
 
 
 class FileNotFound(ClientServerError):

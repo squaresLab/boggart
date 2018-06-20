@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Any
+from typing import Dict, Union, List, Any, NoReturn
 from urllib.parse import urljoin, urlparse
 from timeit import default_timer as timer
 import time
@@ -6,7 +6,9 @@ import logging
 
 import requests
 
-from ..exceptions import ConnectionFailure
+from ..exceptions import ConnectionFailure, \
+                         ClientServerError, \
+                         UnexpectedResponse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -74,6 +76,31 @@ class API(object):
         """
         return self.__base_url
 
+    def handle_erroneous_response(self,
+                                  response: requests.Response
+                                  ) -> NoReturn:
+        """
+        Attempts to decode an erroneous response into an exception, and to
+        subsequently throw that exception.
+
+        Raises:
+            ClientServerError: the exception described by the error response.
+            UnexpectedResponse: if the response cannot be decoded to an
+                exception.
+        """
+        logger.debug("handling erroneous response [%d]:\n%s",
+                     response.status_code,
+                     response.text)
+        try:
+            err = ClientServerError.from_dict(response.json())
+            logger.debug("parsed erroneous response to: %s", repr(err))
+        except Exception:
+            logger.debug("unexpected response [%d]:\n%s",
+                         response.status_code,
+                         response.text)
+            err = UnexpectedResponse(response)
+        raise err
+
     def url(self, path: str) -> str:
         """
         Computes the URL to a resource located at a given path on the server.
@@ -95,3 +122,7 @@ class API(object):
     def put(self, path: str, **kwargs) -> requests.Response:
         url = self.url(path)
         return requests.put(url, **kwargs)
+
+    def delete(self, path: str, **kwargs) -> requests.Response:
+        url = self.url(path)
+        return requests.delete(url, **kwargs)

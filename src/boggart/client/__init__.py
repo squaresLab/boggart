@@ -1,7 +1,6 @@
-from typing import Optional, Union, Dict, List, Iterator, Tuple, NoReturn
+from typing import Optional, Union, Dict, List, Iterator, Tuple
 import logging
 
-import requests
 from bugzoo.core.patch import Patch
 from bugzoo.core.bug import Bug
 from bugzoo.util import indent
@@ -9,6 +8,7 @@ from bugzoo.util import indent
 from .api import API
 from .languages import LanguageCollection
 from .operators import OperatorCollection
+from .mutants import MutantCollection
 from ..exceptions import *
 from ..core import Operator, Language, Mutation, Mutant
 
@@ -45,6 +45,7 @@ class Client(object):
                          timeout_connection=timeout_connection)
         self.__languages = LanguageCollection(api=self.api)
         self.__operators = OperatorCollection(api=self.api)
+        self.__mutants = MutantCollection(api=self.api)
         logger.info("registered languages: %s",
                     ', '.join([l.name for l in self.__languages]))
         logger.info("registered operators: %s",
@@ -83,34 +84,18 @@ class Client(object):
         return self.__languages
 
     @property
+    def mutants(self) -> MutantCollection:
+        """
+        The set of mutants that are registered with the server.
+        """
+        return self.__mutants
+
+    @property
     def operators(self) -> OperatorCollection:
         """
         The set of mutation operators that are supported by the server.
         """
         return self.__operators
-
-    def __handle_error_response(self, response: requests.Response) -> NoReturn:
-        """
-        Attempts to decode an erroneous response into an exception, and to
-        subsequently throw that exception.
-
-        Raises:
-            ClientServerError: the exception described by the error response.
-            UnexpectedResponse: if the response cannot be decoded to an
-                exception.
-        """
-        logger.debug("handling erroneous response [%d]:\n%s",
-                     response.status_code,
-                     response.text)
-        try:
-            err = ClientServerError.from_dict(response.json())
-            logger.debug("parsed erroneous response to: %s", repr(err))
-        except Exception:
-            logger.debug("unexpected response [%d]:\n%s",
-                         response.status_code,
-                         response.text)
-            err = UnexpectedResponse(response)
-        raise err
 
     def mutations_to_diff(self,
                           snapshot: Bug,
@@ -135,7 +120,7 @@ class Client(object):
             return diff
         else:
             logger.info("an error occurred whilst attempting to transform mutations to snapshot into a diff.")  # noqa: pycodestyle
-            self.__handle_error_response(response)
+            self.__api.handle_erroneous_response(response)
 
     def mutations(self,
                   snapshot: Bug,
@@ -194,7 +179,7 @@ class Client(object):
                 yield mutation
         else:
             logger.info("An error occurred whilst attempting to find mutations.")  # noqa: pycodestyle
-            self.__handle_error_response(response)
+            self.__api.handle_erroneous_response(response)
 
     def mutate(self,
                snapshot: Bug,
@@ -229,4 +214,4 @@ class Client(object):
             return mutant
         else:
             logger.info("An error occurred whilst attempting to mutate snapshot.")  # noqa: pycodestyle
-            self.__handle_error_response(response)
+            self.__api.handle_erroneous_response(response)

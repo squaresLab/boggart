@@ -31,6 +31,20 @@ class MutantManager(object):
         self.__operators = operators
         self.__sources = sources
 
+    def clear(self) -> None:
+        """
+        Destroys all mutants that are registered with this manager.
+        """
+        logger.info("destroying all registered mutants")
+        try:
+            uuids = list(self)
+            for uuid in uuids:
+                del self[uuid]
+        except Exception:
+            logger.exception("failed to destroy all registered mutants")
+            raise
+        logger.info("destroyed all registered mutants")
+
     def __iter__(self) -> Iterator[UUID]:
         """
         Returns an iterator over the UUIDs of the mutants that are currently
