@@ -56,7 +56,7 @@ class IsSingleTerm(Constraint):
             return False
 
         content = match.environment[self.hole].fragment.strip()
-        return ' ' not in content
+        return not any(c.isspace() for c in content)
 
     def to_dict(self) -> Dict[str, Any]:
         return {'type': 'is-single-term',
