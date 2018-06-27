@@ -1,4 +1,4 @@
-__all__ = ['Constraint']
+__all__ = ['Constraint', 'IsSingleTerm', 'PrecededBy']
 
 from typing import Any, Dict, FrozenSet
 import attr

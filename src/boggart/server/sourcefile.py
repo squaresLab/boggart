@@ -244,8 +244,8 @@ class SourceFileManager(object):
         key_cache = (snapshot.name, filepath)
         if key_cache in self.__cache_file_contents:
             contents = self.__cache_file_contents[key_cache]
-            logger.debug("Found contents of source file, '%s/%s', in cache: %s",  # noqa: pycodestyle
-                         snapshot.name, filepath, contents)
+            logger.debug("Found contents of source file, '%s/%s', in cache.",  # noqa: pycodestyle
+                         snapshot.name, filepath)
             return contents
 
         logger.debug("Provisioning a temporary container to fetch contents of file")  # noqa: pycodestyle
@@ -258,8 +258,8 @@ class SourceFileManager(object):
             raise FileNotFound(filepath)
         finally:
             del bgz.containers[container.uid]
-        logger.debug("Read contents of source file, '%s/%s':\n%s",  # noqa: pycodestyle
-                     snapshot.name, filepath, contents)
+        logger.debug("Read contents of source file, '%s/%s'",
+                     snapshot.name, filepath)
 
         self.__cache_file_contents[key_cache] = contents
         return contents
@@ -298,8 +298,8 @@ class SourceFileManager(object):
         Raises:
             FileNotFound: if the given file is not found inside the snapshot.
         """
-        logger.debug("Reading characters at %s in snapshot, %s",
-                     location, snapshot.name)
+        # logger.debug("Reading characters at %s in snapshot, %s",
+        #              location, snapshot.name)
         filename = location.filename
         contents_file = self.read_file(snapshot, filename)
 
@@ -313,8 +313,8 @@ class SourceFileManager(object):
                                           location.stop.column)
 
         contents = contents_file[start_at:stop_at + 1]
-        logger.debug("Read characters at %s in snapshot, %s: %s",
-                     location, snapshot.name, contents)
+        # logger.debug("Read characters at %s in snapshot, %s: %s",
+        #              location, snapshot.name, contents)
         return contents
 
     def apply(self,
@@ -340,8 +340,6 @@ class SourceFileManager(object):
                                               location.stop.column)
             content = \
                 content[:start_at] + replacement.text + content[stop_at:]
-        logger.debug("applied replacements to source file, '%s/%s': %s:\n%s",
-                     snapshot.name, filename,
-                     replacements,
-                     content)
+        logger.debug("applied replacements to source file, '%s/%s': %s",
+                     snapshot.name, filename, replacements)
         return content

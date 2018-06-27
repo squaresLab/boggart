@@ -27,8 +27,7 @@ class MutantCollection(object):
         """
         r = self.__api.delete("/mutants")
         if r.status_code != 204:
-            raise Exception("Failed to destroy all registered mutants.")
-        self.__api.handle_erroneous_response(r)
+            self.__api.handle_erroneous_response(r)
 
     def __iter__(self) -> Iterator[UUID]:
         """

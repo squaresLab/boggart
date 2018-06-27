@@ -282,7 +282,7 @@ def clear_mutants():
     return '', 204
 
 
-@app.route('/mutants/<uuid_str>', methods=['GET'])
+@app.route('/mutants/<uuid_hex>', methods=['GET'])
 @throws_errors
 def interact_with_mutant(uuid_hex: str):
     uuid = UUID(hex=uuid_hex)
@@ -297,11 +297,10 @@ def interact_with_mutant(uuid_hex: str):
         return flask.jsonify(mutant.to_dict()), 200
 
 
-@app.route('/mutants/<uuid_str>', methods=['DELETE'])
+@app.route('/mutants/<uuid_hex>', methods=['DELETE'])
 @throws_errors
 def delete_mutant(uuid_hex: str):
     uuid = UUID(hex=uuid_hex)
-
     logger.info("destroying mutant: %s", uuid_hex)
     try:
         mutant = installation.mutants[uuid]
@@ -309,7 +308,7 @@ def delete_mutant(uuid_hex: str):
     except Exception:
         logger.exception("failed to find mutant: %s", uuid_hex)
         raise MutantNotFound(uuid_hex)
-    return flask.jsonify(mutant.to_dict()), 200
+    return '', 204
 
 
 @app.route('/mutations/<name_snapshot>/<path:filepath>', methods=['GET'])

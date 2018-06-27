@@ -200,7 +200,7 @@ class Installation(object):
 
         logger.info("Obtaining source code for specified file: %s", filepath)
         text = sources.read_file(snapshot, filepath)
-        logger.info("Obtained source code for file %s:\n%s", filepath, text)
+        logger.info("Obtained source code for file %s", filepath)
 
         if language is None:
             logger.info("Attempting to automatically detect language used by file: %s",  # noqa: pycodestyle
