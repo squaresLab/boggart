@@ -10,7 +10,7 @@ from .languages import LanguageCollection
 from .operators import OperatorCollection
 from .mutants import MutantCollection
 from ..exceptions import *
-from ..core import Operator, Language, Mutation, Mutant
+from ..core import Operator, Language, Mutation, Mutant, Replacement
 
 
 logger = logging.getLogger(__name__)
@@ -120,6 +120,28 @@ class Client(object):
             return diff
         else:
             logger.info("an error occurred whilst attempting to transform mutations to snapshot into a diff.")  # noqa: pycodestyle
+            self.__api.handle_erroneous_response(response)
+
+    def mutations_to_replacements(self,
+                                  snapshot: Bug,
+                                  mutations: List[Mutation]
+                                  ) -> List[Replacement]:
+        """
+        Transforms a given set of mutations to list of replacements.
+        """
+        logger.debug("transforming mutations to snapshot [%s] into a set of replacements",  # noqa: pycodestyle
+                     snapshot.name)
+        path = "replacements/mutations/{}".format(snapshot.name)
+        payload = {
+            'mutations': [m.to_dict() for m in mutations]
+        }
+
+        response = self.api.put(path, json=payload)
+        if response.status_code == 200:
+            replacements = [Replacement.from_dict(d) for d in response.json()]
+            return replacements
+        else:
+            logger.info("an error occurred whilst attempting to transform mutations to snapshot into a set of replacements.")  # noqa: pycodestyle
             self.__api.handle_erroneous_response(response)
 
     def mutations(self,

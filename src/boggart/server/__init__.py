@@ -242,6 +242,38 @@ def mutations_to_diff(name_snapshot: str):
     return diff_s, 200
 
 
+@app.route('/replacements/mutations/<name_snapshot>', methods=['PUT'])
+@throws_errors
+def mutations_to_replacements(name_snapshot: str):
+    """
+    Transforms a set of mutations to a given snapshot into a set of
+    replacements.
+    """
+    sources = installation.sources
+    logger.info("attempting to transform mutations into a set of replacements")
+    try:
+        snapshot = installation.bugzoo.bugs[name_snapshot]
+    except KeyError:
+        logger.exception("failed to find snapshot: %s", name_snapshot)
+        raise SnapshotNotFound(name_snapshot)
+
+    logger.debug("extracting mutations from payload")
+    try:
+        mutations = \
+            [Mutation.from_dict(m) for m in flask.request.json['mutations']]
+    except KeyError:
+        logger.exception("failed to transform mutations into unified diff: failed to read mutations from payload")  # noqa: pycodestyle
+        raise BadFormat("expected a JSON-encoded list of mutations")
+    logger.debug("extracted mutations from payload")
+
+    fn_to_replacements = sources.mutations_to_replacements(snapshot, mutations)
+    replacements = [r for freps in fn_to_replacements.values() for r in freps]
+    jsn = [r.to_dict() for r in replacements]
+    logger.info("transformed mutations into a set of replacements: %s",
+                replacements)
+    return flask.jsonify(jsn), 200
+
+
 @app.route('/mutants', methods=['GET', 'POST'])
 @throws_errors
 def interact_with_mutants():
