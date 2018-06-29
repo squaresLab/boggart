@@ -153,7 +153,7 @@ class Installation(object):
                   *,
                   language: Language = None,
                   operators: List[Operator] = None,
-                  restrict_to_lines: Iterator[FileLine] = None
+                  restrict_to_lines: Optional[List[int]] = None
                   ) -> Iterator[Mutation]:
         """
         Computes all of the first-order mutations that can be applied to a
@@ -214,6 +214,10 @@ class Installation(object):
                 logger.debug("Finding all instances of match template in source code: %s",  # noqa: pycodestyle
                              transformation.match)
                 for match in self.rooibos.matches(text, transformation.match):
+                    line = match.location.start.line
+                    if restrict_to_lines and line not in restrict_to_lines:
+                        continue
+
                     # FIXME this is a horrible hack
                     offset_start = \
                         sources.line_col_to_offset(snapshot,

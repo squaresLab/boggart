@@ -189,6 +189,8 @@ class Client(object):
             params['language'] = language.name
         if operators:
             params['operators'] = ';'.join([op.name for op in operators])
+        if restrict_to_lines:
+            params['lines'] = ';'.join(map(str, sorted(restrict_to_lines)))
 
         response = self.api.get(path, params)
 

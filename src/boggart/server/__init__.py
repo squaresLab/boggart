@@ -419,12 +419,17 @@ def mutations(name_snapshot: str, filepath: str):
         operators = list(installation.operators)
 
     # TODO implement line restriction
+    lines = None  # type: Optional[List[int]]
+    if 'lines' in args:
+        lines = [int(l) for l in args['lines'].split(';')]
+        logger.debug("restricting mutations to lines: %s", lines)
     try:
         generator_mutations = \
             installation.mutations(snapshot,
                                    filepath,
                                    language=language,
-                                   operators=operators)
+                                   operators=operators,
+                                   restrict_to_lines=lines)
         mutations = list(generator_mutations)
     except BoggartException as e:
         logger.exception("failed to find mutations due to error: %s", e.message)  # noqa: pycodestyle
