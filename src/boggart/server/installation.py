@@ -12,7 +12,7 @@ from .mutant import MutantManager
 from .sourcefile import SourceFileManager
 from ..exceptions import *
 from ..core import Language, Mutation, Operator, Mutant, FileLocationRange, \
-                   Location
+                   Location, LocationRange
 from ..config import Configuration, Languages, Operators
 
 logger = logging.getLogger(__name__)
@@ -181,7 +181,7 @@ class Installation(object):
                              match.location.start.col)
             stop = Location(match.location.stop.line,
                             match.location.stop.col)
-            location = FileLocationRange(filepath, start, stop)
+            location = FileLocationRange(filepath, LocationRange(start, stop))
 
             args = {}  # type: Dict[str, str]
             for term in match.environment:

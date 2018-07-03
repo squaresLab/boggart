@@ -59,7 +59,8 @@ def test_location_range_to_string():
 
 
 def test_file_location_range_to_and_from_string():
-    loc = FileLocationRange("foo.c", Location(1, 1), Location(3, 10))
+    loc = FileLocationRange("foo.c",
+                            LocationRange(Location(1, 1), Location(3, 10)))
     loc_s = "foo.c@1:1::3:10"
     assert str(loc) == loc_s
 

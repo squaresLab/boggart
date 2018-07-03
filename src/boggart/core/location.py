@@ -1,14 +1,18 @@
-from typing import Any
+from typing import Any, List, Dict, Iterable
 
 import attr
 
 from bugzoo.core.fileline import FileLine
 
-__all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine']
+__all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine',
+           'FileLocationRangeSet']
 
 
 @attr.s(frozen=True)
 class Location(object):
+    """
+    Represents a character location within an arbitrary file.
+    """
     @staticmethod
     def from_string(s: str) -> 'Location':
         line, _, col = s.partition(':')
@@ -23,6 +27,32 @@ class Location(object):
 
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
+
+
+@attr.s(frozen=True)
+class FileLocation(object):
+    """
+    Represents a character location within a named file.
+    """
+    filename = attr.ib(type=str)
+    location = attr.ib(type=Location)
+
+    @property
+    def col(self) -> int:
+        return self.location.col
+
+    @property
+    def line(self) -> int:
+        return self.location.line
+
+    @staticmethod
+    def from_string(s: str) -> 'FileLocation':
+        filename, _, loc_s = s.rpartition('@')
+        location = Location.from_string(loc_s)
+        return FileLocation(filename, location)
+
+    def __str__(self) -> str:
+        return "{}@{}".format(self.filename, self.location)
 
 
 @attr.s(frozen=True)
@@ -43,6 +73,16 @@ class LocationRange(object):
     def __str__(self) -> str:
         return "{}::{}".format(self.start, self.stop)
 
+    def __contains__(self, loc: Location) -> bool:
+        """
+        Determines whether a given location is contained within this range.
+        """
+        left = loc.line > self.start.line \
+            or (loc.line == self.start.line and loc.col >= self.start.col)
+        right = loc.line < self.stop.line \
+            or (loc.line == self.stop.line and loc.col < self.stop.col)
+        return left and right
+
 
 @attr.s(frozen=True)
 class FileLocationRange(object):
@@ -52,14 +92,50 @@ class FileLocationRange(object):
     @staticmethod
     def from_string(s: str) -> 'FileLocationRange':
         filename, _, s_range = s.rpartition('@')
-        start_s, _, stop_s = s_range.partition('::')
-        start = Location.from_string(start_s)
-        stop = Location.from_string(stop_s)
-        return FileLocationRange(filename, start, stop)
+        location_range = LocationRange.from_string(s_range)
+        return FileLocationRange(filename, location_range)
 
     filename = attr.ib(type=str)
-    start = attr.ib(type=Location)
-    stop = attr.ib(type=Location)
+    location_range = attr.ib(type=LocationRange)
+
+    @property
+    def start(self) -> Location:
+        return self.location_range.start
+
+    @property
+    def stop(self) -> Location:
+        return self.location_range.stop
 
     def __str__(self) -> str:
-        return "{}@{}::{}".format(self.filename, self.start, self.stop)
+        return "{}@{}".format(self.filename, self.location_range)
+
+    def __contains__(self, floc: FileLocation) -> bool:
+        """
+        Determines whether a given location is contained within this range.
+        """
+        in_file = floc.filename == self.filename
+        in_range = floc.location in self.location_range
+        return in_file and in_range
+
+
+class FileLocationRangeSet(object):
+    def __init__(self, ranges: Iterable[FileLocationRange]) -> None:
+        """
+        Represents a set of file location ranges.
+        """
+        self.__fn_to_ranges = {}  # type: Dict[str, List[FileLocationRange]]
+        for r in ranges:
+            if r.filename not in self.__fn_to_ranges:
+                self.__fn_to_ranges[r.filename] = []
+            self.__fn_to_ranges[r.filename].append(r)
+
+    def __repr__(self) -> str:
+        return "FileLocationRangeSet({})".format(self.__fn_to_ranges)
+
+    def __contains__(self, location: FileLocation) -> bool:
+        """
+        Determines whether a given file location is contained in one of the
+        ranges within this set.
+        """
+        ranges = self.__fn_to_ranges.get(location.filename, [])
+        return any(location in r for r in ranges)
