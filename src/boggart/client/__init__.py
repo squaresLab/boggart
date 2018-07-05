@@ -239,3 +239,8 @@ class Client(object):
         else:
             logger.info("An error occurred whilst attempting to mutate snapshot.")  # noqa: pycodestyle
             self.__api.handle_erroneous_response(response)
+
+    def shutdown(self) -> None:
+        r = self.__api.post("shutdown")
+        if r.status_code != 202:
+            raise Exception("failed to shutdown server")

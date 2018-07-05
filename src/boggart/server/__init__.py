@@ -6,9 +6,11 @@ import argparse
 import os
 import signal
 import subprocess
+import threading
 import logging
 import logging.handlers
 import sys
+import time
 
 import bugzoo
 import bugzoo.server
@@ -25,6 +27,7 @@ app = FlaskAPI(__name__)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+log_to_file = None  # type: Optional[logging.handlers.WatchedFileHandler]
 
 # TODO: tidy this up
 installation = None  # type: Any
@@ -118,6 +121,23 @@ def throws_errors(func):
             logger.exception("encountered unexpected error while handling request: %s", err)  # noqa: pycodestyle
             return UnexpectedServerError.from_exception(err).to_response()
     return wrapper
+
+
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    installation.mutants.clear()
+    if log_to_file:
+        log_to_file.flush()
+
+    def self_destruct() -> None:
+        wait_time = 3
+        for i in range(3, 0, -1):
+            logger.info("Closing server in %d seconds...", i)
+            time.sleep(1.0)
+        os.kill(os.getpid(), signal.SIGTERM)
+    threading.Thread(target=self_destruct).run()
+
+    return '', 202
 
 
 @app.route('/status', methods=['GET'])
