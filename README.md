@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/squaresLab/boggart.svg?branch=master)](https://travis-ci.org/squaresLab/boggart)
 [![Coverage Status](https://coveralls.io/repos/github/squaresLab/boggart/badge.svg?branch=master)](https://coveralls.io/github/squaresLab/boggart?branch=master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4fb3632c3c3c6d935e1b/maintainability)](https://codeclimate.com/github/squaresLab/boggart/maintainability)
+[![PyPI version](https://badge.fury.io/py/boggart.svg)](https://badge.fury.io/py/boggart)
 
 boggart is a microservices-based service for mutation testing of code written
 in arbitrary languages. boggart is built on top of the small-but-mighty Rooibos,

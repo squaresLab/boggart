@@ -17,6 +17,7 @@ import bugzoo.server
 import flask
 import rooibos
 from flask_api import FlaskAPI
+from bugzoo.util import report_system_resources, report_resource_limits
 
 from .installation import Installation
 from ..exceptions import *
@@ -510,6 +511,8 @@ def launch(port: int = 8000,
     logger.info("connected to Rooibos server")
     try:
         installation = Installation.load(client_bugzoo, client_rooibos)
+        report_system_resources(logger)
+        report_resource_limits(logger)
         logger.info("launching HTTP server at %s:%d", host, port)
         app.run(port=port, host=host, debug=debug)
     finally:
