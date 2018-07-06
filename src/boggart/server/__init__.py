@@ -16,6 +16,8 @@ import bugzoo
 import bugzoo.server
 import flask
 import rooibos
+import flask_api
+import requests
 from flask_api import FlaskAPI
 from bugzoo.util import report_system_resources, report_resource_limits
 
@@ -23,6 +25,7 @@ from .installation import Installation
 from ..exceptions import *
 from ..core import Language, Operator, Mutation
 from ..client import Client
+from ..version import __version__
 
 app = FlaskAPI(__name__)
 app.logger.disabled = True
@@ -502,7 +505,16 @@ def launch(port: int = 8000,
     log_main.addHandler(log_to_stdout)
     log_main.addHandler(log_to_file)
 
+    logging.getLogger('rooibos').setLevel(logging.WARNING)
+
     assert 0 <= port <= 49151
+
+    logger.info("Boggart version: %s", __version__)
+    logger.info("BugZoo version: %s", bugzoo.__version__)
+    logger.info("Rooibos version: %s", rooibos.__version__)
+    logger.info("requests version: %s", requests.__version__)
+    logger.info("Flask version: %s", flask.__version__)
+    logger.info("Flask-API version: %s", flask_api.__version__)
 
     logger.info("attempting to connect to BugZoo server: %s", url_bugzoo)
     client_bugzoo = bugzoo.client.Client(url_bugzoo)
