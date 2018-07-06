@@ -30,13 +30,13 @@ class Operators(object):
               definitions supports a language that is not contained within
               the given configuration.
         """
-        logger.info("Loading operators from definitions: %s", defs)
+        logger.debug("Loading operators from definitions: %s", defs)
         operators = base if base else Operators()
         for d in defs:
-            logger.info("Loading operator from definition: %s", d)
+            logger.debug("Loading operator from definition: %s", d)
             op = Operator.from_dict(d)
             operators = operators.add(op, languages)
-        logger.info("Loaded operators from definitions.")
+        logger.debug("Loaded operators from definitions.")
         return operators
 
     def __init__(self,
@@ -63,7 +63,7 @@ class Operators(object):
               language that is not contained within the provided collection
               of languages.
         """
-        logger.info("Adding operator to collection: %s", op)
+        logger.debug("Adding operator to collection: %s", op)
         for supported_language in op.languages:
             if supported_language not in languages:
                 logger.error("Failed to add operator, %s, to collection: language not found (%s)",  # noqa: pycodestyle
@@ -72,7 +72,7 @@ class Operators(object):
 
         ops = dict(self.__operators)
         ops[op.name] = op
-        logger.info("Added operator to collection: %s", op)
+        logger.debug("Added operator to collection: %s", op)
         return Operators(ops)
 
     def __len__(self) -> int:
@@ -85,7 +85,7 @@ class Operators(object):
         """
         An iterator over the operators contained within this collection.
         """
-        return self.__operators.values().__iter__()
+        yield from self.__operators.values()
 
     def __getitem__(self, name: str) -> Operator:
         """

@@ -23,15 +23,15 @@ class Languages(object):
         from a configuration file, together with an optionally provided
         parent (overall) configuration.
         """
-        logger.info("Loading languages from definitions: %s", defs)
+        logger.debug("Loading languages from definitions: %s", defs)
         config = base if base else Languages()
         for d in defs:
-            logger.info("Loading language from definition: %s", d)
+            logger.debug("Loading language from definition: %s", d)
             language = Language.from_dict(d)
-            logger.info("Adding loaded language to configuration: %s",
-                        language)
+            logger.debug("Adding loaded language to configuration: %s",
+                         language)
             config = config.add(language)
-        logger.info("Loaded languages from definitions.")
+        logger.debug("Loaded languages from definitions.")
         return config
 
     def __init__(self,
@@ -48,7 +48,7 @@ class Languages(object):
         Returns a variant of this collection of languages that also includes a
         given language.
         """
-        logger.info("Added language to collection: %s", language)
+        logger.debug("Added language to collection: %s", language)
         endings = set(self.supported_file_endings)
 
         # if there already exists a language with the given name, produce a
@@ -67,15 +67,14 @@ class Languages(object):
 
         languages = dict(self.__languages)
         languages[language.name] = language
-        logger.info("Added language to collection: %s", language)
+        logger.debug("Added language to collection: %s", language)
         return Languages(languages)
 
     def __iter__(self) -> Iterator[Language]:
         """
-        An iterator over the languages within this collection.
+        Returns an iterator over the languages within this collection.
         """
-        for name in self.__languages:
-            yield self.__languages[name]
+        yield from self.__languages.values()
 
     def __getitem__(self, name: str) -> Language:
         """
@@ -130,15 +129,15 @@ class Languages(object):
             LanguageNotDetected: if the language used by the filename could not
                 be automatically detected.
         """
-        logger.info("Attempting to detect language used by file: %s",
+        logger.debug("Attempting to detect language used by file: %s",
                     filename)
         _, suffix = os.path.splitext(filename)
         logger.debug("Using suffix of file, '%s': '%s'",
                      filename, suffix)
         for language in self:
             if suffix in language.file_endings:
-                logger.info("Detected language used by file, '%s': %s",
-                            filename, language)
+                logger.debug("Detected language used by file, '%s': %s",
+                             filename, language)
                 return language
         logger.error("Failed to detect language used by file: %s", filename)
         raise LanguageNotDetected(filename)

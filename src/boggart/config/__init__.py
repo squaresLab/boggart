@@ -20,9 +20,9 @@ class Configuration(object):
         """
         Loads a configuration file from a given file.
         """
-        logger.info("Loading configuration from file: %s", filename)
+        logger.debug("Loading configuration from file: %s", filename)
         config = parent if parent else Configuration()
-        logger.info("Using parent configuration: %s", config)
+        logger.debug("Using parent configuration: %s", config)
         languages = config.languages
         operators = config.operators
 
@@ -51,7 +51,7 @@ class Configuration(object):
                                 languages=languages,
                                 base=operators)
         logger.debug("Loaded operators from config file.")
-        logger.info("Loaded configuration from file: %s", filename)
+        logger.debug("Loaded configuration from file: %s", filename)
         return Configuration(languages, operators)
 
     def __init__(self,
