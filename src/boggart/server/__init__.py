@@ -25,6 +25,8 @@ from ..core import Language, Operator, Mutation
 from ..client import Client
 
 app = FlaskAPI(__name__)
+app.logger.disabled = True
+logging.getLogger('werkzeug').disabled = True
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
