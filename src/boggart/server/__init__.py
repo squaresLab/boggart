@@ -39,6 +39,19 @@ log_to_file = None  # type: Optional[logging.handlers.WatchedFileHandler]
 installation = None  # type: Any
 
 
+@app.errorhandler(Exception)
+def unexpected_error_handler(err: Exception):
+    """
+    Captures any unexpected errors.
+    """
+    logger.error("Encountered an unexpected error", err)
+    try:
+        err_report = UnexpectedServerError.from_exception(err)
+        return err_report.to_response()
+    except Exception:
+        return '', 500
+
+
 @contextmanager
 def ephemeral(*,
               url_bugzoo: str = 'http://127.0.0.1:6060',
@@ -479,7 +492,6 @@ def launch(port: int = 8000,
            url_bugzoo: str = 'http://127.0.0.1:6060',
            url_rooibos: str = 'http://host.docker.internal:8888',
            host: str = '0.0.0.0',
-           debug: bool = False,
            log_filename: Optional[str] = None,
            log_level: str = 'info'
            ) -> None:
@@ -519,9 +531,10 @@ def launch(port: int = 8000,
         log_main.addHandler(log_to_file)
 
         log_rooibos = logging.getLogger('rooibos')  # type: logging.Logger
-        log_rooibos.setLevel(logging.WARNING)
-        log_rooibos.addHandler(log_to_stdout)
-        log_rooibos.addHandler(log_to_file)
+        log_rooibos.setLevel(logging.ERROR)
+        # log_rooibos.setLevel(logging.WARNING)
+        # log_rooibos.addHandler(log_to_stdout)
+        # log_rooibos.addHandler(log_to_file)
 
     logger.info("Boggart version: %s", __version__)
     logger.info("BugZoo version: %s", bugzoo.__version__)
@@ -542,7 +555,7 @@ def launch(port: int = 8000,
         report_system_resources(logger)
         report_resource_limits(logger)
         logger.info("launching HTTP server at %s:%d", host, port)
-        app.run(port=port, host=host, debug=debug)
+        app.run(port=port, host=host, debug=False)
     finally:
         installation.mutants.clear()
 
@@ -578,15 +591,11 @@ def main() -> None:
                         type=str,
                         default='0.0.0.0',
                         help='the IP address of the host.')
-    parser.add_argument('--debug',
-                        action='store_true',
-                        help='enables debugging mode.')
     args = parser.parse_args()
 
     launch(port=args.port,
            url_bugzoo=args.bugzoo,
            url_rooibos=args.rooibos,
            host=args.host,
-           debug=args.debug,
            log_filename=args.log_file,
            log_level=args.log_level)
