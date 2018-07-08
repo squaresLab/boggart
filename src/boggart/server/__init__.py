@@ -532,9 +532,6 @@ def launch(port: int = 8000,
 
         log_rooibos = logging.getLogger('rooibos')  # type: logging.Logger
         log_rooibos.setLevel(logging.ERROR)
-        # log_rooibos.setLevel(logging.WARNING)
-        # log_rooibos.addHandler(log_to_stdout)
-        # log_rooibos.addHandler(log_to_file)
 
     logger.info("Boggart version: %s", __version__)
     logger.info("BugZoo version: %s", bugzoo.__version__)
