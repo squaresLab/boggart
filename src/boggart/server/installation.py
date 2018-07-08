@@ -198,18 +198,18 @@ class Installation(object):
         logger.info("Using mutation operators: %s",
                     ', '.join([op.name for op in operators]))
 
-        logger.info("Obtaining source code for specified file: %s", filepath)
+        logger.debug("Obtaining source code for specified file: %s", filepath)
         text = sources.read_file(snapshot, filepath)
-        logger.info("Obtained source code for file %s", filepath)
+        logger.debug("Obtained source code for file %s", filepath)
 
         if language is None:
-            logger.info("Attempting to automatically detect language used by file: %s",  # noqa: pycodestyle
-                        filepath)
+            logger.debug("Attempting to automatically detect language used by file: %s",  # noqa: pycodestyle
+                         filepath)
             language = self.languages.detect(filepath)
-        logger.info("Treating '%s' as a %s file.", filepath, language.name)
+        logger.debug("Treating '%s' as a %s file.", filepath, language.name)
 
         for operator in operators:
-            logger.info("Using operator to find mutations: %s", operator.name)
+            logger.debug("Using operator to find mutations: %s", operator.name)
             for (idx, transformation) in enumerate(operator.transformations):
                 logger.debug("Finding all instances of match template in source code: %s",  # noqa: pycodestyle
                              transformation.match)
