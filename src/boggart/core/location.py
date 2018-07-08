@@ -8,7 +8,7 @@ __all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine',
            'FileLocationRangeSet', 'FileLineSet']
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, repr=False)
 class Location(object):
     """
     Represents a character location within an arbitrary file.
@@ -28,8 +28,11 @@ class Location(object):
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
 
+    def __repr__(self) -> str:
+        return "Location({})".format(str(self))
 
-@attr.s(frozen=True)
+
+@attr.s(frozen=True, repr=False)
 class FileLocation(object):
     """
     Represents a character location within a named file.
@@ -54,8 +57,11 @@ class FileLocation(object):
     def __str__(self) -> str:
         return "{}@{}".format(self.filename, self.location)
 
+    def __repr__(self) -> str:
+        return "FileLocation({})".format(str(self))
 
-@attr.s(frozen=True)
+
+@attr.s(frozen=True, repr=False)
 class LocationRange(object):
     """
     Captures a continuous range of source code locations.
@@ -73,6 +79,9 @@ class LocationRange(object):
     def __str__(self) -> str:
         return "{}::{}".format(self.start, self.stop)
 
+    def __repr__(self) -> str:
+        return "LocationRange({})".format(str(self))
+
     def __contains__(self, loc: Location) -> bool:
         """
         Determines whether a given location is contained within this range.
@@ -84,7 +93,7 @@ class LocationRange(object):
         return left and right
 
 
-@attr.s(frozen=True)
+@attr.s(frozen=True, repr=False)
 class FileLocationRange(object):
     """
     Represents a contiguous sequence of characters in a particular file.
@@ -108,6 +117,9 @@ class FileLocationRange(object):
 
     def __str__(self) -> str:
         return "{}@{}".format(self.filename, self.location_range)
+
+    def __repr__(self) -> str:
+        return "FileLocationRange({})".format(str(self))
 
     def __contains__(self, floc: FileLocation) -> bool:
         """
