@@ -2,10 +2,10 @@ from typing import Any, List, Dict, Iterable
 
 import attr
 
-from bugzoo.core.fileline import FileLine
+from bugzoo.core.fileline import FileLine, FileLineSet
 
 __all__ = ['Location', 'LocationRange', 'FileLocationRange', 'FileLine',
-           'FileLocationRangeSet']
+           'FileLocationRangeSet', 'FileLineSet']
 
 
 @attr.s(frozen=True)
