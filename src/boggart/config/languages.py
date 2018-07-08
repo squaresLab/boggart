@@ -130,7 +130,7 @@ class Languages(object):
                 be automatically detected.
         """
         logger.debug("Attempting to detect language used by file: %s",
-                    filename)
+                     filename)
         _, suffix = os.path.splitext(filename)
         logger.debug("Using suffix of file, '%s': '%s'",
                      filename, suffix)

@@ -517,7 +517,8 @@ def launch(port: int = 8000,
             'critical': logging.CRITICAL
         })[log_level]  # type: int
 
-        log_to_file = logging.handlers.WatchedFileHandler(log_filename, mode='w')
+        log_to_file = \
+            logging.handlers.WatchedFileHandler(log_filename, mode='w')
         log_to_file.setLevel(log_level_num)
         log_to_file.setFormatter(log_formatter)
 
