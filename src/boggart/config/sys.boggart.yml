@@ -120,7 +120,11 @@ operators:
     transformations:
       - match: "if (:[1]) { return; }"
         rewrite: ""
+      - match: "if (:[1]) return;"
+        rewrite: ""
       - match: "if (:[1]) { break; }"
+        rewrite: ""
+      - match: "if (:[1]) break;"
         rewrite: ""
 
   - name: flip-signedness
