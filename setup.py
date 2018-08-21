@@ -22,6 +22,7 @@ setuptools.setup(
         'attrs>=17.2.0',
         'pyyaml',
         'requests>=2.0.0',
+        'mypy-extensions>=0.3.0',
         'flask>=0.10',
         'Flask-API'
     ],
