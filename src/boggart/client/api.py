@@ -1,4 +1,8 @@
-from typing import Dict, Union, List, Any, NoReturn
+from typing import Dict, Union, List, Any
+try:
+    from typing import NoReturn
+except ImportError:
+    from mypy_extensions import NoReturn
 from urllib.parse import urljoin, urlparse
 from timeit import default_timer as timer
 import time
