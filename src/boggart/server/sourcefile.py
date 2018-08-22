@@ -12,6 +12,7 @@ from ..core import FileLocationRange, Replacement, Mutation, FileLine, Location
 from ..exceptions import *
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 __all__ = ['SourceFileManager']
 
@@ -44,34 +45,43 @@ class SourceFileManager(object):
         Removes all stored information for a particular file belonging to a
         given snapshot.
         """
+        cache_key = (snapshot.name, filepath)
+        logger.debug("removing entry from cache: %s", cache_key)
         try:
-            cache_key = (snapshot.name, filepath)
             del self.__cache_offsets[cache_key]
             del self.__cache_file_contents[cache_key]
+            logger.debug("removed entry from cache: %s", cache_key)
         except KeyError:
-            pass
+            logger.exception("failed to remove entry from cache: %s",
+                             cache_key)
 
     def _fetch_files(self, snapshot: Bug, filepaths: List[str]) -> None:
         """
         Pre-emptively stores the contents of a given list of files for a
         particular snapshot.
         """
+        logger.debug("fetching contents of files from snapshot [%s]: %s",
+                     snapshot.name, ', '.join(list(filepaths)))
         bgz = self.__bugzoo
         container = bgz.containers.provision(snapshot)
         try:
             for filepath in filepaths:
+                logger.debug("fetching contents of file: %s", filepath)
                 key = (snapshot.name, filepath)
                 try:
                     if key in self.__cache_file_contents:
+                        logger.debug("not fetching contents of file [%s]: already stored in cache.", filepath)
                         continue
                     self.__cache_file_contents[key] = \
                         bgz.files.read(container, filepath)
+                    logger.debug("stored contents of file: %s", filepath)
                 except KeyError:
                     logger.exception("Failed to read source file, '%s/%s': file not found",  # noqa: pycodestyle
                                      snapshot.name, filepath)
                     raise FileNotFound(filepath)
         finally:
             del bgz.containers[container.uid]
+        logger.debug("finished contents of specified files")
 
     def _line_offsets(self, snapshot: Bug, filepath: str) -> List[int]:
         """
