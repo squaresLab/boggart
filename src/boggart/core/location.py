@@ -1,4 +1,4 @@
-from typing import Any, List, Dict, Iterable
+from typing import Any, List, Dict, Iterable, Iterator
 
 import attr
 
@@ -140,6 +140,10 @@ class FileLocationRangeSet(object):
             if r.filename not in self.__fn_to_ranges:
                 self.__fn_to_ranges[r.filename] = []
             self.__fn_to_ranges[r.filename].append(r)
+
+    def __iter__(self) -> Iterator[FileLocationRange]:
+        for f_ranges in self.__fn_to_ranges.values():
+            yield from f_ranges
 
     def __repr__(self) -> str:
         return "FileLocationRangeSet({})".format(self.__fn_to_ranges)
