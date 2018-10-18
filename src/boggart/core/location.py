@@ -25,6 +25,11 @@ class Location(object):
     def column(self) -> int:
         return self.col
 
+    def __le__(self, other: 'Location') -> bool:
+        if self.line == other.line:
+            return self.col < other.col
+        return self.line < other.line
+
     def __str__(self) -> str:
         return "{}:{}".format(self.line, self.column)
 

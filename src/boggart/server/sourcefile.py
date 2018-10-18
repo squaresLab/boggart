@@ -323,10 +323,12 @@ class SourceFileManager(object):
               replacements: List[Replacement]
               ) -> str:
         # TODO ensure all replacements are in the same file
-        # TODO sort replacements by the start of their affected character range
-        # TODO ensure no replacements are conflicting
         logger.debug("applying replacements to source file, '%s/%s': %s",
                      snapshot.name, filename, replacements)
+
+        # exclude conflicting replacements
+        replacements = Replacement.resolve(replacements)
+
         content = self.read_file(snapshot, filename)
         for replacement in replacements:
             location = replacement.location
