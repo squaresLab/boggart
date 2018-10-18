@@ -31,6 +31,7 @@ setuptools.setup(
     tests_require=[
         'pytest'
     ],
+    keywords=['bug', 'defect', 'mutation', 'mutant', 'testing', 'docker'],
     classifiers=[
         'Natural Language :: English',
         'Programming Language :: Python',
