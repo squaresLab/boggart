@@ -57,7 +57,8 @@ class Replacement(object):
                     i += 1
                     j += 1
                     filtered.append(y)
-            file_to_reps[fn] = reversed(filtered)
+            filtered.reverse()
+            file_to_reps[fn] = filtered
 
         # collapse into a flat sequence of transformations
         resolved = []  # type: List[Replacement]
