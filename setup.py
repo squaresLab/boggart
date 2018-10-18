@@ -12,7 +12,7 @@ setuptools.setup(
     description='Lightweight, extensible, language-independent mutation testing.',
     author='Chris Timperley',
     author_email='christimperley@gmail.com',
-    url='https://github.com/squaresLab/Hulk',
+    url='https://github.com/squaresLab/Boggart',
     license='mit',
     python_requires='>=3.5',
     install_requires=[
