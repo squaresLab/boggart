@@ -16,7 +16,7 @@ setuptools.setup(
     license='mit',
     python_requires='>=3.5',
     install_requires=[
-        'bugzoo>=2.1.16',
+        'bugzoo>=2.1.20',
         'rooibos>=0.3.0',
         'attrs>=17.2.0',
         'pyyaml',

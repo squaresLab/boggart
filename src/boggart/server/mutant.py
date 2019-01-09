@@ -154,7 +154,7 @@ class MutantManager(object):
                          container.uid, mutant.uuid.hex)
 
         # build and register a BugZoo snapshot
-        files_to_instrument = snapshot.files_to_instrument
+        instructions_coverage = snapshot.instructions_coverage
         snapshot_mutated = Bug(name=mutant.snapshot,
                                image=mutant.docker_image,
                                program=snapshot.program,
@@ -162,9 +162,9 @@ class MutantManager(object):
                                source=None,
                                source_dir=snapshot.source_dir,
                                languages=snapshot.languages,
-                               harness=snapshot.harness,
                                compiler=snapshot.compiler,
-                               files_to_instrument=files_to_instrument)
+                               tests=snapshot.tests,
+                               instructions_coverage=instructions_coverage)
         logger.debug("Registering snapshot for mutant with BugZoo: %s",
                      mutant.uuid.hex)
         bz.bugs.register(snapshot_mutated)
